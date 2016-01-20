@@ -1,0 +1,100 @@
+OBSERVER AUTOMATON AssumptionAutomaton
+
+INITIAL STATE ARG0;
+
+STATE __TRUE :
+    TRUE -> ASSUME {true} GOTO __TRUE;
+
+STATE __FALSE :
+    TRUE -> ASSUME {false} GOTO __FALSE;
+
+STATE USEFIRST ARG0 :
+    MATCH "" -> ASSUME {true} GOTO ARG1;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1 :
+    MATCH "extern void __VERIFIER_error() __attribute__ ((__noreturn__));" -> GOTO ARG1M0;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M0 :
+    MATCH "extern unsigned int __VERIFIER_nondet_uint(void);" -> GOTO ARG1M1;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M1 :
+    MATCH "extern int __VERIFIER_nondet_int(void);" -> GOTO ARG1M2;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M2 :
+    MATCH "void __VERIFIER_assert(int cond)" -> GOTO ARG1M3;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M3 :
+    MATCH "int circular_buffer[100];" -> GOTO ARG1M4;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M4 :
+    MATCH "int count = 0;" -> GOTO ARG1M5;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M5 :
+    MATCH "int start;" -> GOTO ARG1M6;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M6 :
+    MATCH "int initialized = 0;" -> GOTO ARG1M7;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M7 :
+    MATCH "void init()" -> GOTO ARG1M8;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M8 :
+    MATCH "void fill_random(int *a, int n)" -> GOTO ARG1M9;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M9 :
+    MATCH "int min (int a, int b)" -> GOTO ARG1M10;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M10 :
+    MATCH "int push(int *a, int n)" -> GOTO ARG1M11;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M11 :
+    MATCH "int pop(int *a, int n)" -> GOTO ARG1M12;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M12 :
+    MATCH "void harness(int total_pushed)" -> GOTO ARG1M13;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M13 :
+    MATCH "int main(void)" -> GOTO ARG1M14;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M14 :
+    MATCH "" -> GOTO ARG1M15;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M15 :
+    MATCH "int total_pushed = __VERIFIER_nondet_int();" -> ASSUME {true} GOTO ARG2;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG2 :
+    MATCH "int total_pushed = __VERIFIER_nondet_int();" -> ASSUME {true} GOTO ARG3;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG3 :
+    MATCH "[total_pushed < 0]" -> ASSUME {true} GOTO ARG4;
+    MATCH "[!(total_pushed < 0)]" -> ASSUME {true} GOTO __FALSE;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG4 :
+    MATCH "total_pushed = -total_pushed;" -> GOTO ARG4M0;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG4M0 :
+    MATCH "" -> ASSUME {true} GOTO __FALSE;
+    TRUE -> GOTO __TRUE;
+
+END AUTOMATON
