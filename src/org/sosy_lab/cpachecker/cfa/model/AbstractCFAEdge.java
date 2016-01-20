@@ -26,8 +26,11 @@ package org.sosy_lab.cpachecker.cfa.model;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.sosy_lab.cpachecker.cfa.ast.FileLocation;
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import org.sosy_lab.cpachecker.cfa.ast.AAstNode;
+import org.sosy_lab.cpachecker.cfa.ast.FileLocation;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -113,5 +116,26 @@ public abstract class AbstractCFAEdge implements CFAEdge {
     return getFileLocation() + ":\t" + getPredecessor() + " -{" +
         getDescription().replaceAll("\n", " ") +
         "}-> " + getSuccessor();
+  }
+
+
+  @Override
+  public String callTrace() {
+    StringBuilder b = new StringBuilder();
+    LinkedList<String> methodNames = new LinkedList<>();
+    CFAEdge current = this;
+    do {
+      if (current.getEdgeType() == CFAEdgeType.FunctionCallEdge) {
+        methodNames.add(current.getCode());
+      }
+      // TODO(rcastano): This is arbitrary, use a sensible criterion/explore all options
+      current = current.getPredecessor().getEnteringEdge(0);
+    } while (current.getPredecessor().getNumEnteringEdges() > 0);
+
+    Iterator<String> it = methodNames.descendingIterator();
+    while(it.hasNext()) {
+      b.append(it.next() + ", ");
+    }
+    return b.toString();
   }
 }

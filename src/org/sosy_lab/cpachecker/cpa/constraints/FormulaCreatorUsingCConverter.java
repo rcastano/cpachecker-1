@@ -26,6 +26,8 @@ package org.sosy_lab.cpachecker.cpa.constraints;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 
 import org.sosy_lab.common.rationals.Rational;
@@ -44,6 +46,7 @@ import org.sosy_lab.cpachecker.util.predicates.pathformula.ctoformula.CtoFormula
 import org.sosy_lab.cpachecker.util.predicates.pathformula.ctoformula.FormulaEncodingOptions;
 import org.sosy_lab.cpachecker.util.predicates.smt.FormulaManagerView;
 import org.sosy_lab.cpachecker.util.predicates.smt.NumeralFormulaManagerView;
+import org.sosy_lab.solver.AssignableTerm;
 import org.sosy_lab.solver.api.BooleanFormula;
 import org.sosy_lab.solver.api.FloatingPointFormula;
 import org.sosy_lab.solver.api.Formula;
@@ -278,6 +281,26 @@ public class FormulaCreatorUsingCConverter implements FormulaCreator {
     @Override
     public String getDescription() {
       return UNKNOWN;
+    }
+
+    @Override
+    public String callTrace() {
+      StringBuilder b = new StringBuilder();
+      LinkedList<String> methodNames = new LinkedList<>();
+      CFAEdge current = this;
+      do {
+        if (current.getEdgeType() == CFAEdgeType.FunctionCallEdge) {
+          methodNames.add(current.getCode());
+        }
+        // TODO(rcastano): This is arbitrary, use a sensible criterion/explore all options
+        current = current.getPredecessor().getEnteringEdge(0);
+      } while (current.getPredecessor().getNumEnteringEdges() > 0);
+
+      Iterator<String> it = methodNames.descendingIterator();
+      while(it.hasNext()) {
+        b.append(it.next() + ", ");
+      }
+      return b.toString();
     }
   }
 }

@@ -24,8 +24,8 @@
 package org.sosy_lab.cpachecker.cfa.model;
 
 
-import org.sosy_lab.cpachecker.cfa.ast.FileLocation;
 import org.sosy_lab.cpachecker.cfa.ast.AAstNode;
+import org.sosy_lab.cpachecker.cfa.ast.FileLocation;
 
 import com.google.common.base.Optional;
 
@@ -74,4 +74,6 @@ public interface CFAEdge {
    */
   @Override
   public String toString();
+
+  public String callTrace();
 }
