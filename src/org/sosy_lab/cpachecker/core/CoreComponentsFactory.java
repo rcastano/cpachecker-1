@@ -165,6 +165,8 @@ public class CoreComponentsFactory {
     logger.log(Level.FINE, "Creating algorithms");
 
     Algorithm algorithm;
+    GlobalConfig.setConfig(config);
+    GlobalConfig.setCFA(cfa);
 
     if (useProofCheckAlgorithm) {
       logger.log(Level.INFO, "Using Proof Check Algorithm");

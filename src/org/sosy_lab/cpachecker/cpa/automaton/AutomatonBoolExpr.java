@@ -29,7 +29,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
+import org.sosy_lab.common.configuration.Configuration;
+import org.sosy_lab.common.configuration.InvalidConfigurationException;
 import org.sosy_lab.common.log.LogManager;
+import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.cfa.ast.FileLocation;
 import org.sosy_lab.cpachecker.cfa.ast.c.CAstNode;
 import org.sosy_lab.cpachecker.cfa.model.AssumeEdge;
@@ -38,6 +41,9 @@ import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.cfa.model.FunctionEntryNode;
 import org.sosy_lab.cpachecker.cfa.model.c.CLabelNode;
+import org.sosy_lab.cpachecker.core.GlobalConfig;
+import org.sosy_lab.cpachecker.core.algorithm.counterexamplecheck.CBMCChecker;
+import org.sosy_lab.cpachecker.core.algorithm.counterexamplecheck.CounterexampleChecker;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractQueryableState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonASTComparator.ASTMatcher;
@@ -437,6 +443,60 @@ interface AutomatonBoolExpr extends AutomatonExpression {
       return "MATCH " + matchDescriptor;
     }
 
+  }
+
+  /**
+   * Check if path is feasible
+   */
+  public static class FeasibilityQuery implements AutomatonBoolExpr {
+    static CounterexampleChecker createChecker(Configuration config, LogManager logger, CFA cfa) {
+      // TODO(rcastano): support other kinds of checkers.
+      try {
+        return new CBMCChecker(config, logger, cfa);
+      } catch (InvalidConfigurationException e) {
+        // TODO(rcastano): this is awful. Find out how to handle this exception.
+      }
+      return null;
+    }
+
+    static Configuration createConfig() {
+      return Configuration.defaultConfiguration();
+    }
+
+    // static Algorithm algorithm;
+    // static ConfigurableProgramAnalysis pCpa;
+    static LogManager logger;
+    // static ShutdownNotifier pShutdownNotifier;
+    static CFA cfa;
+    // static String filename;
+    static CounterexampleChecker checker;
+
+    public static CounterexampleChecker getChecker(AutomatonExpressionArguments pArgs) {
+      initialize(pArgs);
+      return checker;
+    }
+    static void initialize(AutomatonExpressionArguments pArgs) {
+      if (checker == null) {
+        logger = pArgs.getLogger();
+        cfa = GlobalConfig.getCFA();
+        Configuration config = GlobalConfig.getConfig();
+        checker = createChecker(config, logger, cfa);
+      }
+    }
+    public FeasibilityQuery() {}
+
+    @Override
+    public ResultValue<Boolean> eval(AutomatonExpressionArguments pArgs) {
+      System.out.println("FeasibilityQuery: " + pArgs.getState().toString());
+
+      for (Object s : pArgs.getAbstractStates()) {
+        System.out.println("FeasibilityQuery: " + s.toString());
+      }
+
+//      pArgs.getState().getOwningAutomaton().getStates();
+//      getChecker(pArgs).checkCounterexample(rootState, errorState, errorPathStates)
+      return CONST_TRUE;
+    }
   }
 
   /**
