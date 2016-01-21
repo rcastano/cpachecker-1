@@ -42,6 +42,7 @@ import org.sosy_lab.common.configuration.Options;
 import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.common.time.Timer;
 import org.sosy_lab.cpachecker.core.CPAcheckerResult.Result;
+import org.sosy_lab.cpachecker.core.GlobalConfig;
 import org.sosy_lab.cpachecker.core.defaults.MergeSepOperator;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.interfaces.AlgorithmIterationListener;
@@ -236,6 +237,9 @@ public class CPAAlgorithm implements Algorithm, StatisticsProvider {
   }
 
   private AlgorithmStatus run0(final ReachedSet reachedSet) throws CPAException, InterruptedException {
+    // TODO(rcastano): refactor. Find a way not to use a global variable
+    // to pass around the reached set.
+    GlobalConfig.setReachedSet(reachedSet);
     while (reachedSet.hasWaitingState()) {
       shutdownNotifier.shutdownIfNecessary();
 
@@ -253,6 +257,8 @@ public class CPAAlgorithm implements Algorithm, StatisticsProvider {
       final AbstractState state = reachedSet.popFromWaitlist();
       final Precision precision = reachedSet.getPrecision(state);
       stats.chooseTimer.stop();
+
+      GlobalConfig.addCurrentState(state);
 
       logger.log(Level.FINER, "Retrieved state from waitlist");
       if (handleState(state, precision, reachedSet)) {
