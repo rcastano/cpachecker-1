@@ -46,7 +46,11 @@ import org.sosy_lab.cpachecker.core.algorithm.counterexamplecheck.CBMCChecker;
 import org.sosy_lab.cpachecker.core.algorithm.counterexamplecheck.CounterexampleChecker;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractQueryableState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
+import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
+import org.sosy_lab.cpachecker.cpa.arg.ARGState;
+import org.sosy_lab.cpachecker.cpa.arg.ARGUtils;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonASTComparator.ASTMatcher;
+import org.sosy_lab.cpachecker.exceptions.CPAException;
 import org.sosy_lab.cpachecker.exceptions.CPATransferException;
 import org.sosy_lab.cpachecker.exceptions.InvalidQueryException;
 import org.sosy_lab.cpachecker.exceptions.UnrecognizedCFAEdgeException;
@@ -492,10 +496,30 @@ interface AutomatonBoolExpr extends AutomatonExpression {
       for (Object s : pArgs.getAbstractStates()) {
         System.out.println("FeasibilityQuery: " + s.toString());
       }
-
+      System.out.println("/>>>");
+      if (pArgs.getAbstractStates().isEmpty()) {
+        return CONST_TRUE;
+      }
 //      pArgs.getState().getOwningAutomaton().getStates();
-//      getChecker(pArgs).checkCounterexample(rootState, errorState, errorPathStates)
-      return CONST_TRUE;
+      ReachedSet reachedSet = GlobalConfig.getReachedSet();
+      ARGState currentState = (ARGState) GlobalConfig.getCurrentState();
+      Set<ARGState> statesOnErrorPath = ARGUtils.getAllStatesOnPathsTo(currentState);
+      boolean is_feasible = false;
+      try {
+        is_feasible = getChecker(pArgs).checkCounterexample((ARGState) reachedSet.getFirstState(), currentState /* errorState */, statesOnErrorPath);
+      } catch (CPAException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+//      return CONST_TRUE;
+      if (is_feasible) {
+        return CONST_TRUE;
+      } else {
+        return CONST_FALSE;
+      }
     }
   }
 

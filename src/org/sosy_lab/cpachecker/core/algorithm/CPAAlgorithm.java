@@ -258,7 +258,7 @@ public class CPAAlgorithm implements Algorithm, StatisticsProvider {
       final Precision precision = reachedSet.getPrecision(state);
       stats.chooseTimer.stop();
 
-      GlobalConfig.addCurrentState(state);
+      GlobalConfig.setCurrentState(state);
 
       logger.log(Level.FINER, "Retrieved state from waitlist");
       if (handleState(state, precision, reachedSet)) {
