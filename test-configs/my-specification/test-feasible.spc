@@ -10,7 +10,7 @@ OBSERVER AUTOMATON ControlAutomatonTest
 INITIAL STATE Init;
 
 STATE USEALL Init :
-  (MATCH {harness($?)} || MATCH {push($?)} || MATCH {pop($?)} || MATCH{init($?)}) && (CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") || CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == bottom")) && IS_FEASIBLE -> PRINT "called some method " PRINT EVAL(location, "functionname") BREAK; // GOTO Found;
+  (IS_CALL) && (CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") || CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == bottom")) && IS_FEASIBLE -> PRINT_STACK BREAK; // GOTO Found;
 
 
 END AUTOMATON

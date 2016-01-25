@@ -450,6 +450,24 @@ interface AutomatonBoolExpr extends AutomatonExpression {
   }
 
   /**
+   * Check if current transition is a function call
+   */
+  public static class FunctionCallTest implements AutomatonBoolExpr {
+    public FunctionCallTest() {}
+
+    @Override
+    public ResultValue<Boolean> eval(AutomatonExpressionArguments pArgs) {
+      if (pArgs.getCfaEdge().getEdgeType() == org.sosy_lab.cpachecker.cfa.model.CFAEdgeType.FunctionCallEdge) {
+        return CONST_TRUE;
+      }
+      else {
+        return CONST_FALSE;
+      }
+    }
+  }
+
+
+  /**
    * Check if path is feasible
    */
   public static class FeasibilityQuery implements AutomatonBoolExpr {
@@ -491,12 +509,12 @@ interface AutomatonBoolExpr extends AutomatonExpression {
 
     @Override
     public ResultValue<Boolean> eval(AutomatonExpressionArguments pArgs) {
-      System.out.println("FeasibilityQuery: " + pArgs.getState().toString());
-
-      for (Object s : pArgs.getAbstractStates()) {
-        System.out.println("FeasibilityQuery: " + s.toString());
-      }
-      System.out.println("/>>>FeasibilityQuery ");
+//      System.out.println("FeasibilityQuery: " + pArgs.getState().toString());
+//
+//      for (Object s : pArgs.getAbstractStates()) {
+//        System.out.println("FeasibilityQuery: " + s.toString());
+//      }
+//      System.out.println("/>>>FeasibilityQuery ");
       if (pArgs.getAbstractStates().isEmpty()) {
         return CONST_TRUE;
       }

@@ -30,6 +30,7 @@ import java.util.logging.Level;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractQueryableState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonExpression.ResultValue;
+import org.sosy_lab.cpachecker.cpa.callstack.CallstackState;
 import org.sosy_lab.cpachecker.exceptions.CPATransferException;
 import org.sosy_lab.cpachecker.exceptions.InvalidQueryException;
 
@@ -87,6 +88,22 @@ abstract class AutomatonAction {
         }
       }
       pArgs.appendToLogMessage(sb.toString());
+      return defaultResultValue;
+    }
+  }
+
+  /**
+   * Logs a String when executed.
+   */
+  static class PrintStackTrace extends AutomatonAction {
+    public PrintStackTrace() {}
+
+    @Override ResultValue<?> eval(AutomatonExpressionArguments pArgs) throws CPATransferException {
+      for (Object arg : pArgs.getAbstractStates()) {
+        if (arg instanceof CallstackState) {
+          pArgs.appendToLogMessage(((CallstackState) arg).getStack() + "");
+        }
+      }
       return defaultResultValue;
     }
   }

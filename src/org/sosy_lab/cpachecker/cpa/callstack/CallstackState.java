@@ -32,13 +32,14 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.collect.Lists;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractQueryableState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.interfaces.Partitionable;
 import org.sosy_lab.cpachecker.exceptions.InvalidQueryException;
 import org.sosy_lab.cpachecker.util.globalinfo.GlobalInfo;
+
+import com.google.common.collect.Lists;
 
 public class CallstackState implements AbstractState, Partitionable, AbstractQueryableState, Serializable {
 
@@ -76,7 +77,7 @@ public class CallstackState implements AbstractState, Partitionable, AbstractQue
   }
 
   /** for logging and debugging */
-  private List<String> getStack() {
+  public List<String> getStack() {
     final List<String> stack = new ArrayList<>();
     CallstackState state = this;
     while (state != null) {

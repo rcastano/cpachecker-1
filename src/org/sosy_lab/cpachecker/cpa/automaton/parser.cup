@@ -157,7 +157,7 @@ parser code {:
 
 
 
-terminal EXCLAMATION, AND, OR, ARROW, SEMICOLON, COMMA, COLON, OPEN_BRACKETS, CLOSE_BRACKETS, AUTOMATON,OBSERVER, CONTROL, END, LOCAL, INITIAL, STATE, ERROR, STOP, EXIT, BREAK, ASSERT, ASSUME, MATCH, LABEL, CHECK, EVAL, MODIFY, DO, PRINT, GOTO, IDENTIFIER, INTEGER_LITERAL, NEQ, EQ, EQEQ, PLUS, MINUS, TRUE, FALSE, STRING_LITERAL, CURLYEXPR, SQUAREEXPR, USEALL, USEFIRST, TARGET, IS_TARGET_STATE, IS_FEASIBLE ;
+terminal EXCLAMATION, AND, OR, ARROW, SEMICOLON, COMMA, COLON, OPEN_BRACKETS, CLOSE_BRACKETS, AUTOMATON,OBSERVER, CONTROL, END, LOCAL, INITIAL, STATE, ERROR, STOP, EXIT, BREAK, ASSERT, ASSUME, MATCH, LABEL, CHECK, EVAL, MODIFY, DO, PRINT, GOTO, IDENTIFIER, INTEGER_LITERAL, NEQ, EQ, EQEQ, PLUS, MINUS, TRUE, FALSE, STRING_LITERAL, CURLYEXPR, SQUAREEXPR, USEALL, USEFIRST, TARGET, IS_TARGET_STATE, IS_FEASIBLE, IS_CALL, PRINT_STACK ;
 non terminal List<Automaton> initial ;  
 non terminal Automaton Specification ;
 non terminal Automaton Automaton ;
@@ -272,6 +272,7 @@ Actions   ::= Action:a Actions:lst {: lst.add(0,a); RESULT = lst; :} // insert a
 Action    ::= DO  IDENTIFIER:var EQ InnerInt:i   {: RESULT = new AutomatonAction.Assignment(var.toString(), i); :}
                         // InnerInt in this position allows for x = EVAL(..) Statements
             | PRINT PrintArguments:args {: RESULT = new AutomatonAction.Print(args); :}
+            | PRINT_STACK {: RESULT = new AutomatonAction.PrintStackTrace(); :}
 /*next statement is deprecated*/            
             | MODIFY OPEN_BRACKETS IDENTIFIER:cpa OPEN_BRACKETS STRING_LITERAL:query CLOSE_BRACKETS CLOSE_BRACKETS
               {: RESULT = new AutomatonAction.CPAModification(cpa.toString(), query.toString()); :}
@@ -305,6 +306,7 @@ ConstantInt ::= INTEGER_LITERAL:c  {: RESULT = new AutomatonIntExpr.Constant(c.t
 
 Bool      ::= TRUE  {: RESULT = AutomatonBoolExpr.TRUE; :}
             | FALSE  {: RESULT = AutomatonBoolExpr.FALSE; :}
+	        | IS_CALL {: RESULT = new AutomatonBoolExpr.FunctionCallTest(); :}
 	        | IS_FEASIBLE {: RESULT = new AutomatonBoolExpr.FeasibilityQuery(); :}
             | EXCLAMATION Bool:b  {: RESULT = new AutomatonBoolExpr.Negation(b); :}
             | OPEN_BRACKETS Bool:b CLOSE_BRACKETS {: RESULT = b; :}
