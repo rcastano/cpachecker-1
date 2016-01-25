@@ -67,7 +67,9 @@ public class AutomatonInternalState {
   /** Outgoing transitions of this state.  */
   private final List<AutomatonTransition> transitions;
 
-  private final boolean mIsTarget;
+  // TODO(rcastano): This should be final again. Figure out a better way
+  // to make the last state in a trace a target.
+  private boolean mIsTarget;
 
   /**
    * determines if all transitions of the state are considered or only the first that matches

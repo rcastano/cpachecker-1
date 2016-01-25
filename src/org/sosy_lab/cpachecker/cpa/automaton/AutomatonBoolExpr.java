@@ -496,13 +496,17 @@ interface AutomatonBoolExpr extends AutomatonExpression {
       for (Object s : pArgs.getAbstractStates()) {
         System.out.println("FeasibilityQuery: " + s.toString());
       }
-      System.out.println("/>>>");
+      System.out.println("/>>>FeasibilityQuery ");
       if (pArgs.getAbstractStates().isEmpty()) {
         return CONST_TRUE;
       }
-//      pArgs.getState().getOwningAutomaton().getStates();
       ReachedSet reachedSet = GlobalConfig.getReachedSet();
       ARGState currentState = (ARGState) GlobalConfig.getCurrentState();
+
+      // Saving flag to restore later.
+      boolean savedCheckAsTarget = currentState.checkAsTarget();
+      currentState.setCheckAsTarget(true);
+
       Set<ARGState> statesOnErrorPath = ARGUtils.getAllStatesOnPathsTo(currentState);
       boolean is_feasible = false;
       try {
@@ -514,6 +518,10 @@ interface AutomatonBoolExpr extends AutomatonExpression {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
+
+      // restore original flag value
+      currentState.setCheckAsTarget(savedCheckAsTarget);
+
 //      return CONST_TRUE;
       if (is_feasible) {
         return CONST_TRUE;
