@@ -10,7 +10,7 @@ OBSERVER AUTOMATON ControlAutomatonTest
 INITIAL STATE Init;
 
 STATE USEALL Init :
-  (IS_CALL) && (CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") || CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == bottom")) && IS_FEASIBLE -> PRINT_STACK BREAK; // GOTO Found;
+  (IS_CALL) && (CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") || CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == bottom")) && IS_FEASIBLE -> PRINT_CALLS BREAK; // GOTO Found;
 
 
 END AUTOMATON
