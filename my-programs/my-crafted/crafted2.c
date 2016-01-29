@@ -43,8 +43,8 @@ int __VERIFIER_nondet_int(void) {
 
 
 
-#define size 100
-// #define size 5
+// #define size 100
+#define size 5
 int circular_buffer[size];
 int count = 0;
 int start;
@@ -183,19 +183,23 @@ int pop(int *a, int n) {
   return n;
 }
 
+void stop() {
+}
+
 void harness(int total_pushed) {
   // fake init
   count = 0;
-  
   int size_b = 20;
   int b[size_b];
-  while (total_pushed > 0) {
+  int i = 0 ;
+  while (total_pushed > 0) { ++i;
     unsigned int op = __VERIFIER_nondet_uint();
     int n = __VERIFIER_nondet_int();
     if (n < 0) {
       n = -n;
     }
     if (op == 0) {
+      if (i > 3) stop();
       // do push
       n = min(min(size_b,n),total_pushed);
       total_pushed -= n;
@@ -203,6 +207,7 @@ void harness(int total_pushed) {
       push(b,n);
 
     } else {
+      if (i > 1) stop();
       // __VERIFIER_assert(n < -total_pushed);
       // do pop
       int old_count = count;

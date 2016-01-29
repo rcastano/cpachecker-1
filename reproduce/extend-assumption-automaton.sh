@@ -16,4 +16,4 @@ automaton_file_to_be_used=$dirname_file/AssumptionAutomatonAfterPredAbs.txt
 sed -i 's@'$automaton_file_to_replace'@'$automaton_file_to_be_used'@' $CPACHECKER_PATH/test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-calls.properties
 ./scripts/cpa.sh -outputpath outputTemp -logfile logfile.txt  -preprocess -config test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-calls.properties $source_file
 # Restore default assumption automaton filename
-# sed -i 's@'$automaton_file_to_be_used'@'$automaton_file_to_replace'@' $CPACHECKER_PATH/test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-calls.properties
+sed -i 's@'$automaton_file_to_be_used'@'$automaton_file_to_replace'@' $CPACHECKER_PATH/test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-calls.properties
