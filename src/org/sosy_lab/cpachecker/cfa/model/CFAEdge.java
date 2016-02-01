@@ -74,6 +74,4 @@ public interface CFAEdge {
    */
   @Override
   public String toString();
-
-  public String callTrace();
 }

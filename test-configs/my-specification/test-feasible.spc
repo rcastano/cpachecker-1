@@ -10,7 +10,7 @@ CONTROL AUTOMATON ControlAutomatonTest
 INITIAL STATE Init;
 
 STATE USEALL Init :
-  (MATCH {harness($?)} || MATCH {push($?)} || MATCH {pop($?)} || MATCH{init($?)}) && CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") && IS_FEASIBLE -> PRINT "Transition matched, printing stack: " PRINT_CALLS STOP; // GOTO Found;
+  IS_CALL && CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") && IS_FEASIBLE -> PRINT "Transition matched, printing calls in the trace: " PRINT_CALLS STOP; // GOTO Found;
 
 
 END AUTOMATON

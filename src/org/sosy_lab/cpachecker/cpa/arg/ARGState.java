@@ -32,8 +32,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Queue;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -41,6 +43,7 @@ import javax.annotation.Nullable;
 
 import org.sosy_lab.common.UniqueIdGenerator;
 import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
+import org.sosy_lab.cpachecker.cfa.model.CFAEdgeType;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.core.defaults.AbstractSingleWrapperState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
@@ -48,6 +51,8 @@ import org.sosy_lab.cpachecker.core.interfaces.Graphable;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
+
+import de.uni_freiburg.informatik.ultimate.smtinterpol.util.ArrayQueue;
 
 public class ARGState extends AbstractSingleWrapperState implements Comparable<ARGState>, Graphable {
 
@@ -486,5 +491,45 @@ public class ARGState extends AbstractSingleWrapperState implements Comparable<A
     }
 
     destroyed = true;
+  }
+
+  public static String callTrace(ARGState start, CFAEdge lastEdge) {
+    HashMap<ARGState,ARGState> next = new HashMap<>();
+    HashSet<ARGState> added = new HashSet<>();
+    Queue<ARGState> q = new ArrayQueue();
+    q.add(start);
+    ARGState end = start;
+    while (!q.isEmpty()) {
+      ARGState current = q.remove();
+      if (current.getParents().isEmpty()) {
+        start = current;
+      }
+      for (ARGState parent : current.getParents()) {
+        if (!added.contains(parent)) {
+          q.add(parent);
+          next.put(parent, current);
+          added.add(parent);
+        }
+      }
+    }
+    ARGState current = start;
+    if (current == null) {
+      return "";
+    }
+    StringBuilder b = new StringBuilder();
+    while(next.get(current) != null) {
+      ARGState child = next.get(current);
+      CFAEdge edge = current.getEdgeToChild(child);
+      if (edge.getEdgeType() == CFAEdgeType.FunctionCallEdge) {
+        // System.out.println(edge.getCode() + ", ");
+        b.append(edge.getCode() + ", ");
+      }
+      current = next.get(current);
+      if (current.equals(end)) {
+        break;
+      }
+    }
+    b.append(lastEdge.getCode());
+    return b.toString();
   }
 }

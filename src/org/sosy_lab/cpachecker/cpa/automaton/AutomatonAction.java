@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.sosy_lab.cpachecker.core.GlobalConfig;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractQueryableState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonExpression.ResultValue;
@@ -98,7 +99,10 @@ abstract class AutomatonAction {
     public PrintCallTrace() {}
 
     @Override ResultValue<?> eval(AutomatonExpressionArguments pArgs) throws CPATransferException {
-      pArgs.appendToLogMessage(pArgs.getCfaEdge().callTrace());
+      pArgs.appendToLogMessage(
+          org.sosy_lab.cpachecker.cpa.arg.ARGState.callTrace(
+              (org.sosy_lab.cpachecker.cpa.arg.ARGState) GlobalConfig.getCurrentState(),
+              pArgs.getCfaEdge()));
       return defaultResultValue;
     }
   }

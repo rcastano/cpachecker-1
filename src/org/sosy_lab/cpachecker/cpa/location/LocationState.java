@@ -253,11 +253,6 @@ public class LocationState implements AbstractStateWithLocation, AbstractQueryab
         return this.locationNode.getEnteringEdge(0).getLineNumber();
       }
       return 0; // DUMMY
-    } else if (pProperty.equalsIgnoreCase("functionname")) {
-      if (this.getLocationNode().getNumEnteringEdges() > 0) {
-        return this.getLocationNode().getEnteringEdge(0).callTrace();
-      }
-      return 0; // DUMMY
     } else {
       return Boolean.valueOf(checkProperty(pProperty));
     }

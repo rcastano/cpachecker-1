@@ -26,17 +26,11 @@ package org.sosy_lab.cpachecker.cfa.model;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Queue;
-
 import org.sosy_lab.cpachecker.cfa.ast.AAstNode;
 import org.sosy_lab.cpachecker.cfa.ast.FileLocation;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
-import de.uni_freiburg.informatik.ultimate.smtinterpol.util.ArrayQueue;
 
 public abstract class AbstractCFAEdge implements CFAEdge {
 
@@ -119,45 +113,5 @@ public abstract class AbstractCFAEdge implements CFAEdge {
     return getFileLocation() + ":\t" + getPredecessor() + " -{" +
         getDescription().replaceAll("\n", " ") +
         "}-> " + getSuccessor();
-  }
-
-
-  @Override
-  public String callTrace() {
-    HashMap<CFANode,CFAEdge> next = new HashMap<>();
-    HashSet<CFANode> added = new HashSet<>();
-    Queue<CFANode> q = new ArrayQueue();
-    q.add(this.getPredecessor());
-    CFANode start = null;
-    CFANode end = this.getSuccessor();
-    while (!q.isEmpty()) {
-      CFANode current = q.remove();
-      if (current.getNumEnteringEdges() == 0) {
-        start = current;
-      }
-      for (int i = 0; i < current.getNumEnteringEdges(); ++i) {
-        if (!added.contains(current.getEnteringEdge(i).getPredecessor())) {
-          q.add(current.getEnteringEdge(i).getPredecessor());
-          next.put(current.getEnteringEdge(i).getPredecessor(), current.getEnteringEdge(i));
-          added.add(current.getEnteringEdge(i).getPredecessor());
-        }
-      }
-    }
-    CFANode current = start;
-    if (current == null) {
-      return "";
-    }
-    StringBuilder b = new StringBuilder();
-    while(next.get(current) != null) {
-      if (next.get(current).getEdgeType() == CFAEdgeType.FunctionCallEdge) {
-        System.out.println(next.get(current).getCode() + ", ");
-        b.append(next.get(current).getCode() + ", ");
-      }
-      current = next.get(current).getSuccessor();
-      if (current.equals(end)) {
-        break;
-      }
-    }
-    return b.toString();
   }
 }
