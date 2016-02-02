@@ -10,7 +10,10 @@ CONTROL AUTOMATON ControlAutomatonTest
 INITIAL STATE Init;
 
 STATE USEALL Init :
-  IS_CALL && CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") && IS_FEASIBLE -> PRINT "Transition matched, printing calls in the trace: " PRINT_CALLS STOP; // GOTO Found;
+  IS_CALL && CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") -> GOTO ReachedBoundary;
 
+STATE USEALL ReachedBoundary :
+  IS_FEASIBLE -> PRINT "Transition matched, printing calls in the trace: " PRINT_CALLS STOP;
+  TRUE -> STOP;
 
 END AUTOMATON

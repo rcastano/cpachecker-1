@@ -140,8 +140,8 @@ public class CBMCChecker implements CounterexampleChecker, Statistics {
     cbmcTime.start();
     CBMCExecutor cbmc;
     int exitCode;
+    List<String> cbmcArgs = new ArrayList<>();
     try {
-      List<String> cbmcArgs = new ArrayList<>();
       cbmcArgs.addAll(getParamForMachineModel());
 
       // Our paths are loop-free, but there might be hidden loops in stdlib functions like memcpy.
@@ -182,6 +182,10 @@ public class CBMCChecker implements CounterexampleChecker, Statistics {
       }
 
     } else {
+      StringBuilder cmd = new StringBuilder();
+      for (int i = 0; i < cbmcArgs.size(); i++) {
+        cmd.append(cbmcArgs.get(i) + " ");
+      }
       logger.log(Level.WARNING, "CBMC returned successfully, but printed warnings, ignoring the result. Please check the log above!");
     }
 
