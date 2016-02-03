@@ -63,9 +63,13 @@ import org.sosy_lab.cpachecker.core.interfaces.WrapperCPA;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
 import org.sosy_lab.cpachecker.cpa.arg.ARGPath;
 import org.sosy_lab.cpachecker.cpa.arg.ARGState;
+import org.sosy_lab.cpachecker.cpa.arg.ARGUtils;
 import org.sosy_lab.cpachecker.cpa.assumptions.storage.AssumptionStorageCPA;
 import org.sosy_lab.cpachecker.cpa.assumptions.storage.AssumptionStorageState;
+import org.sosy_lab.cpachecker.cpa.automaton.AutomatonInternalState;
+import org.sosy_lab.cpachecker.cpa.automaton.AutomatonState;
 import org.sosy_lab.cpachecker.exceptions.CPAException;
+import org.sosy_lab.cpachecker.exceptions.ManuallyRuledOutStateException;
 import org.sosy_lab.cpachecker.exceptions.RefinementFailedException;
 import org.sosy_lab.cpachecker.util.AbstractStates;
 import org.sosy_lab.cpachecker.util.assumptions.AssumptionWithLocation;
@@ -151,10 +155,22 @@ public class AssumptionCollectorAlgorithm implements Algorithm, StatisticsProvid
         // run the inner algorithm to fill the reached set
         status = status.update(innerAlgorithm.run(reached));
 
-      } catch (RefinementFailedException failedRefinement) {
-        logger.log(Level.FINER, "Dumping assumptions due to:", failedRefinement);
+        if (
+            AbstractStates.extractStateByType(reached.getLastState(), AutomatonState.class).
+                getInternalStateName().equals(AutomatonInternalState.BREAK.getName())) {
+          ARGPath path = ARGUtils.getOnePathTo((ARGState) reached.getLastState());
+          throw new ManuallyRuledOutStateException(path);
+        }
+      } catch (ManuallyRuledOutStateException|RefinementFailedException failedRun) {
+        logger.log(Level.FINER, "Dumping assumptions due to:", failedRun);
 
-        ARGPath path = failedRefinement.getErrorPath();
+        ARGPath path = null;
+        if (failedRun instanceof ManuallyRuledOutStateException) {
+          path = ((ManuallyRuledOutStateException) failedRun).getErrorPath();
+        }
+        if (failedRun instanceof RefinementFailedException) {
+          path = ((RefinementFailedException) failedRun).getErrorPath();
+        }
         ARGState errorState = path.getLastState();
         assert errorState == reached.getLastState();
 
