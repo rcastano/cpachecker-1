@@ -16,7 +16,5 @@ counterexample.continueAfterInfeasibleError = false
 CompositeCPA.cpas = cpa.location.LocationCPA, cpa.callstack.CallstackCPA, cpa.functionpointer.FunctionPointerCPA, cpa.predicate.PredicateCPA, cpa.assumptions.storage.AssumptionStorageCPA
 
 assumptions.automatonFile = AssumptionAutomatonAfterPredAbs.txt
-limits.time.cpu = 10800s
-log.level = ALL
 
-specification=../my-specification/stop.spc
+specification = ../my-specification/test-feasible.spc, ../specification/AssumptionGuidingAutomaton.spc, /home/rcastano/files/tools/cpachecker/fork/outputs/my-programs/drivers64+mem_slave_tlm.1/mem_slave_tlm.1+loop.BUG.c/outputDir200s/AssumptionAutomatonAfterPredAbs.txt

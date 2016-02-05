@@ -154,10 +154,11 @@ public class AssumptionCollectorAlgorithm implements Algorithm, StatisticsProvid
       try {
         // run the inner algorithm to fill the reached set
         status = status.update(innerAlgorithm.run(reached));
-
-        if (
-            AbstractStates.extractStateByType(reached.getLastState(), AutomatonState.class).
-                getInternalStateName().equals(AutomatonInternalState.BREAK.getName())) {
+        boolean is_break = false;
+        for (AutomatonState s : AbstractStates.asIterable(reached.getLastState()).filter(AutomatonState.class)) {
+          is_break = is_break || s.getInternalStateName().equals(AutomatonInternalState.BREAK.getName());
+        }
+        if (is_break) {
           ARGPath path = ARGUtils.getOnePathTo((ARGState) reached.getLastState());
           throw new ManuallyRuledOutStateException(path);
         }

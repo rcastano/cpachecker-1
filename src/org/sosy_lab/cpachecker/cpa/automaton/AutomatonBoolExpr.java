@@ -47,6 +47,7 @@ import org.sosy_lab.cpachecker.core.algorithm.counterexamplecheck.Counterexample
 import org.sosy_lab.cpachecker.core.interfaces.AbstractQueryableState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
+import org.sosy_lab.cpachecker.cpa.arg.ARGPath;
 import org.sosy_lab.cpachecker.cpa.arg.ARGState;
 import org.sosy_lab.cpachecker.cpa.arg.ARGUtils;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonASTComparator.ASTMatcher;
@@ -474,9 +475,16 @@ interface AutomatonBoolExpr extends AutomatonExpression {
     static CounterexampleChecker createChecker(Configuration config, LogManager logger, CFA cfa) {
       // TODO(rcastano): support other kinds of checkers.
       try {
+        // TODO(rcastano): Try this cex checker. My first try didn't work out.
+        // It just doesn't seem to implement the same interface, checkCounterexample relies on
+        // an indirect cpa.getCounterexamples() method which I'm not sure how to hack.
+        // Worst case I could just copy-paste some of the code, but it runs CPAchecker internally,
+        // so I might end up spending more time than I should.
+        // return new CounterexampleCPAChecker(config, logger, GlobalConfig.getNotifier(), cfa, null, (ARGCPA) GlobalConfig.getCPA());
         return new CBMCChecker(config, logger, cfa);
       } catch (InvalidConfigurationException e) {
         // TODO(rcastano): this is awful. Find out how to handle this exception.
+        e.printStackTrace();
       }
       return null;
     }
@@ -516,7 +524,7 @@ interface AutomatonBoolExpr extends AutomatonExpression {
 //      }
 //      System.out.println("/>>>FeasibilityQuery ");
       if (pArgs.getAbstractStates().isEmpty()) {
-        return CONST_TRUE;
+        return new ResultValue<>("No CPA elements available", "AutomatonBoolExpr.FeasibilityQuery");
       }
       ReachedSet reachedSet = GlobalConfig.getReachedSet();
       ARGState currentState = (ARGState) GlobalConfig.getCurrentState();
@@ -528,7 +536,15 @@ interface AutomatonBoolExpr extends AutomatonExpression {
       Set<ARGState> statesOnErrorPath = ARGUtils.getAllStatesOnPathsTo(currentState);
       boolean is_feasible = false;
       try {
-        is_feasible = getChecker(pArgs).checkCounterexample((ARGState) reachedSet.getFirstState(), currentState /* errorState */, statesOnErrorPath);
+        // TODO(rcastano): I'm just checking one path, check all.
+        ARGPath path = ARGUtils.getOnePathTo(currentState);
+        GlobalConfig.setPath(path);
+        is_feasible =
+            getChecker(pArgs).
+            checkCounterexample(
+                (ARGState) reachedSet.getFirstState(),
+                currentState /* errorState */,
+                statesOnErrorPath);
       } catch (CPAException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();

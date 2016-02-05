@@ -23,10 +23,13 @@
  */
 package org.sosy_lab.cpachecker.core;
 
+import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
+import org.sosy_lab.cpachecker.core.interfaces.ConfigurableProgramAnalysis;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
+import org.sosy_lab.cpachecker.cpa.arg.ARGPath;
 
 import scala.UninitializedFieldError;
 
@@ -37,6 +40,10 @@ public class GlobalConfig {
   static CFA cfa;
   static ReachedSet reachedSet;
   static AbstractState state;
+  private static ARGPath path;
+  private static String filename;
+  private static ShutdownNotifier shutdownNotifier;
+  private static ConfigurableProgramAnalysis cpa;
 
   public static void setConfig(Configuration pConfig) {
     config = pConfig;
@@ -73,5 +80,37 @@ public class GlobalConfig {
 
   public static AbstractState getCurrentState() {
     return state;
+  }
+
+  public static void setPath(ARGPath pPath) {
+    path = pPath;
+  }
+
+  public static ARGPath getPath() {
+    return path;
+  }
+
+  public static void setFilename(String pProgramDenotation) {
+    filename = pProgramDenotation;
+  }
+
+  public static String getFilename() {
+    return filename;
+  }
+
+  public static void setNotifier(ShutdownNotifier pShutdownNotifier) {
+    shutdownNotifier = pShutdownNotifier;
+  }
+
+  public static ShutdownNotifier getNotifier() {
+    return shutdownNotifier;
+  }
+
+  public static void setCPA(ConfigurableProgramAnalysis pCpa) {
+    cpa = pCpa;
+  }
+
+  public static ConfigurableProgramAnalysis getCPA() {
+    return cpa;
   }
 }

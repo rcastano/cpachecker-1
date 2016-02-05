@@ -15,6 +15,6 @@ DIRNAME=$(output_dirname $file)
 mkdir -p $DIRNAME 
 cp $file $DIRNAME
 sed "s/.*limits.time.cpu.*/limits.time.cpu = $time_limit/" -i test-configs/components/predicateAnalysis-generate-cmc-condition.properties
-./scripts/cpa.sh -skipRecursion -outputpath $DIRNAME -logfile logfile.txt  -preprocess -config test-configs/components/predicateAnalysis-generate-cmc-condition.properties $file
+./scripts/cpa.sh -skipRecursion -outputpath $DIRNAME -logfile logfile.txt  -preprocess -config test-configs/components/predicateAnalysis-generate-cmc-condition.properties $file > $DIRNAME/output.txt 2>&1
 cat -n $DIRNAME/AssumptionAutomatonAfterPredAbs.txt | tail -n 5 
 

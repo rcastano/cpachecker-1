@@ -496,7 +496,7 @@ public class ARGState extends AbstractSingleWrapperState implements Comparable<A
   public static String callTrace(ARGState start, CFAEdge lastEdge) {
     HashMap<ARGState,ARGState> next = new HashMap<>();
     HashSet<ARGState> added = new HashSet<>();
-    Queue<ARGState> q = new ArrayQueue();
+    Queue<ARGState> q = new ArrayQueue<>();
     q.add(start);
     ARGState end = start;
     while (!q.isEmpty()) {

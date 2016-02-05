@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CPACHECKER_PATH=~/files/tools/cpachecker/fork/
-time_limit=200s
+time_limit=10800s
 
 # This is the directory where the output of CPAchecker would
 # be stored when generating an assumption automaton.

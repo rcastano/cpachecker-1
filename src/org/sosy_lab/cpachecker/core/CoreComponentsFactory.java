@@ -200,6 +200,9 @@ public class CoreComponentsFactory {
       }
 
       if (checkCounterexamples) {
+        GlobalConfig.setFilename(programDenotation);
+        GlobalConfig.setNotifier(shutdownNotifier);
+        GlobalConfig.setCPA(cpa);
         algorithm = new CounterexampleCheckAlgorithm(algorithm, cpa, config, logger, shutdownNotifier, cfa, programDenotation);
       }
 

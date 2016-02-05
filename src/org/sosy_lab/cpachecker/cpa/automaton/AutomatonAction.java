@@ -27,9 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
+import org.sosy_lab.cpachecker.cfa.model.CFAEdgeType;
 import org.sosy_lab.cpachecker.core.GlobalConfig;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractQueryableState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
+import org.sosy_lab.cpachecker.cpa.arg.ARGPath.PathIterator;
+import org.sosy_lab.cpachecker.cpa.arg.ARGState;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonExpression.ResultValue;
 import org.sosy_lab.cpachecker.exceptions.CPATransferException;
 import org.sosy_lab.cpachecker.exceptions.InvalidQueryException;
@@ -99,10 +103,26 @@ abstract class AutomatonAction {
     public PrintCallTrace() {}
 
     @Override ResultValue<?> eval(AutomatonExpressionArguments pArgs) throws CPATransferException {
-      pArgs.appendToLogMessage(
-          org.sosy_lab.cpachecker.cpa.arg.ARGState.callTrace(
-              (org.sosy_lab.cpachecker.cpa.arg.ARGState) GlobalConfig.getCurrentState(),
-              pArgs.getCfaEdge()));
+
+//      pArgs.appendToLogMessage(
+//          org.sosy_lab.cpachecker.cpa.arg.ARGState.callTrace(
+//              (org.sosy_lab.cpachecker.cpa.arg.ARGState) GlobalConfig.getCurrentState(),
+//              pArgs.getCfaEdge()));
+      if (GlobalConfig.getPath() != null) {
+        PathIterator it = GlobalConfig.getPath().pathIterator();
+        StringBuilder b = new StringBuilder();
+        while(it.hasNext()) {
+          ARGState child = it.getNextAbstractState();
+          CFAEdge edge = it.getOutgoingEdge();
+          if (edge.getEdgeType() == CFAEdgeType.FunctionCallEdge) {
+            // System.out.println(edge.getCode() + ", ");
+            b.append(edge.getCode() + ", ");
+          }
+          it.advance();
+        }
+        b.append(pArgs.getCfaEdge().getCode());
+        pArgs.appendToLogMessage(b.toString());
+      }
       return defaultResultValue;
     }
   }

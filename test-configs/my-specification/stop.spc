@@ -9,7 +9,7 @@ CONTROL AUTOMATON StopAutomaton
 INITIAL STATE Init;
 
 STATE USEALL Init :
-  MATCH {stop($?)} -> STOP;
+  MATCH {stop($?)} -> BREAK;
 
 
 END AUTOMATON
