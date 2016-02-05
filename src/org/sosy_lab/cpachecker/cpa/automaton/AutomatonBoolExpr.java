@@ -47,7 +47,6 @@ import org.sosy_lab.cpachecker.core.algorithm.counterexamplecheck.Counterexample
 import org.sosy_lab.cpachecker.core.interfaces.AbstractQueryableState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
-import org.sosy_lab.cpachecker.cpa.arg.ARGPath;
 import org.sosy_lab.cpachecker.cpa.arg.ARGState;
 import org.sosy_lab.cpachecker.cpa.arg.ARGUtils;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonASTComparator.ASTMatcher;
@@ -536,9 +535,6 @@ interface AutomatonBoolExpr extends AutomatonExpression {
       Set<ARGState> statesOnErrorPath = ARGUtils.getAllStatesOnPathsTo(currentState);
       boolean is_feasible = false;
       try {
-        // TODO(rcastano): I'm just checking one path, check all.
-        ARGPath path = ARGUtils.getOnePathTo(currentState);
-        GlobalConfig.setPath(path);
         is_feasible =
             getChecker(pArgs).
             checkCounterexample(

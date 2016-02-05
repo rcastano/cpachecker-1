@@ -82,14 +82,6 @@ public class GlobalConfig {
     return state;
   }
 
-  public static void setPath(ARGPath pPath) {
-    path = pPath;
-  }
-
-  public static ARGPath getPath() {
-    return path;
-  }
-
   public static void setFilename(String pProgramDenotation) {
     filename = pProgramDenotation;
   }
