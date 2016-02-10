@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,6 +46,7 @@ import org.sosy_lab.common.UniqueIdGenerator;
 import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
 import org.sosy_lab.cpachecker.cfa.model.CFAEdgeType;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
+import org.sosy_lab.cpachecker.core.GlobalConfig;
 import org.sosy_lab.cpachecker.core.defaults.AbstractSingleWrapperState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.interfaces.Graphable;
@@ -491,6 +493,52 @@ public class ARGState extends AbstractSingleWrapperState implements Comparable<A
     }
 
     destroyed = true;
+  }
+
+  public static String callTrace2(ARGState target, CFAEdge lastEdge) {
+    Set<ARGState> inPaths = ARGUtils.getAllStatesOnPathsTo(target);
+    Stack<ARGState> stack = new Stack<>();
+    Set<ARGState> visited = new HashSet<>();
+    stack.push((ARGState) GlobalConfig.getReachedSet().getFirstState());
+    Stack<ARGState> path;
+    boolean is_feasible = false;
+    while (!stack.isEmpty()) {
+      ARGState current = stack.peek();
+      if (visited.contains(current)) {
+        stack.pop();
+        path.pop();
+        continue;
+      }
+      visited.add(current);
+      path.push(current);
+      if (current.equals(target)) {
+        // TODO(rcastano): check feasibility
+        if (is_feasible) {
+          break;
+        }
+      }
+
+      for (ARGState child : current.getChildren()) {
+        stack.push(child);
+      }
+    }
+
+    StringBuilder b = new StringBuilder();
+    if (is_feasible) {
+      ARGState parent = null;
+      for (ARGState child : path) {
+        if (parent != null) {
+          CFAEdge edge = parent.getEdgeToChild(child);
+          if (edge.getEdgeType() == CFAEdgeType.FunctionCallEdge) {
+            // System.out.println(edge.getCode() + ", ");
+            b.append(edge.getCode() + ", ");
+          }
+        }
+        parent = child;
+      }
+      b.append(lastEdge.getCode());
+    }
+    return b.toString();
   }
 
   public static String callTrace(ARGState start, CFAEdge lastEdge) {
