@@ -29,10 +29,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
-import org.sosy_lab.common.configuration.Configuration;
-import org.sosy_lab.common.configuration.InvalidConfigurationException;
 import org.sosy_lab.common.log.LogManager;
-import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.cfa.ast.FileLocation;
 import org.sosy_lab.cpachecker.cfa.ast.c.CAstNode;
 import org.sosy_lab.cpachecker.cfa.model.AssumeEdge;
@@ -42,15 +39,12 @@ import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.cfa.model.FunctionEntryNode;
 import org.sosy_lab.cpachecker.cfa.model.c.CLabelNode;
 import org.sosy_lab.cpachecker.core.GlobalConfig;
-import org.sosy_lab.cpachecker.core.algorithm.counterexamplecheck.CBMCChecker;
-import org.sosy_lab.cpachecker.core.algorithm.counterexamplecheck.CounterexampleChecker;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractQueryableState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
 import org.sosy_lab.cpachecker.cpa.arg.ARGState;
 import org.sosy_lab.cpachecker.cpa.arg.ARGUtils;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonASTComparator.ASTMatcher;
-import org.sosy_lab.cpachecker.exceptions.CPAException;
 import org.sosy_lab.cpachecker.exceptions.CPATransferException;
 import org.sosy_lab.cpachecker.exceptions.InvalidQueryException;
 import org.sosy_lab.cpachecker.exceptions.UnrecognizedCFAEdgeException;
@@ -471,47 +465,6 @@ interface AutomatonBoolExpr extends AutomatonExpression {
    * Check if path is feasible
    */
   public static class FeasibilityQuery implements AutomatonBoolExpr {
-    static CounterexampleChecker createChecker(Configuration config, LogManager logger, CFA cfa) {
-      // TODO(rcastano): support other kinds of checkers.
-      try {
-        // TODO(rcastano): Try this cex checker. My first try didn't work out.
-        // It just doesn't seem to implement the same interface, checkCounterexample relies on
-        // an indirect cpa.getCounterexamples() method which I'm not sure how to hack.
-        // Worst case I could just copy-paste some of the code, but it runs CPAchecker internally,
-        // so I might end up spending more time than I should.
-        // return new CounterexampleCPAChecker(config, logger, GlobalConfig.getNotifier(), cfa, null, (ARGCPA) GlobalConfig.getCPA());
-        return new CBMCChecker(config, logger, cfa);
-      } catch (InvalidConfigurationException e) {
-        // TODO(rcastano): this is awful. Find out how to handle this exception.
-        e.printStackTrace();
-      }
-      return null;
-    }
-
-    static Configuration createConfig() {
-      return Configuration.defaultConfiguration();
-    }
-
-    // static Algorithm algorithm;
-    // static ConfigurableProgramAnalysis pCpa;
-    static LogManager logger;
-    // static ShutdownNotifier pShutdownNotifier;
-    static CFA cfa;
-    // static String filename;
-    static CounterexampleChecker checker;
-
-    public static CounterexampleChecker getChecker(AutomatonExpressionArguments pArgs) {
-      initialize(pArgs);
-      return checker;
-    }
-    static void initialize(AutomatonExpressionArguments pArgs) {
-      if (checker == null) {
-        logger = pArgs.getLogger();
-        cfa = GlobalConfig.getCFA();
-        Configuration config = GlobalConfig.getConfig();
-        checker = createChecker(config, logger, cfa);
-      }
-    }
     public FeasibilityQuery() {}
 
     @Override
@@ -528,29 +481,14 @@ interface AutomatonBoolExpr extends AutomatonExpression {
       ReachedSet reachedSet = GlobalConfig.getReachedSet();
       ARGState currentState = (ARGState) GlobalConfig.getCurrentState();
 
-      // Saving flag to restore later.
-      boolean savedCheckAsTarget = currentState.checkAsTarget();
-      currentState.setCheckAsTarget(true);
-
       Set<ARGState> statesOnErrorPath = ARGUtils.getAllStatesOnPathsTo(currentState);
       boolean is_feasible = false;
-      try {
-        is_feasible =
-            getChecker(pArgs).
-            checkCounterexample(
-                (ARGState) reachedSet.getFirstState(),
-                currentState /* errorState */,
-                statesOnErrorPath);
-      } catch (CPAException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-
-      // restore original flag value
-      currentState.setCheckAsTarget(savedCheckAsTarget);
+      is_feasible =
+          GlobalConfig.checkCounterexample(
+              (ARGState) reachedSet.getFirstState(),
+              currentState /* errorState */,
+              statesOnErrorPath,
+              pArgs.getLogger());
 
 //      return CONST_TRUE;
       if (is_feasible) {

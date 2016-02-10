@@ -495,31 +495,50 @@ public class ARGState extends AbstractSingleWrapperState implements Comparable<A
     destroyed = true;
   }
 
+
+
   public static String callTrace2(ARGState target, CFAEdge lastEdge) {
     Set<ARGState> inPaths = ARGUtils.getAllStatesOnPathsTo(target);
     Stack<ARGState> stack = new Stack<>();
     Set<ARGState> visited = new HashSet<>();
-    stack.push((ARGState) GlobalConfig.getReachedSet().getFirstState());
-    Stack<ARGState> path;
+    ARGState start = (ARGState) GlobalConfig.getReachedSet().getFirstState();
+    stack.push(start);
+    Stack<ARGState> path = new Stack<>();
     boolean is_feasible = false;
+    int bound = 5;
+    int checks_so_far = 0;
     while (!stack.isEmpty()) {
       ARGState current = stack.peek();
       if (visited.contains(current)) {
         stack.pop();
         path.pop();
+        visited.remove(current);
         continue;
       }
       visited.add(current);
       path.push(current);
       if (current.equals(target)) {
-        // TODO(rcastano): check feasibility
+        System.out.println("Printing path:");
+        System.out.println(path);
+        is_feasible = GlobalConfig.checkCounterexample(start, target, new HashSet(path), null);
+        ++checks_so_far;
         if (is_feasible) {
           break;
         }
-      }
-
-      for (ARGState child : current.getChildren()) {
-        stack.push(child);
+      } else {
+        Collection<ARGState> children = current.getChildren();
+        int num_children = children.size();
+        for (ARGState child : children) {
+          // TODO(rcastano): Handle loops
+          if (!visited.contains(child) && inPaths.contains(child)) {
+            path.push(child);
+            boolean child_feasible = num_children == 1 || GlobalConfig.checkCounterexample(start, child, new HashSet(path), null);
+            path.pop();
+            if (child_feasible) {
+              stack.push(child);
+            }
+          }
+        }
       }
     }
 

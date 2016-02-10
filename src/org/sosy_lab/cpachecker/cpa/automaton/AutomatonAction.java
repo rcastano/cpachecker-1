@@ -101,7 +101,7 @@ abstract class AutomatonAction {
     @Override ResultValue<?> eval(AutomatonExpressionArguments pArgs) throws CPATransferException {
 
       pArgs.appendToLogMessage(
-          org.sosy_lab.cpachecker.cpa.arg.ARGState.callTrace(
+          org.sosy_lab.cpachecker.cpa.arg.ARGState.callTrace2(
               (org.sosy_lab.cpachecker.cpa.arg.ARGState) GlobalConfig.getCurrentState(),
               pArgs.getCfaEdge()));
       return defaultResultValue;
