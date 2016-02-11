@@ -13,7 +13,9 @@ source_file=$1
 dirname_file=`dirname "$(readlink -f "$source_file")"`
 automaton_file_to_replace=../../output/AssumptionAutomaton.txt
 automaton_file_to_be_used=$dirname_file/AssumptionAutomatonAfterPredAbs.txt
+DIRNAME=$(output_dirname_extend $source_file)
+mkdir -p $DIRNAME
 sed -i 's@'$automaton_file_to_replace'@'$automaton_file_to_be_used'@' $CPACHECKER_PATH/test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-calls.properties
-./scripts/cpa.sh -skipRecursion -outputpath outputTemp -logfile logfile.txt  -preprocess -config test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-calls.properties $source_file
+{ time ./scripts/cpa.sh -skipRecursion -outputpath outputTemp -logfile logfile.txt  -preprocess -config test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-calls.properties $source_file; } > $DIRNAME/output.txt 2>&1
 # Restore default assumption automaton filename
 sed -i 's@'$automaton_file_to_be_used'@'$automaton_file_to_replace'@' $CPACHECKER_PATH/test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-calls.properties
