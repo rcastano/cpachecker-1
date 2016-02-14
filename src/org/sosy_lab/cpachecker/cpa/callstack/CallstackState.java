@@ -41,22 +41,27 @@ import org.sosy_lab.cpachecker.util.globalinfo.GlobalInfo;
 
 import com.google.common.collect.Lists;
 
-public class CallstackState implements AbstractState, Partitionable, AbstractQueryableState, Serializable {
+public class CallstackState implements AbstractState, Partitionable,
+AbstractQueryableState, Serializable {
 
   private static final long serialVersionUID = 3629687385150064994L;
+
   protected final CallstackState previousState;
   protected final String currentFunction;
   protected transient CFANode callerNode;
   private final int depth;
 
-  public CallstackState(CallstackState previousElement, @Nonnull String function, @Nonnull CFANode callerNode) {
-    this.previousState = previousElement;
-    this.currentFunction = checkNotNull(function);
-    this.callerNode = checkNotNull(callerNode);
-    if (previousElement == null) {
+  public CallstackState(CallstackState pPreviousElement, @Nonnull String pFunction,
+      @Nonnull CFANode pCallerNode) {
+
+    previousState = pPreviousElement;
+    currentFunction = checkNotNull(pFunction);
+    callerNode = checkNotNull(pCallerNode);
+
+    if (pPreviousElement == null) {
       depth = 1;
     } else {
-      depth = previousElement.getDepth() + 1;
+      depth = pPreviousElement.getDepth() + 1;
     }
   }
 
