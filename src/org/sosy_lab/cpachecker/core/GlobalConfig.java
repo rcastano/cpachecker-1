@@ -29,6 +29,7 @@ import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
 import org.sosy_lab.common.log.LogManager;
+import org.sosy_lab.common.time.TimeSpan;
 import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.core.algorithm.counterexamplecheck.CBMCChecker;
 import org.sosy_lab.cpachecker.core.algorithm.counterexamplecheck.CounterexampleChecker;
@@ -85,9 +86,13 @@ public class GlobalConfig {
     boolean savedCheckAsTarget = target.checkAsTarget();
     target.setCheckAsTarget(true);
     boolean is_feasible = false;
+    CBMCChecker checker = (CBMCChecker) GlobalConfig.getChecker(pLogger);
+    TimeSpan savedTimelimit = checker.getTimeLimit();
+    // TODO(rcastano) This is super hacky, I'm trying to get around my computer thrashing heavily with CBMC.
+    checker.setTimeLimit(TimeSpan.ofSeconds(15));
     try {
       is_feasible =
-          GlobalConfig.getChecker(pLogger).
+          checker.
           checkCounterexample(
               start,
               target /* errorState */,
@@ -96,8 +101,9 @@ public class GlobalConfig {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } finally {
-      // restore original flag value
+      // restore original values
       target.setCheckAsTarget(savedCheckAsTarget);
+      checker.setTimeLimit(savedTimelimit);
     }
 
     return is_feasible;
@@ -112,6 +118,8 @@ public class GlobalConfig {
   // static ShutdownNotifier pShutdownNotifier;
   // static String filename;
   static CounterexampleChecker checker;
+  private static String outputDirectory;
+  private static int i = 0;
 
   public static CounterexampleChecker getChecker(LogManager pLogger) {
     initialize(pLogger);
@@ -183,5 +191,18 @@ public class GlobalConfig {
 
   public static ConfigurableProgramAnalysis getCPA() {
     return cpa;
+  }
+
+  public static void setOutputDirectory(String pOutputDirectory) {
+    outputDirectory = pOutputDirectory;
+  }
+
+  public static String getOutputDirectory() {
+    return outputDirectory;
+  }
+
+  public synchronized static String getUniqueIndex() {
+    // TODO Auto-generated method stub
+    return Integer.toString(++i);
   }
 }

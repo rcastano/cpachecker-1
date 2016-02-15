@@ -50,6 +50,7 @@ import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.cpachecker.cmdline.CmdLineArguments.InvalidCmdlineArgumentException;
 import org.sosy_lab.cpachecker.core.CPAchecker;
 import org.sosy_lab.cpachecker.core.CPAcheckerResult;
+import org.sosy_lab.cpachecker.core.GlobalConfig;
 import org.sosy_lab.cpachecker.core.algorithm.pcc.ProofGenerator;
 import org.sosy_lab.cpachecker.util.Pair;
 import org.sosy_lab.cpachecker.util.resources.ResourceLimitChecker;
@@ -76,6 +77,7 @@ public class CPAMain {
         Pair<Configuration, String> p = createConfiguration(args);
         cpaConfig = p.getFirst();
         outputDirectory = p.getSecond();
+        GlobalConfig.setOutputDirectory(outputDirectory);
       } catch (InvalidCmdlineArgumentException e) {
         ERROR_OUTPUT.println("Could not process command line arguments: " + e.getMessage());
         System.exit(ERROR_EXIT_CODE);

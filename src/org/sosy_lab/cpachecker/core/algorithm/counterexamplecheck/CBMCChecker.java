@@ -52,6 +52,7 @@ import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.cfa.Language;
 import org.sosy_lab.cpachecker.cfa.types.MachineModel;
 import org.sosy_lab.cpachecker.core.CPAcheckerResult.Result;
+import org.sosy_lab.cpachecker.core.GlobalConfig;
 import org.sosy_lab.cpachecker.core.interfaces.Statistics;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
 import org.sosy_lab.cpachecker.cpa.arg.ARGState;
@@ -111,9 +112,11 @@ public class CBMCChecker implements CounterexampleChecker, Statistics {
 
       // This temp file will be automatically deleted when the try block terminates.
       // Suffix .i tells CBMC to not call the pre-processor on this file.
-      try (DeleteOnCloseFile tempFile = Files.createTempFile("path", ".i")) {
-        return checkCounterexample(pRootState, pErrorPathStates, tempFile.toPath());
-
+      try (DeleteOnCloseFile tempFile = Files.createTempFile("path", ".i"))
+      {
+        Path p = org.sosy_lab.common.io.Paths.get(GlobalConfig.getOutputDirectory(), "path" + GlobalConfig.getUniqueIndex() + ".i");
+        Files.createParentDirs(p);
+        return checkCounterexample(pRootState, pErrorPathStates, p);
       } catch (IOException e) {
         throw new CounterexampleAnalysisFailed("Could not create temporary file " + e.getMessage(), e);
       }
@@ -224,5 +227,15 @@ public class CBMCChecker implements CounterexampleChecker, Statistics {
   @Override
   public String getName() {
     return "CBMC Counterexample Check";
+  }
+
+  public TimeSpan getTimeLimit() {
+    // TODO Auto-generated method stub
+    return timelimit;
+  }
+
+
+  public void setTimeLimit(TimeSpan pTimelimit) {
+    timelimit = pTimelimit;
   }
 }
