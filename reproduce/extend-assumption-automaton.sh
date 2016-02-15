@@ -12,7 +12,7 @@ cd $CPACHECKER_PATH
 source_file=$1
 dirname_file=`dirname "$(readlink -f "$source_file")"`
 automaton_file_to_replace=../../output/AssumptionAutomaton.txt
-automaton_file_to_be_used=$dirname_file/AssumptionAutomatonAfterPredAbs.txt
+automaton_file_to_be_used=$dirname_file/AssumptionAutomaton.txt
 DIRNAME=$(output_dirname_extend $source_file)
 mkdir -p $DIRNAME
 sed -i 's@'$automaton_file_to_replace'@'$automaton_file_to_be_used'@' $CPACHECKER_PATH/test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-calls.properties
