@@ -47,6 +47,7 @@ import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.core.CoreComponentsFactory;
 import org.sosy_lab.cpachecker.core.CoreComponentsFactory.SpecAutomatonCompositionType;
+import org.sosy_lab.cpachecker.core.GlobalConfig;
 import org.sosy_lab.cpachecker.core.algorithm.Algorithm;
 import org.sosy_lab.cpachecker.core.interfaces.ConfigurableProgramAnalysis;
 import org.sosy_lab.cpachecker.core.interfaces.StateSpacePartition;
@@ -168,6 +169,7 @@ public class CounterexampleCPAChecker implements CounterexampleChecker {
       CoreComponentsFactory factory =
           new CoreComponentsFactory(lConfig, lLogger, lShutdownManager.getNotifier());
       ConfigurableProgramAnalysis lCpas = factory.createCPA(cfa, null, SpecAutomatonCompositionType.TARGET_SPEC);
+      GlobalConfig.GlobalConfigData backup = GlobalConfig.getAllData();
       Algorithm lAlgorithm = factory.createAlgorithm(lCpas, filename, cfa, null);
       ReachedSet lReached = factory.createReachedSet();
       lReached.add(
@@ -175,7 +177,7 @@ public class CounterexampleCPAChecker implements CounterexampleChecker {
           lCpas.getInitialPrecision(entryNode, StateSpacePartition.getDefaultPartition()));
 
       lAlgorithm.run(lReached);
-
+      GlobalConfig.restore(backup);
       lShutdownManager.requestShutdown("Analysis terminated");
       CPAs.closeCpaIfPossible(lCpas, lLogger);
       CPAs.closeIfPossible(lAlgorithm, lLogger);

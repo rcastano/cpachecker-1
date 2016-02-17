@@ -4,7 +4,7 @@
 [ -z "$JAVA" ] && JAVA=java
 
 # the default heap size of the Java VM
-DEFAULT_HEAP_SIZE="1200M"
+DEFAULT_HEAP_SIZE="12000M"
 
 #------------------------------------------------------------------------------
 # From here on you should not need to change anything

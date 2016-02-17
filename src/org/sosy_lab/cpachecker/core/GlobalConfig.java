@@ -36,7 +36,6 @@ import org.sosy_lab.cpachecker.core.algorithm.counterexamplecheck.Counterexample
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.interfaces.ConfigurableProgramAnalysis;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
-import org.sosy_lab.cpachecker.cpa.arg.ARGPath;
 import org.sosy_lab.cpachecker.cpa.arg.ARGState;
 import org.sosy_lab.cpachecker.exceptions.CPAException;
 
@@ -45,14 +44,55 @@ import scala.UninitializedFieldError;
 
 public class GlobalConfig {
 
-  static Configuration config;
-  static CFA cfa;
-  static ReachedSet reachedSet;
-  static AbstractState state;
-  private static ARGPath path;
+  private static Configuration config;
+  private static CFA cfa;
+  private static ReachedSet reachedSet;
+  private static AbstractState state;
   private static String filename;
   private static ShutdownNotifier shutdownNotifier;
   private static ConfigurableProgramAnalysis cpa;
+  private static LogManager logger;
+  private static CounterexampleChecker checker;
+  private static String outputDirectory;
+  private static int i = 0;
+
+  public static class GlobalConfigData {
+    @SuppressWarnings("hiding")
+    Configuration config;
+    @SuppressWarnings("hiding")
+    CFA cfa;
+    @SuppressWarnings("hiding")
+    ReachedSet reachedSet;
+    @SuppressWarnings("hiding")
+    AbstractState state;
+    @SuppressWarnings("hiding")
+    String filename;
+    @SuppressWarnings("hiding")
+    ShutdownNotifier shutdownNotifier;
+    @SuppressWarnings("hiding")
+    ConfigurableProgramAnalysis cpa;
+    @SuppressWarnings("hiding")
+    CounterexampleChecker checker;
+    @SuppressWarnings("hiding")
+    String outputDirectory;
+    // Not backing up i, counter should still be unique.
+    // int i;
+
+
+    public GlobalConfigData() {
+      config = GlobalConfig.getConfig();
+      cfa = GlobalConfig.getCFA();
+      reachedSet = GlobalConfig.getReachedSet();
+      state = GlobalConfig.getCurrentState();
+      filename = GlobalConfig.getFilename();
+      shutdownNotifier = GlobalConfig.getNotifier();
+      cpa = GlobalConfig.getCPA();
+      // Calling getChecker could create a checker, which is a side effect,
+      // just copying the reference.
+      checker = GlobalConfig.checker;
+      outputDirectory = GlobalConfig.getOutputDirectory();
+    }
+  }
 
   static CounterexampleChecker createChecker(Configuration config, LogManager logger, CFA cfa) {
     // TODO(rcastano): support other kinds of checkers.
@@ -112,14 +152,6 @@ public class GlobalConfig {
     return Configuration.defaultConfiguration();
   }
 
-  // static Algorithm algorithm;
-  // static ConfigurableProgramAnalysis pCpa;
-  static LogManager logger;
-  // static ShutdownNotifier pShutdownNotifier;
-  // static String filename;
-  static CounterexampleChecker checker;
-  private static String outputDirectory;
-  private static int i = 0;
 
   public static CounterexampleChecker getChecker(LogManager pLogger) {
     initialize(pLogger);
@@ -174,6 +206,13 @@ public class GlobalConfig {
   }
 
   public static String getFilename() {
+    config = GlobalConfig.getConfig();
+    cfa = GlobalConfig.getCFA();
+    reachedSet = GlobalConfig.getReachedSet();
+    state = GlobalConfig.getCurrentState();
+    filename = GlobalConfig.getFilename();
+    shutdownNotifier = GlobalConfig.getNotifier();
+    cpa = GlobalConfig.getCPA();
     return filename;
   }
 
@@ -201,8 +240,23 @@ public class GlobalConfig {
     return outputDirectory;
   }
 
-  public synchronized static String getUniqueIndex() {
-    // TODO Auto-generated method stub
-    return Integer.toString(++i);
+  public synchronized static int getUniqueIndex() {
+    return ++i;
+  }
+
+  public static GlobalConfigData getAllData() {
+    return new GlobalConfigData();
+  }
+
+  public static void restore(GlobalConfigData pBackup) {
+    config = pBackup.config;
+    cfa = pBackup.cfa;
+    reachedSet = pBackup.reachedSet;
+    state = pBackup.state;
+    filename = pBackup.filename;
+    shutdownNotifier = pBackup.shutdownNotifier;
+    cpa = pBackup.cpa;
+    checker = pBackup.checker;
+    outputDirectory = pBackup.outputDirectory;
   }
 }

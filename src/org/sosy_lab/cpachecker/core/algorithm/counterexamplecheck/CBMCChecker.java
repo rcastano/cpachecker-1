@@ -114,7 +114,12 @@ public class CBMCChecker implements CounterexampleChecker, Statistics {
       // Suffix .i tells CBMC to not call the pre-processor on this file.
       try (DeleteOnCloseFile tempFile = Files.createTempFile("path", ".i"))
       {
-        Path p = org.sosy_lab.common.io.Paths.get(GlobalConfig.getOutputDirectory(), "path" + GlobalConfig.getUniqueIndex() + ".i");
+        int i = GlobalConfig.getUniqueIndex();
+        if (i == 11) {
+          System.out.println("CBMC: Excluding counterexample check number 11");
+          return false;
+        }
+        Path p = org.sosy_lab.common.io.Paths.get(GlobalConfig.getOutputDirectory(), "path" + Integer.toString(i) + ".i");
         Files.createParentDirs(p);
         return checkCounterexample(pRootState, pErrorPathStates, p);
       } catch (IOException e) {
@@ -189,6 +194,7 @@ public class CBMCChecker implements CounterexampleChecker, Statistics {
       for (int i = 0; i < cbmcArgs.size(); i++) {
         cmd.append(cbmcArgs.get(i) + " ");
       }
+      logger.log(Level.WARNING, "Failed cbmc: " + cmd);
       logger.log(Level.WARNING, "CBMC returned successfully, but printed warnings, ignoring the result. Please check the log above!");
     }
 
