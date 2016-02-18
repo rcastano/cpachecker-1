@@ -39,6 +39,7 @@ import org.sosy_lab.common.Appenders.AbstractAppender;
 import org.sosy_lab.common.JSON;
 import org.sosy_lab.common.io.PathTemplate;
 import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
+import org.sosy_lab.cpachecker.cfa.model.CFAEdgeType;
 import org.sosy_lab.cpachecker.cpa.arg.ARGPath;
 import org.sosy_lab.cpachecker.cpa.arg.ARGPath.PathIterator;
 import org.sosy_lab.cpachecker.cpa.arg.ARGState;
@@ -109,6 +110,17 @@ public class CounterexampleInfo extends AbstractAppender {
     return targetPath;
   }
 
+  public String printOnlyCalls() {
+    StringBuilder b = new StringBuilder();
+    PathIterator it = targetPath.pathIterator();
+    while (it.hasNext()) {
+      CFAEdge edge = it.getOutgoingEdge();
+      if (edge.getEdgeType() == CFAEdgeType.FunctionCallEdge) {
+        b.append(edge.getCode() + ", ");
+      }
+    }
+    return b.toString();
+  }
   /**
    * Return a path that indicates which variables where assigned which values at
    * what edge. Note that not every value for every variable is available.
@@ -184,6 +196,8 @@ public class CounterexampleInfo extends AbstractAppender {
     } else {
       targetPath.appendTo(out);
     }
+
+    out.append("// " + printOnlyCalls());
   }
 
   private void printPathWithValues(Appendable out, CFAPathWithAssumptions pExactValuePath)

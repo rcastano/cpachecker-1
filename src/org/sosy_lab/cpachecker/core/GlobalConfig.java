@@ -117,6 +117,11 @@ public class GlobalConfig {
     return null;
   }
 
+  public static void temp() {
+//    PathChecker pathChecker = new PathChecker(config, logger, shutdownNotifier, GlobalConfig.getMachineModel(), pPmgr,
+//          pSolver)
+  }
+
   /*
    * Returns whether the target state is reachable from start by only visiting states within statesOnPath
    */
@@ -129,7 +134,7 @@ public class GlobalConfig {
     CBMCChecker checker = (CBMCChecker) GlobalConfig.getChecker(pLogger);
     TimeSpan savedTimelimit = checker.getTimeLimit();
     // TODO(rcastano) This is super hacky, I'm trying to get around my computer thrashing heavily with CBMC.
-    checker.setTimeLimit(TimeSpan.ofSeconds(15));
+    // checker.setTimeLimit(TimeSpan.ofSeconds(15));
     try {
       is_feasible =
           checker.
@@ -206,13 +211,6 @@ public class GlobalConfig {
   }
 
   public static String getFilename() {
-    config = GlobalConfig.getConfig();
-    cfa = GlobalConfig.getCFA();
-    reachedSet = GlobalConfig.getReachedSet();
-    state = GlobalConfig.getCurrentState();
-    filename = GlobalConfig.getFilename();
-    shutdownNotifier = GlobalConfig.getNotifier();
-    cpa = GlobalConfig.getCPA();
     return filename;
   }
 
