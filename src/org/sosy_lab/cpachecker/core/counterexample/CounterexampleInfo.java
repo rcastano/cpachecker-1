@@ -118,6 +118,7 @@ public class CounterexampleInfo extends AbstractAppender {
       if (edge.getEdgeType() == CFAEdgeType.FunctionCallEdge) {
         b.append(edge.getCode() + ", ");
       }
+      it.advance();
     }
     return b.toString();
   }
