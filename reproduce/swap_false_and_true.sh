@@ -15,8 +15,9 @@ sed -i 's/__FALSE/__new_true/g' chopped_file.txt
 sed -i 's/__TRUE/__new_false/g' chopped_file.txt
 sed -i 's/__new_false/__FALSE/g' chopped_file.txt
 sed -i 's/__new_true/__TRUE/g' chopped_file.txt
-mv true_false_defs.txt $file
-cat chopped_file.txt >> $file
+cp $file $file.backup
+mv true_false_defs.txt $file.swapped
+cat chopped_file.txt >> $file.swapped
 rm chopped_file.txt
 
 

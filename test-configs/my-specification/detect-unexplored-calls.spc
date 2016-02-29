@@ -1,11 +1,11 @@
 #include ../specification/default.spc
 
+// Detects both errors as defined in default.spc and method/function
+// calls that had not been reached by a previous analysis.
+// The way to detect the latter is by checking that the assumption
+// automaton is in the __FALSE state.
 
-// It checks only for calls to the __VERIFIER_error() functions
-// and also implements some functions which usually lead to a program abort.
-// It supports detecting multiple violations within one run (USEALL)
 CONTROL AUTOMATON ControlAutomatonTest
-// OBSERVER AUTOMATON ControlAutomatonTest
 
 INITIAL STATE Init;
 
