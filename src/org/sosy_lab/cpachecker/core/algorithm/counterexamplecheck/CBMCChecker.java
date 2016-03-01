@@ -52,7 +52,6 @@ import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.cfa.Language;
 import org.sosy_lab.cpachecker.cfa.types.MachineModel;
 import org.sosy_lab.cpachecker.core.CPAcheckerResult.Result;
-import org.sosy_lab.cpachecker.core.GlobalConfig;
 import org.sosy_lab.cpachecker.core.interfaces.Statistics;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
 import org.sosy_lab.cpachecker.cpa.arg.ARGState;
@@ -114,34 +113,7 @@ public class CBMCChecker implements CounterexampleChecker, Statistics {
       // Suffix .i tells CBMC to not call the pre-processor on this file.
       try (DeleteOnCloseFile tempFile = Files.createTempFile("path", ".i"))
       {
-        int i = GlobalConfig.getUniqueIndex();
-        if (i == 31) {
-          System.out.println("CBMC: Excluding counterexample check number 31");
-          return false;
-        }
-        if (i == 32) {
-          System.out.println("CBMC: Excluding counterexample check number 32");
-          return false;
-        }
-        if (i == 33) {
-          System.out.println("CBMC: Excluding counterexample check number 33");
-          return false;
-        }
-        if (i == 34) {
-          System.out.println("CBMC: Excluding counterexample check number 34");
-          return false;
-        }
-        if (i == 35) {
-          System.out.println("CBMC: Excluding counterexample check number 35");
-          return false;
-        }
-        if (i == 36) {
-          System.out.println("CBMC: Excluding counterexample check number 36");
-          return false;
-        }
-        Path p = org.sosy_lab.common.io.Paths.get(GlobalConfig.getOutputDirectory(), "path" + Integer.toString(i) + ".i");
-        Files.createParentDirs(p);
-        return checkCounterexample(pRootState, pErrorPathStates, p);
+        return checkCounterexample(pRootState, pErrorPathStates, tempFile.toPath());
       } catch (IOException e) {
         throw new CounterexampleAnalysisFailed("Could not create temporary file " + e.getMessage(), e);
       }
