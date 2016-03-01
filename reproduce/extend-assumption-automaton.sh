@@ -3,14 +3,14 @@
 run_cpachecker () {
   config=$1
   time_limit=$2
-  DIRNAME=$3
+  dirname=$3
   source_file=$4
   base_config=`dirname $config`/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties
-  mkdir -p $DIRNAME
+  mkdir -p $dirname
   echo $time_limit
   sed -i 's@'$automaton_file_to_replace'@'$automaton_file_to_be_used'@' $config
   sed "s/.*limits.time.cpu.*/limits.time.cpu = $time_limit/" -i $base_config
-  { time ./scripts/cpa.sh -skipRecursion -outputpath $DIRNAME -logfile logfile.txt  -preprocess -config $config $source_file; } > $DIRNAME/output.txt 2>&1
+  { time ./scripts/cpa.sh -skipRecursion -outputpath $dirname -logfile logfile.txt  -preprocess -config $config $source_file; } > $dirname/output.txt 2>&1
   # Restore default assumption automaton filename
   sed -i 's@'$automaton_file_to_be_used'@'$automaton_file_to_replace'@' $config
 }
@@ -51,6 +51,6 @@ DIRNAME=$(output_dirname_extend $source_file safe)
 $DIR/swap_false_and_true.sh $automaton_file_to_be_used
 echo "Safe traces:"
 automaton_file_to_be_used=$dirname_file/AssumptionAutomaton.txt.swapped
-run_cpachecker $config_unexplored $time_limit $DIRNAME $source_file 
+run_cpachecker $config_unexplored $time_limit $DIRNAME/safe $source_file 
 produce_paths safe
 
