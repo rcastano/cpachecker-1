@@ -29,6 +29,7 @@ import static com.google.common.collect.FluentIterable.from;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,6 +44,8 @@ import org.sosy_lab.cpachecker.cfa.model.CFAEdgeType;
 import org.sosy_lab.cpachecker.cpa.arg.ARGPath;
 import org.sosy_lab.cpachecker.cpa.arg.ARGPath.PathIterator;
 import org.sosy_lab.cpachecker.cpa.arg.ARGState;
+import org.sosy_lab.cpachecker.cpa.callstack.CallstackState;
+import org.sosy_lab.cpachecker.util.AbstractStates;
 import org.sosy_lab.cpachecker.util.Pair;
 
 import com.google.common.collect.Lists;
@@ -110,13 +113,23 @@ public class CounterexampleInfo extends AbstractAppender {
     return targetPath;
   }
 
+  private String repeated(int n) {
+    char[] chars = new char[n];
+    Arrays.fill(chars, '_');
+    return new String(chars);
+  }
   public String printOnlyCalls() {
     StringBuilder b = new StringBuilder();
     PathIterator it = targetPath.pathIterator();
     while (it.hasNext()) {
       CFAEdge edge = it.getOutgoingEdge();
+      CallstackState callstackState = AbstractStates.extractStateByType(it.getAbstractState(), CallstackState.class);
       if (edge.getEdgeType() == CFAEdgeType.FunctionCallEdge) {
-        b.append(edge.getCode() + ", ");
+        int depth = 0;
+        if (callstackState != null) {
+          depth = callstackState.getDepth();
+        }
+        b.append(repeated(depth) + edge.getCode() + ", ");
       }
       it.advance();
     }
