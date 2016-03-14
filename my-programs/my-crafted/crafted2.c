@@ -183,8 +183,6 @@ int pop(int *a, int n) {
   return n;
 }
 
-void stop() {
-}
 
 void harness(int total_pushed) {
   // fake init
@@ -199,7 +197,6 @@ void harness(int total_pushed) {
       n = -n;
     }
     if (op == 0) {
-      if (i > 3) stop();
       // do push
       n = min(min(size_b,n),total_pushed);
       total_pushed -= n;
@@ -207,7 +204,6 @@ void harness(int total_pushed) {
       push(b,n);
 
     } else {
-      if (i > 1) stop();
       // __VERIFIER_assert(n < -total_pushed);
       // do pop
       int old_count = count;
