@@ -38,12 +38,8 @@ import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.cfa.model.FunctionEntryNode;
 import org.sosy_lab.cpachecker.cfa.model.c.CLabelNode;
-import org.sosy_lab.cpachecker.core.GlobalConfig;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractQueryableState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
-import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
-import org.sosy_lab.cpachecker.cpa.arg.ARGState;
-import org.sosy_lab.cpachecker.cpa.arg.ARGUtils;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonASTComparator.ASTMatcher;
 import org.sosy_lab.cpachecker.exceptions.CPATransferException;
 import org.sosy_lab.cpachecker.exceptions.InvalidQueryException;
@@ -455,45 +451,6 @@ interface AutomatonBoolExpr extends AutomatonExpression {
         return CONST_TRUE;
       }
       else {
-        return CONST_FALSE;
-      }
-    }
-  }
-
-
-  /**
-   * Check if path is feasible
-   */
-  public static class FeasibilityQuery implements AutomatonBoolExpr {
-    public FeasibilityQuery() {}
-
-    @Override
-    public ResultValue<Boolean> eval(AutomatonExpressionArguments pArgs) {
-//      System.out.println("FeasibilityQuery: " + pArgs.getState().toString());
-//
-//      for (Object s : pArgs.getAbstractStates()) {
-//        System.out.println("FeasibilityQuery: " + s.toString());
-//      }
-//      System.out.println("/>>>FeasibilityQuery ");
-      if (pArgs.getAbstractStates().isEmpty()) {
-        return new ResultValue<>("No CPA elements available", "AutomatonBoolExpr.FeasibilityQuery");
-      }
-      ReachedSet reachedSet = GlobalConfig.getReachedSet();
-      ARGState currentState = (ARGState) GlobalConfig.getCurrentState();
-
-      Set<ARGState> statesOnErrorPath = ARGUtils.getAllStatesOnPathsTo(currentState);
-      boolean is_feasible = false;
-      is_feasible =
-          GlobalConfig.checkCounterexample(
-              (ARGState) reachedSet.getFirstState(),
-              currentState /* errorState */,
-              statesOnErrorPath,
-              pArgs.getLogger());
-
-//      return CONST_TRUE;
-      if (is_feasible) {
-        return CONST_TRUE;
-      } else {
         return CONST_FALSE;
       }
     }
