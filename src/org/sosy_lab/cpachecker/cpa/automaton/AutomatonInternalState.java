@@ -52,7 +52,7 @@ public class AutomatonInternalState {
       true, false);
 
   /** Break state, used to halt the analysis without being a target state */
-  public static final AutomatonInternalState BREAK = new AutomatonInternalState(
+  static final AutomatonInternalState BREAK = new AutomatonInternalState(
       "_predefinedState_BREAK",
       Collections.singletonList(new AutomatonTransition(
                                     AutomatonBoolExpr.TRUE,
