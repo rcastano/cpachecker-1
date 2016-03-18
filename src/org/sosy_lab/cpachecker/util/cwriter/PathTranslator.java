@@ -198,7 +198,7 @@ public abstract class PathTranslator {
   void processEdge(ARGState childElement, CFAEdge edge, Stack<FunctionBody> functionStack) {
     FunctionBody currentFunction = functionStack.peek();
 
-    if (childElement.isTarget() || childElement.checkAsTarget()) {
+    if (childElement.isTarget()) {
       currentFunction.write(getTargetState());
     }
 

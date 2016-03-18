@@ -73,8 +73,6 @@ public class ARGState extends AbstractSingleWrapperState implements Comparable<A
 
   private final int stateId;
 
-  private boolean checkAsTarget = false;
-
   private static final UniqueIdGenerator idGenerator = new UniqueIdGenerator();
 
   public ARGState(@Nullable AbstractState pWrappedState, @Nullable ARGState pParentElement) {
@@ -308,14 +306,6 @@ public class ARGState extends AbstractSingleWrapperState implements Comparable<A
   @Override
   public boolean isTarget() {
     return !hasCoveredParent && !isCovered() && super.isTarget();
-  }
-
-  public boolean checkAsTarget() {
-    return checkAsTarget ;
-  }
-
-  public void setCheckAsTarget(boolean pCheckAsTarget) {
-    checkAsTarget = pCheckAsTarget;
   }
 
   @Override
