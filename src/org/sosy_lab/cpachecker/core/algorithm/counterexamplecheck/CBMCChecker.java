@@ -182,11 +182,6 @@ public class CBMCChecker implements CounterexampleChecker, Statistics {
       }
 
     } else {
-      StringBuilder cmd = new StringBuilder();
-      for (int i = 0; i < cbmcArgs.size(); i++) {
-        cmd.append(cbmcArgs.get(i) + " ");
-      }
-      logger.log(Level.WARNING, "Failed cbmc: " + cmd);
       logger.log(Level.WARNING, "CBMC returned successfully, but printed warnings, ignoring the result. Please check the log above!");
     }
 
