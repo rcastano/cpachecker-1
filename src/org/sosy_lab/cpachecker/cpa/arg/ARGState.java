@@ -35,16 +35,13 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.Stack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.sosy_lab.common.UniqueIdGenerator;
 import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
-import org.sosy_lab.cpachecker.cfa.model.CFAEdgeType;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
-import org.sosy_lab.cpachecker.core.GlobalConfig;
 import org.sosy_lab.cpachecker.core.defaults.AbstractSingleWrapperState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.interfaces.Graphable;
@@ -489,70 +486,5 @@ public class ARGState extends AbstractSingleWrapperState implements Comparable<A
     }
 
     destroyed = true;
-  }
-
-
-
-  public static String callTrace2(ARGState target, CFAEdge lastEdge) {
-    Set<ARGState> inPaths = ARGUtils.getAllStatesOnPathsTo(target);
-    Stack<ARGState> stack = new Stack<>();
-    Set<ARGState> visited = new HashSet<>();
-    ARGState start = (ARGState) GlobalConfig.getReachedSet().getFirstState();
-    stack.push(start);
-    Stack<ARGState> path = new Stack<>();
-    boolean is_feasible = false;
-    int bound = 5;
-    int checks_so_far = 0;
-    while (!stack.isEmpty()) {
-      ARGState current = stack.peek();
-      if (visited.contains(current)) {
-        stack.pop();
-        path.pop();
-        visited.remove(current);
-        continue;
-      }
-      visited.add(current);
-      path.push(current);
-      if (current.equals(target)) {
-        System.out.println("Printing path:");
-        System.out.println(path);
-        is_feasible = GlobalConfig.checkCounterexample(start, target, new HashSet(path), null);
-        ++checks_so_far;
-        if (is_feasible) {
-          break;
-        }
-      } else {
-        Collection<ARGState> children = current.getChildren();
-        int num_children = children.size();
-        for (ARGState child : children) {
-          // TODO(rcastano): Handle loops
-          if (!visited.contains(child) && inPaths.contains(child)) {
-            path.push(child);
-            boolean child_feasible = num_children == 1 || GlobalConfig.checkCounterexample(start, child, new HashSet(path), null);
-            path.pop();
-            if (child_feasible) {
-              stack.push(child);
-            }
-          }
-        }
-      }
-    }
-
-    StringBuilder b = new StringBuilder();
-    if (is_feasible) {
-      ARGState parent = null;
-      for (ARGState child : path) {
-        if (parent != null) {
-          CFAEdge edge = parent.getEdgeToChild(child);
-          if (edge.getEdgeType() == CFAEdgeType.FunctionCallEdge) {
-            // System.out.println(edge.getCode() + ", ");
-            b.append(edge.getCode() + ", ");
-          }
-        }
-        parent = child;
-      }
-      b.append(lastEdge.getCode());
-    }
-    return b.toString();
   }
 }

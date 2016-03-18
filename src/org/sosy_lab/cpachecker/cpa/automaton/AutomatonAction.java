@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.sosy_lab.cpachecker.core.GlobalConfig;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractQueryableState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonExpression.ResultValue;
@@ -91,23 +90,6 @@ abstract class AutomatonAction {
       return defaultResultValue;
     }
   }
-
-  /**
-   * Logs a String when executed.
-   */
-  static class PrintCallTrace extends AutomatonAction {
-    public PrintCallTrace() {}
-
-    @Override ResultValue<?> eval(AutomatonExpressionArguments pArgs) throws CPATransferException {
-
-      pArgs.appendToLogMessage(
-          org.sosy_lab.cpachecker.cpa.arg.ARGState.callTrace2(
-              (org.sosy_lab.cpachecker.cpa.arg.ARGState) GlobalConfig.getCurrentState(),
-              pArgs.getCfaEdge()));
-      return defaultResultValue;
-    }
-  }
-
 
   /** Assigns the value of a AutomatonIntExpr to a AutomatonVariable determined by its name.
    */
