@@ -12,6 +12,7 @@
 /JUnit.html
 /.factorypath
 *.pyc
+*~
 
 # /META-INF/
 /META-INF/.hg*
