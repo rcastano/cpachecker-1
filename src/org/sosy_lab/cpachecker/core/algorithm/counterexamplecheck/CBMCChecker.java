@@ -221,14 +221,4 @@ public class CBMCChecker implements CounterexampleChecker, Statistics {
   public String getName() {
     return "CBMC Counterexample Check";
   }
-
-  public TimeSpan getTimeLimit() {
-    // TODO Auto-generated method stub
-    return timelimit;
-  }
-
-
-  public void setTimeLimit(TimeSpan pTimelimit) {
-    timelimit = pTimelimit;
-  }
 }
