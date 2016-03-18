@@ -319,9 +319,6 @@ public class CPAAlgorithm implements Algorithm, StatisticsProvider {
       logger.log(Level.FINER, "Considering successor of current state");
       logger.log(Level.ALL, "Successor of", state, "\nis", successor);
 
-      org.sosy_lab.cpachecker.cpa.arg.ARGState s = (org.sosy_lab.cpachecker.cpa.arg.ARGState) state;
-      org.sosy_lab.cpachecker.cfa.model.CFAEdge edge = s.getEdgeToChild((org.sosy_lab.cpachecker.cpa.arg.ARGState) successor);
-
       stats.precisionTimer.start();
       PrecisionAdjustmentResult precAdjustmentResult;
       try {
