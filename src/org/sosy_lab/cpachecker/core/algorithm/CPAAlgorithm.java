@@ -354,14 +354,6 @@ public class CPAAlgorithm implements Algorithm, StatisticsProvider {
           logger.log(Level.FINER, "Break was signalled but ignored because the state is covered.");
           continue;
 
-        } else if (reachedSet.contains(successor)) {
-          // TODO(rcastano): This seems to make sense in my setting, but I'm not sure whether
-          // it's the right way to handle states in, for instance, fixed point computations.
-          // don't signal BREAK for states that have already been added to the reached set
-          stats.countStop++;
-          logger.log(Level.FINER, "Break was signalled but ignored because the state is already in the reached set.");
-          continue;
-
         } else {
           stats.countBreak++;
           logger.log(Level.FINER, "Break signalled, CPAAlgorithm will stop.");
