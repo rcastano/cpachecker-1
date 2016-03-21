@@ -7,10 +7,7 @@ run_cpachecker () {
   local source_file=$4
   mkdir -p $dirname
   echo $time_limit
-  sed -i 's@'$automaton_file_to_replace'@'$automaton_file_to_be_used'@' $config
-  { time ./scripts/cpa.sh -setprop limits.time.cpu=$time_limit -skipRecursion -outputpath $dirname -logfile logfile.txt  -preprocess -config $config $source_file; } > $dirname/output.txt 2>&1
-  # Restore default assumption automaton filename
-  sed -i 's@'$automaton_file_to_be_used'@'$automaton_file_to_replace'@' $config
+  { time ./scripts/cpa.sh -skipRecursion -outputpath $dirname -logfile logfile.txt  -preprocess -config $config $source_file -setprop limits.time.cpu=$time_limit -additionalSpec $automaton_file_to_be_used; } > $dirname/output.txt 2>&1
 }
 
 produce_paths() {
@@ -29,7 +26,6 @@ source $DIR/defs.sh
 cd $CPACHECKER_PATH
 source_file=$1
 dirname_file=`dirname "$(readlink -f "$source_file")"`
-automaton_file_to_replace=../../output/AssumptionAutomaton.txt
 automaton_file_to_be_used=$dirname_file/AssumptionAutomaton.txt
 explored_time_limit=${explored_time_limit:-$time_limit}
 

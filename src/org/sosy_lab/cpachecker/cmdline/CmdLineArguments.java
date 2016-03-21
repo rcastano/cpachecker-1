@@ -142,6 +142,7 @@ class CmdLineArguments {
           || handleArgument1("-cp",            "java.classpath",          arg, argsIt, properties)
           || handleArgument1("-classpath",     "java.classpath",          arg, argsIt, properties)
           || handleMultipleArgument1("-spec",  "specification",           arg, argsIt, properties)
+          || handleMultipleArgument1("-additionalSpec",  "appendedSpecification", arg, argsIt, properties)
       ) {
         // nothing left to do
       } else if (arg.equals("-cmc")) {
@@ -375,7 +376,7 @@ class CmdLineArguments {
       if (args.hasNext()) {
 
         String newValue = args.next();
-        if (arg.equals("-spec")) {
+        if (arg.equals("-spec") || arg.equals("-additionalSpec")) {
           // handle normal specification definitions
           if (SPECIFICATION_FILES_PATTERN.matcher(newValue).matches()) {
             Path specFile = findFile(SPECIFICATION_FILES_TEMPLATE, newValue);

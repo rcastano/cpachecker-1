@@ -17,8 +17,7 @@ do
     DIRNAME=$(output_dirname $file $config $time_limit)
     mkdir -p $DIRNAME
     cp $file $DIRNAME
-    sed "s/.*limits.time.cpu.*/limits.time.cpu = $time_limit/" -i $config
-    { time ./scripts/cpa.sh -setprop limits.time.cpu=$time_limit -skipRecursion -outputpath $DIRNAME -logfile logfile.txt  -preprocess -config $config $file; } > $DIRNAME/output.txt 2>&1
+    { time ./scripts/cpa.sh -skipRecursion -outputpath $DIRNAME -logfile logfile.txt  -preprocess -config $config $file -setprop limits.time.cpu=$time_limit; } > $DIRNAME/output.txt 2>&1
     rm $DIRNAME/*.dot
     rm $DIRNAME/*.json
     rm $DIRNAME/*.spc
