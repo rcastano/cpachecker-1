@@ -5,12 +5,10 @@ run_cpachecker () {
   local time_limit=$2
   local dirname=$3
   local source_file=$4
-  local time_config=`dirname $config`/../time_limits.properties
   mkdir -p $dirname
   echo $time_limit
   sed -i 's@'$automaton_file_to_replace'@'$automaton_file_to_be_used'@' $config
-  sed "s/.*limits.time.cpu.*/limits.time.cpu = $time_limit/" -i $time_config
-  { time ./scripts/cpa.sh -skipRecursion -outputpath $dirname -logfile logfile.txt  -preprocess -config $config $source_file; } > $dirname/output.txt 2>&1
+  { time ./scripts/cpa.sh -setprop limits.time.cpu=$time_limit -skipRecursion -outputpath $dirname -logfile logfile.txt  -preprocess -config $config $source_file; } > $dirname/output.txt 2>&1
   # Restore default assumption automaton filename
   sed -i 's@'$automaton_file_to_be_used'@'$automaton_file_to_replace'@' $config
 }
