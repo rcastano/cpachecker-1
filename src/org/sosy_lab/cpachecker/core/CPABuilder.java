@@ -88,12 +88,6 @@ public class CPABuilder {
   @FileOption(FileOption.Type.OPTIONAL_INPUT_FILE)
   private List<Path> specificationFiles = null;
 
-  @Option(secure=true, name="appendedSpecification",
-      description="comma-separated list of files with specifications that should be checked"
-        + "\n(see config/specification/ for examples)")
-  @FileOption(FileOption.Type.OPTIONAL_INPUT_FILE)
-  private List<Path> specificationFiles2 = null;
-
   @Option(secure=true, name="backwardSpecification",
       description="comma-separated list of files with specifications that should be used "
       + "\nin a backwards analysis; used if the full analysis consists of a forward AND a backward part!"
@@ -112,27 +106,14 @@ public class CPABuilder {
     this.logger = pLogger;
     this.shutdownNotifier = pShutdownNotifier;
     this.reachedSetFactory = pReachedSetFactory;
-
     config.inject(this);
   }
 
   public ConfigurableProgramAnalysis buildCPAWithSpecAutomatas(final CFA cfa)
       throws InvalidConfigurationException, CPAException {
 
-    // TODO(rcastano): This is a quick fix, figure out how to it correctly.
-    // We need to add a command-line flag -additionalSpec
-    // to add an additional specification file.
-
-    List<Path> specFiles = null;
-    if (specificationFiles != null) {
-      specFiles = new ArrayList(specificationFiles);
-      if (specificationFiles2 != null) {
-        specFiles.addAll(specificationFiles2);
-      }
-    }
-
     // create automata cpas for the specification files given in "specification"
-    return buildCPAs(cfa, specFiles);
+    return buildCPAs(cfa, specificationFiles);
   }
 
   public ConfigurableProgramAnalysis buildCPAWithBackwardSpecAutomatas(final CFA cfa)
@@ -147,16 +128,7 @@ public class CPABuilder {
 
     List<ConfigurableProgramAnalysis> cpas = null;
 
-    if (specificationFiles != null) {
-      // TODO(rcastano): This is a quick fix, figure out how to it correctly.
-      // We need to add a command-line flag -additionalSpec
-      // to add an additional specification file.
-      List<Path> specFiles = new ArrayList(specificationFiles);
-      if (specificationFiles2 != null) {
-        specFiles.addAll(specificationFiles2);
-      }
-
-      cpas = createSpecificationCPAs(cfa, specificationFiles, usedAliases);
+    if (specificationFiles != null) { cpas = createSpecificationCPAs(cfa, specificationFiles, usedAliases);
     }
 
     if (!automata.isEmpty()) {
