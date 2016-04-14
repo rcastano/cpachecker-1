@@ -1,0 +1,364 @@
+   BENCHMARK INFORMATION
+benchmark:          draft
+date:               Mon, 2016-04-11 14:49:20 ART
+tool:               CPAchecker 1.5-svn 6d849f4+
+CPU cores used:     1
+------------------------------------------------------------
+
+   SYSTEM INFORMATION
+host:               circulito
+os:                 Linux 3.13.0-85-generic x86_64
+cpu:                Intel Core i7-3770 CPU @ 3.40GHz
+- cores:            8
+- max frequency:    3901.0 MHz
+ram:                16714.051584 MB
+------------------------------------------------------------
+
+
+
+generate-explicit.original
+Run set 1 of 6: skipped 
+
+
+generate-predicate.original
+Run set 2 of 6: skipped 
+
+
+produce-witnesses-unexplored-predicate-from-explicit.original
+Run set 3 of 6 with options '-heap 12000M -config test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties -setprop limits.time.cpu=3600s -setprop specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton,test-configs/specification/AssumptionGuidingAutomaton.spc,test-configs/my-specification/detect-unexplored-calls.spc -outputpath benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/ -skipRecursion' and propertyfile 'None'
+
+inputfile                         status                    cpu time   wall time        host     total   reached    memory
+--------------------------------------------------------------------------------------------------------------------------
+systemc/bist_cell.c               ERROR                         2.66        2.68        None    1.604s      None      None
+systemc/kundu.c                   ERROR                         2.50        2.51        None    1.430s      None      None
+systemc/kundu1_BUG.c              false(reach)                  9.43        9.45        None    7.232s    0.016s      None
+systemc/kundu2_BUG.c              false(reach)                  9.59        9.61        None    7.169s    0.006s      None
+systemc/mem_slave_tlm.1.c         ERROR                         3.17        3.18        None    1.880s      None      None
+systemc/mem_slave_tlm.2.c         ERROR                         3.15        3.16        None    1.867s      None      None
+systemc/mem_slave_tlm.3.c         ERROR                         3.12        3.13        None    1.855s      None      None
+systemc/mem_slave_tlm.4.c         ERROR                         3.10        3.10        None    1.876s      None      None
+systemc/mem_slave_tlm.5.c         ERROR                         3.17        3.18        None    1.903s      None      None
+systemc/pc_sfifo_1.c              false(reach)                 40.69       40.71        None   36.937s    0.355s      None
+systemc/pc_sfifo_1_BUG.c          false(reach)               9143.10     9146.82        None 2460.259s    0.204s      None
+systemc/pc_sfifo_2.c              false(reach)              22980.27    22985.05        None 2788.913s    0.184s      None
+systemc/pc_sfifo_2_BUG.c          unknown                   23968.90    23972.61        None 3602.202s    5.809s      None
+systemc/pc_sfifo_3.c              ERROR                         2.57        4.04        None    2.090s      None      None
+systemc/pipeline.c                true                        572.36      573.37        None  560.852s    1.467s      None
+systemc/pipeline_BUG.c            false(reach)                 83.94       84.15        None   58.824s    0.120s      None
+systemc/token_ring.01.BUG.c       false(reach)                  7.92        7.95        None    5.996s    0.019s      None
+systemc/token_ring.01.c           true                          5.71        5.72        None    4.664s    0.022s      None
+systemc/token_ring.02.BUG.c       false(reach)                  9.12        9.13        None    7.126s    0.051s      None
+systemc/token_ring.02.c           true                          9.06        9.09        None    7.779s    0.080s      None
+systemc/token_ring.03.BUG.c       false(reach)                 11.08       11.11        None    8.781s    0.045s      None
+systemc/token_ring.03.c           true                         14.65       14.67        None   12.035s    0.163s      None
+systemc/token_ring.04.BUG.c       false(reach)                 13.13       13.15        None   10.467s    0.068s      None
+systemc/token_ring.04.c           true                         21.17       21.19        None   19.084s    0.215s      None
+systemc/token_ring.05.BUG.c       false(reach)                 15.33       15.35        None   12.242s    0.058s      None
+systemc/token_ring.05.c           true                         34.55       34.57        None   32.055s    0.351s      None
+systemc/token_ring.06.BUG.c       false(reach)                 18.47       18.51        None   15.290s    0.111s      None
+systemc/token_ring.06.c           true                         76.50       76.54        None   72.327s    0.667s      None
+systemc/token_ring.07.BUG.c       false(reach)                 21.50       21.52        None   17.429s    0.141s      None
+systemc/token_ring.07.c           true                        276.13      276.22        None  269.657s    2.150s      None
+systemc/token_ring.08.BUG.c       false(reach)                 24.23       24.26        None   20.098s    0.183s      None
+systemc/token_ring.08.c           true                       2041.06     2041.44        None 2027.651s    8.768s      None
+systemc/token_ring.09.BUG.c       false(reach)                 26.97       27.17        None   21.679s    0.157s      None
+systemc/token_ring.14.BUG.c       false(reach)                 35.93       35.97        None   27.816s    0.117s      None
+systemc/toy.c                     unknown                   11613.62    11614.58        None 3617.726s    0.141s      None
+systemc/toy1_BUG.c                false(reach)                 21.10       24.98        None   19.256s    0.038s      None
+systemc/toy2_BUG.c                false(reach)                 19.98       20.03        None   16.605s    0.071s      None
+systemc/transmitter.01.BUG.c      false(reach)                  7.28        7.30        None    5.393s    0.011s      None
+systemc/transmitter.02.BUG.c      false(reach)                  7.73        7.74        None    5.851s    0.014s      None
+systemc/transmitter.03.BUG.c      false(reach)                  9.43        9.46        None    7.433s    0.065s      None
+systemc/transmitter.04.BUG.c      false(reach)                 11.58       11.60        None    8.960s    0.044s      None
+systemc/transmitter.05.BUG.c      false(reach)                 14.12       14.13        None   11.070s    0.081s      None
+systemc/transmitter.06.BUG.c      false(reach)                 15.71       15.72        None   12.776s    0.066s      None
+systemc/transmitter.07.BUG.c      false(reach)                 19.71       19.74        None   15.159s    0.092s      None
+systemc/transmitter.08.BUG.c      false(reach)                 20.43       20.48        None   16.825s    0.153s      None
+systemc/transmitter.09.BUG.c      false(reach)                 25.59       25.65        None   20.251s    0.193s      None
+systemc/transmitter.10.BUG.c      false(reach)                 26.27       26.29        None   20.689s    0.158s      None
+systemc/transmitter.11.BUG.c      false(reach)                 28.88       28.90        None   21.892s    0.135s      None
+systemc/transmitter.12.BUG.c      false(reach)                 31.58       31.60        None   23.530s    0.103s      None
+systemc/transmitter.15.BUG.c      false(reach)                 12.14       12.18        None    9.931s    0.055s      None
+systemc/transmitter.16.BUG.c      false(reach)                 13.08       13.10        None   10.513s    0.054s      None
+drivers64/drbd.BUG.c              false(reach)                 48.47       48.83        None   43.897s    0.007s      None
+drivers64/farsync.BUG.c           false(reach)                142.13      142.40        None  135.587s    0.350s      None
+drivers64/gigaset.BUG.c           unknown                    3602.96     3602.75        None 3599.865s    0.136s      None
+drivers64/i915.c                  ERROR                        24.09       24.13        None   19.301s      None      None
+drivers64/iowarrior.BUG.c         false(reach)                 37.87       37.95        None   31.066s    0.046s      None
+drivers64/kbtab.c                 false(reach)                 24.83       24.88        None   22.598s    0.015s      None
+drivers64/keyspan_remote.BUG.c    false(reach)                 31.92       31.96        None   26.698s    0.037s      None
+drivers64/lirc_imon.BUG.c         false(reach)                363.47      363.55        None  342.374s    2.123s      None
+drivers64/loop.BUG.c              false(reach)                496.53      496.68        None  485.433s    0.064s      None
+drivers64/mISDN_core.BUG.c        false(reach)               2135.55     2136.60        None 2104.769s    0.140s      None
+drivers64/pktcdvd.BUG.c           false(reach)                 92.01       92.10        None   84.550s    0.220s      None
+drivers64/ppp_generic.BUG.c       false(reach)                309.26      309.41        None  300.876s    0.060s      None
+drivers64/pppox.c                 false(reach)                 15.87       15.89        None   13.935s    0.005s      None
+drivers64/synclink_gt.BUG.c       unknown                    5001.40     5002.38        None 3610.842s    0.086s      None
+drivers64/ttusb_dec.BUG.c         false(reach)               1971.02     1972.04        None 1908.506s    0.025s      None
+drivers64/usbcore.BUG.c           ERROR                        45.31       45.68        None   38.630s    0.001s      None
+drivers64/usbmouse.BUG.c          false(reach)                 32.50       32.54        None   27.907s    0.015s      None
+--------------------------------------------------------------------------------------------------------------------------
+Run set 3                         done                      85768.41    85802.87           -
+
+
+produce-witnesses-unexplored-predicate-from-predicate.original
+Run set 4 of 6 with options '-heap 12000M -config test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties -setprop limits.time.cpu=3600s -setprop specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton,test-configs/specification/AssumptionGuidingAutomaton.spc,test-configs/my-specification/detect-unexplored-calls.spc -outputpath benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/ -skipRecursion' and propertyfile 'None'
+
+inputfile                         status                    cpu time   wall time        host     total   reached    memory
+--------------------------------------------------------------------------------------------------------------------------
+systemc/bist_cell.c               ERROR                         2.60        2.63        None    1.522s      None      None
+systemc/kundu.c                   ERROR                         2.52        2.55        None    1.445s      None      None
+systemc/kundu1_BUG.c              false(reach)                 18.14       18.16        None   15.635s    0.148s      None
+systemc/kundu2_BUG.c              false(reach)                 22.49       22.53        None   18.929s    0.086s      None
+systemc/mem_slave_tlm.1.c         ERROR                         3.24        3.24        None    1.958s      None      None
+systemc/mem_slave_tlm.2.c         true                         20.49       20.54        None   19.039s    0.200s      None
+systemc/mem_slave_tlm.3.c         true                         29.50       29.53        None   27.172s    0.194s      None
+systemc/mem_slave_tlm.4.c         false(reach)                 19.08       19.09        None   17.338s    0.097s      None
+systemc/mem_slave_tlm.5.c         false(reach)                 19.98       20.00        None   18.101s    0.152s      None
+systemc/pc_sfifo_1.c              ERROR                         2.46        2.49        None    1.410s      None      None
+systemc/pc_sfifo_1_BUG.c          false(reach)                  7.13        7.15        None    5.597s    0.016s      None
+systemc/pc_sfifo_2.c              ERROR                         2.57        2.60        None    1.530s      None      None
+systemc/pc_sfifo_2_BUG.c          false(reach)                  7.87        7.88        None    6.143s    0.027s      None
+systemc/pc_sfifo_3.c              ERROR                         2.50        2.51        None    1.480s      None      None
+systemc/pipeline.c                false(reach)                 31.48       31.49        None   28.899s    0.168s      None
+systemc/pipeline_BUG.c            false(reach)                 78.53       78.58        None   73.671s    0.205s      None
+systemc/token_ring.01.BUG.c       false(reach)                 15.39       15.41        None   12.686s    0.047s      None
+systemc/token_ring.01.c           ERROR                         2.51        2.51        None    1.439s      None      None
+systemc/token_ring.02.BUG.c       false(reach)                 18.80       18.81        None   16.372s    0.040s      None
+systemc/token_ring.02.c           ERROR                         2.53        2.55        None    1.482s      None      None
+systemc/token_ring.03.BUG.c       false(reach)                 26.76       26.78        None   23.559s    0.049s      None
+systemc/token_ring.03.c           ERROR                         2.52        2.53        None    1.518s      None      None
+systemc/token_ring.04.BUG.c       false(reach)                 34.45       34.47        None   30.539s    0.084s      None
+systemc/token_ring.04.c           ERROR                         2.70        2.71        None    1.567s      None      None
+systemc/token_ring.05.BUG.c       false(reach)                 65.03       65.07        None   60.258s    0.155s      None
+systemc/token_ring.05.c           ERROR                         2.79        2.80        None    1.584s      None      None
+systemc/token_ring.06.BUG.c       false(reach)                132.89      132.94        None  126.322s    0.134s      None
+systemc/token_ring.06.c           ERROR                         2.80        2.81        None    1.654s      None      None
+systemc/token_ring.07.BUG.c       false(reach)                389.24      389.25        None  382.267s    0.127s      None
+systemc/token_ring.07.c           false(reach)                 18.84       18.88        None   16.760s    0.085s      None
+systemc/token_ring.08.BUG.c       unknown                    3601.49     3601.19        None 3599.773s    0.160s      None
+systemc/token_ring.08.c           false(reach)                 32.59       32.61        None   30.494s    0.112s      None
+systemc/token_ring.09.BUG.c       false(reach)               3032.54     3032.31        None 3024.490s    0.180s      None
+systemc/token_ring.14.BUG.c       unknown                    3601.30     3600.97        None 3599.666s    0.165s      None
+systemc/toy.c                     ERROR                         2.49        2.59        None    1.490s      None      None
+systemc/toy1_BUG.c                false(reach)                 30.82       30.84        None   27.238s    0.171s      None
+systemc/toy2_BUG.c                false(reach)                 26.32       26.33        None   22.672s    0.124s      None
+systemc/transmitter.01.BUG.c      false(reach)                 10.00       10.01        None    8.101s    0.025s      None
+systemc/transmitter.02.BUG.c      false(reach)                 15.46       15.48        None   11.364s    0.039s      None
+systemc/transmitter.03.BUG.c      false(reach)                 18.62       18.65        None   15.881s    0.067s      None
+systemc/transmitter.04.BUG.c      false(reach)                 18.99       19.01        None   16.627s    0.096s      None
+systemc/transmitter.05.BUG.c      false(reach)                 22.94       22.96        None   19.959s    0.076s      None
+systemc/transmitter.06.BUG.c      false(reach)                 30.86       30.89        None   27.975s    0.126s      None
+systemc/transmitter.07.BUG.c      false(reach)                 31.83       31.84        None   28.208s    0.122s      None
+systemc/transmitter.08.BUG.c      false(reach)                 43.64       43.66        None   40.147s    0.114s      None
+systemc/transmitter.09.BUG.c      false(reach)                 82.52       82.54        None   78.623s    0.192s      None
+systemc/transmitter.10.BUG.c      false(reach)                158.36      158.38        None  153.347s    0.105s      None
+systemc/transmitter.11.BUG.c      false(reach)                319.71      319.71        None  314.564s    0.185s      None
+systemc/transmitter.12.BUG.c      false(reach)                692.76      692.73        None  686.341s    0.143s      None
+systemc/transmitter.15.BUG.c      false(reach)                 38.04       38.06        None   32.343s    0.056s      None
+systemc/transmitter.16.BUG.c      false(reach)                 38.03       38.06        None   31.283s    0.046s      None
+drivers64/drbd.BUG.c              false(reach)                 31.16       31.19        None   27.945s    0.011s      None
+drivers64/farsync.BUG.c           false(reach)               3292.36     3293.38        None 3268.914s    4.871s      None
+drivers64/gigaset.BUG.c           EXCEPTION                  1324.13     1324.14        None      None      None      None
+drivers64/i915.c                  ERROR                        22.83       22.84        None   17.914s      None      None
+drivers64/iowarrior.BUG.c         false(reach)                 36.42       36.87        None   30.768s    0.058s      None
+drivers64/kbtab.c                 ERROR                         3.85        3.86        None    2.648s      None      None
+drivers64/keyspan_remote.BUG.c    false(reach)                 62.07       62.10        None   53.541s    0.182s      None
+drivers64/lirc_imon.BUG.c         false(reach)                 33.21       33.24        None   29.221s    0.181s      None
+drivers64/loop.BUG.c              false(reach)                709.28      709.49        None  694.886s    0.656s      None
+drivers64/mISDN_core.BUG.c        false(reach)                375.87      376.05        None  359.573s    0.052s      None
+drivers64/pktcdvd.BUG.c           unknown                    3625.22     3625.75        None 3600.649s   20.856s      None
+drivers64/ppp_generic.BUG.c       false(reach)                112.52      112.59        None   94.083s    0.070s      None
+drivers64/pppox.c                 ERROR                         3.80        3.81        None    2.694s      None      None
+drivers64/synclink_gt.BUG.c       false(reach)                 38.51       38.55        None   31.649s    0.022s      None
+drivers64/ttusb_dec.BUG.c         false(reach)                 47.59       47.62        None   42.412s    0.101s      None
+drivers64/usbcore.BUG.c           EXCEPTION                    18.97       19.00        None      None      None      None
+drivers64/usbmouse.BUG.c          false(reach)                 31.97       32.00        None   28.466s    0.119s      None
+--------------------------------------------------------------------------------------------------------------------------
+Run set 4                         done                      22607.50    22618.04           -
+
+
+produce-witnesses-unexplored-explicit-from-explicit.original
+Run set 5 of 6: skipped 
+
+
+produce-witnesses-unexplored-explicit-from-predicate.original
+Run set 6 of 6: skipped 
+   BENCHMARK INFORMATION
+benchmark:          draft
+date:               Thu, 2016-04-07 15:51:23 ART
+tool:               CPAchecker 1.5-svn 6d849f4+
+CPU cores used:     1
+------------------------------------------------------------
+
+   SYSTEM INFORMATION
+host:               circulito
+os:                 Linux 3.13.0-85-generic x86_64
+cpu:                Intel Core i7-3770 CPU @ 3.40GHz
+- cores:            8
+- max frequency:    3901.0 MHz
+ram:                16714.051584 MB
+------------------------------------------------------------
+
+
+
+generate-explicit.original
+Run set 1 of 4 with options '-heap 12000M -setprop assumptions.automatonFile=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton -setprop limits.time.cpu=10800s -config ${sourcefile_path}/../../../test-configs/generate/explicitAnalysis-generate-assumption.properties -skipRecursion' and propertyfile 'None'
+
+inputfile                         status                    cpu time   wall time        host      total   reached    memory
+---------------------------------------------------------------------------------------------------------------------------
+systemc/bist_cell.c               true                          3.15        3.16        None     2.081s    0.002s      None
+systemc/kundu.c                   true                         12.05       12.07        None     6.193s    0.205s      None
+systemc/kundu1_BUG.c              false(reach)                  5.93        5.94        None     3.609s    0.019s      None
+systemc/kundu2_BUG.c              false(reach)                  5.11        5.13        None     2.953s    0.004s      None
+systemc/mem_slave_tlm.1.c         true                          4.51        4.53        None     3.354s    0.008s      None
+systemc/mem_slave_tlm.2.c         true                          4.76        4.78        None     3.531s    0.016s      None
+systemc/mem_slave_tlm.3.c         true                          4.99        5.00        None     3.644s    0.027s      None
+systemc/mem_slave_tlm.4.c         true                          5.15        5.16        None     3.755s    0.031s      None
+systemc/mem_slave_tlm.5.c         true                          5.35        5.36        None     3.978s    0.039s      None
+systemc/pc_sfifo_1.c              unknown                   10907.19    10906.40        None 10799.637s    0.024s      None
+systemc/pc_sfifo_1_BUG.c          unknown                   10906.31    10905.24        None 10799.339s    0.034s      None
+systemc/pc_sfifo_2.c              unknown                   11045.68    11044.61        None 10799.332s    0.048s      None
+systemc/pc_sfifo_2_BUG.c          unknown                   11041.18    11040.30        None 10799.397s    0.044s      None
+systemc/pc_sfifo_3.c              true                          3.77        3.78        None     2.593s    0.020s      None
+systemc/pipeline.c                unknown                      63.33      107.10        None    43.535s    0.295s      None
+systemc/pipeline_BUG.c            false(reach)                  9.87        9.88        None     5.373s    0.022s      None
+systemc/token_ring.01.BUG.c       false(reach)                  4.48        4.49        None     2.639s    0.021s      None
+systemc/token_ring.01.c           unknown                       3.73        3.73        None     2.692s    0.011s      None
+systemc/token_ring.02.BUG.c       false(reach)                  5.28        5.29        None     3.287s    0.010s      None
+systemc/token_ring.02.c           unknown                       4.75        4.77        None     3.407s    0.013s      None
+systemc/token_ring.03.BUG.c       false(reach)                  6.34        6.35        None     3.931s    0.044s      None
+systemc/token_ring.03.c           unknown                       5.54        5.55        None     4.193s    0.079s      None
+systemc/token_ring.04.BUG.c       false(reach)                  6.91        6.93        None     4.226s    0.011s      None
+systemc/token_ring.04.c           unknown                       7.46        7.47        None     5.345s    0.060s      None
+systemc/token_ring.05.BUG.c       false(reach)                  8.21        8.23        None     4.762s    0.063s      None
+systemc/token_ring.05.c           unknown                       9.48        9.49        None     6.310s    0.064s      None
+systemc/token_ring.06.BUG.c       false(reach)                  9.66        9.68        None     5.450s    0.095s      None
+systemc/token_ring.06.c           unknown                      12.30       12.33        None     7.846s    0.089s      None
+systemc/token_ring.07.BUG.c       false(reach)                 12.14       12.16        None     6.718s    0.099s      None
+systemc/token_ring.07.c           unknown                      20.23       20.52        None    12.198s    0.169s      None
+systemc/token_ring.08.BUG.c       false(reach)                 16.25       16.27        None     9.243s    0.109s      None
+systemc/token_ring.08.c           unknown                      46.06       48.14        None    29.309s    0.217s      None
+systemc/token_ring.09.BUG.c       false(reach)                 27.60       28.11        None    17.677s    0.096s      None
+systemc/token_ring.14.BUG.c       false(reach)               1165.88     1174.99        None  1087.400s    0.506s      None
+systemc/toy.c                     unknown                   11275.41    11293.16        None 10800.920s    5.657s      None
+systemc/toy1_BUG.c                false(reach)                  5.81        9.23        None     4.682s    0.008s      None
+systemc/toy2_BUG.c                false(reach)                  5.53        5.55        None     3.287s    0.010s      None
+systemc/transmitter.01.BUG.c      false(reach)                  4.04        4.06        None     2.492s    0.007s      None
+systemc/transmitter.02.BUG.c      false(reach)                  4.83        4.85        None     2.994s    0.015s      None
+systemc/transmitter.03.BUG.c      false(reach)                  5.66        5.68        None     3.463s    0.011s      None
+systemc/transmitter.04.BUG.c      false(reach)                  6.49        6.52        None     3.982s    0.026s      None
+systemc/transmitter.05.BUG.c      false(reach)                  7.51        7.54        None     4.498s    0.023s      None
+systemc/transmitter.06.BUG.c      false(reach)                  9.09        9.10        None     5.435s    0.065s      None
+systemc/transmitter.07.BUG.c      false(reach)                 11.38       11.40        None     6.364s    0.112s      None
+systemc/transmitter.08.BUG.c      false(reach)                 15.63       15.66        None     8.807s    0.085s      None
+systemc/transmitter.09.BUG.c      false(reach)                 27.61       28.05        None    17.379s    0.121s      None
+systemc/transmitter.10.BUG.c      false(reach)                 77.68       79.48        None    58.050s    0.211s      None
+systemc/transmitter.11.BUG.c      false(reach)                281.14      282.64        None   244.261s    0.256s      None
+systemc/transmitter.12.BUG.c      false(reach)               1159.54     1164.21        None  1079.550s    0.613s      None
+systemc/transmitter.15.BUG.c      false(reach)               1149.58     1156.86        None  1069.324s    0.635s      None
+systemc/transmitter.16.BUG.c      false(reach)               5097.74     5101.55        None  4938.678s    1.277s      None
+drivers64/drbd.BUG.c              unknown                   10822.27    10821.65        None 10799.557s    0.036s      None
+drivers64/farsync.BUG.c           unknown                   10854.46    10856.33        None 10798.674s    0.787s      None
+drivers64/gigaset.BUG.c           unknown                   10927.63    10931.54        None 10799.429s    1.749s      None
+drivers64/i915.c                  true                         98.91      101.09        None    76.584s    0.341s      None
+drivers64/iowarrior.BUG.c         false(reach)                  9.83        9.89        None     7.352s    0.034s      None
+drivers64/kbtab.c                 unknown                   10831.71    10831.00        None 10799.707s    0.024s      None
+drivers64/keyspan_remote.BUG.c    unknown                   10882.83    10881.96        None 10799.543s    0.067s      None
+drivers64/lirc_imon.BUG.c         unknown                   10879.23    10881.02        None 10799.051s    1.438s      None
+drivers64/loop.BUG.c              unknown                   10898.34    10903.19        None 10799.340s    2.295s      None
+drivers64/mISDN_core.BUG.c        false(reach)                 30.82       31.28        None    26.501s    0.032s      None
+drivers64/pktcdvd.BUG.c           unknown                   10871.96    10872.42        None 10799.526s    0.134s      None
+drivers64/ppp_generic.BUG.c       unknown                   10886.47    10910.37        None 10799.082s    1.381s      None
+drivers64/pppox.c                 unknown                   10832.21    10835.34        None 10803.527s    0.046s      None
+drivers64/synclink_gt.BUG.c       unknown                   10903.14    10910.48        None 10799.409s    1.513s      None
+drivers64/ttusb_dec.BUG.c         unknown                   12588.13    12603.40        None 10799.538s    6.801s      None
+drivers64/usbcore.BUG.c           false(reach)                 70.59       75.45        None    67.715s    0.024s      None
+drivers64/usbmouse.BUG.c          unknown                   10846.47    10845.75        None 10799.708s    0.039s      None
+--------------------------------------------------------------------------------------------------------------------------
+Run set 1                         done                     207780.67   207951.63           -
+
+
+generate-predicate.original
+Run set 2 of 4 with options '-heap 12000M -setprop assumptions.automatonFile=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton -setprop limits.time.cpu=10800s -config ${sourcefile_path}/../../../test-configs/generate/predicateAnalysis-generate-cmc-condition.properties -skipRecursion' and propertyfile 'None'
+
+inputfile                         status                    cpu time   wall time        host      total   reached    memory
+---------------------------------------------------------------------------------------------------------------------------
+systemc/bist_cell.c               true                          7.31        7.78        None     5.920s    0.064s      None
+systemc/kundu.c                   true                         80.10       80.14        None    77.484s    0.216s      None
+systemc/kundu1_BUG.c              false(reach)                 16.01       16.03        None    13.532s    0.107s      None
+systemc/kundu2_BUG.c              false(reach)                 15.23       15.24        None    13.359s    0.092s      None
+systemc/mem_slave_tlm.1.c         true                         21.64       21.66        None    19.936s    0.289s      None
+systemc/mem_slave_tlm.2.c         unknown                   10803.13    10802.14        None 10799.442s    0.295s      None
+systemc/mem_slave_tlm.3.c         unknown                   12266.52    12266.39        None 10807.330s    0.449s      None
+systemc/mem_slave_tlm.4.c         OUT OF JAVA MEMORY         8113.65     8113.78        None       None      None      None
+systemc/mem_slave_tlm.5.c         unknown                   10886.44    10888.44        None 10886.656s    0.365s      None
+systemc/pc_sfifo_1.c              true                         10.56       10.60        None     9.237s    0.176s      None
+systemc/pc_sfifo_1_BUG.c          false(reach)                  3.42        3.44        None     2.295s    0.002s      None
+systemc/pc_sfifo_2.c              true                         13.49       13.51        None    12.340s    0.168s      None
+systemc/pc_sfifo_2_BUG.c          false(reach)                  3.72        3.73        None     2.484s    0.006s      None
+systemc/pc_sfifo_3.c              true                          5.82        5.83        None     4.624s    0.026s      None
+systemc/pipeline.c                unknown                   10802.36    10801.60        None 10799.735s    0.177s      None
+systemc/pipeline_BUG.c            false(reach)                109.21      109.33        None   102.877s    0.241s      None
+systemc/token_ring.01.BUG.c       false(reach)                  6.71        6.72        None     5.017s    0.018s      None
+systemc/token_ring.01.c           true                          9.02        9.04        None     7.971s    0.068s      None
+systemc/token_ring.02.BUG.c       false(reach)                  9.98       10.00        None     8.287s    0.034s      None
+systemc/token_ring.02.c           true                         24.44       24.45        None    23.330s    0.050s      None
+systemc/token_ring.03.BUG.c       false(reach)                 13.01       13.02        None    11.005s    0.041s      None
+systemc/token_ring.03.c           true                         40.89       40.91        None    39.448s    0.147s      None
+systemc/token_ring.04.BUG.c       false(reach)                 13.81       13.82        None    11.678s    0.064s      None
+systemc/token_ring.04.c           true                        114.81      114.83        None   113.545s    0.079s      None
+systemc/token_ring.05.BUG.c       false(reach)                 17.45       17.47        None    15.091s    0.067s      None
+systemc/token_ring.05.c           true                        237.58      237.58        None   236.158s    0.114s      None
+systemc/token_ring.06.BUG.c       false(reach)                 25.25       25.26        None    22.817s    0.053s      None
+systemc/token_ring.06.c           true                        934.02      933.97        None   932.373s    0.143s      None
+systemc/token_ring.07.BUG.c       false(reach)                 33.89       33.90        None    31.093s    0.072s      None
+systemc/token_ring.07.c           unknown                   10801.45    10800.63        None 10799.601s    0.090s      None
+systemc/token_ring.08.BUG.c       false(reach)                 63.69       63.74        None    60.555s    0.099s      None
+systemc/token_ring.08.c           unknown                   10801.51    10800.28        None 10799.239s    0.119s      None
+systemc/token_ring.09.BUG.c       false(reach)                148.93      148.95        None   145.378s    0.063s      None
+systemc/token_ring.14.BUG.c       false(reach)               2952.81     2952.51        None  2947.181s    0.136s      None
+systemc/toy.c                     true                         69.92       69.95        None    67.678s    0.088s      None
+systemc/toy1_BUG.c                false(reach)                 25.57       25.60        None    23.305s    0.080s      None
+systemc/toy2_BUG.c                false(reach)                 21.86       21.88        None    19.747s    0.081s      None
+systemc/transmitter.01.BUG.c      false(reach)                  4.65        4.66        None     3.258s    0.023s      None
+systemc/transmitter.02.BUG.c      false(reach)                  6.72        6.74        None     4.953s    0.006s      None
+systemc/transmitter.03.BUG.c      false(reach)                  8.29        8.31        None     6.357s    0.059s      None
+systemc/transmitter.04.BUG.c      false(reach)                  9.74        9.77        None     7.651s    0.020s      None
+systemc/transmitter.05.BUG.c      false(reach)                 11.60       11.62        None     9.326s    0.058s      None
+systemc/transmitter.06.BUG.c      false(reach)                 13.90       13.92        None    11.574s    0.138s      None
+systemc/transmitter.07.BUG.c      false(reach)                 14.58       14.60        None    12.156s    0.087s      None
+systemc/transmitter.08.BUG.c      false(reach)                 19.73       19.76        None    16.616s    0.142s      None
+systemc/transmitter.09.BUG.c      false(reach)                 23.69       23.73        None    20.175s    0.189s      None
+systemc/transmitter.10.BUG.c      false(reach)                 26.04       26.08        None    22.184s    0.107s      None
+systemc/transmitter.11.BUG.c      false(reach)                 36.55       36.58        None    32.145s    0.145s      None
+systemc/transmitter.12.BUG.c      false(reach)                 40.04       40.09        None    34.801s    0.126s      None
+systemc/transmitter.15.BUG.c      false(reach)                  9.10        9.12        None     6.997s    0.018s      None
+systemc/transmitter.16.BUG.c      false(reach)                  9.25        9.29        None     7.031s    0.022s      None
+drivers64/drbd.BUG.c              false(reach)                 26.93       27.17        None    22.776s    0.012s      None
+drivers64/farsync.BUG.c           false(reach)                 66.72       66.79        None    61.670s    0.438s      None
+drivers64/gigaset.BUG.c           false(reach)                 70.10       70.16        None    57.673s    0.193s      None
+drivers64/i915.c                  true                         50.68       51.24        None    46.234s    0.161s      None
+drivers64/iowarrior.BUG.c         false(reach)                 12.28       12.34        None     9.963s    0.006s      None
+drivers64/kbtab.c                 true                         12.87       12.88        None    11.783s    0.046s      None
+drivers64/keyspan_remote.BUG.c    false(reach)                 80.08       80.14        None    75.880s    0.347s      None
+drivers64/lirc_imon.BUG.c         false(reach)                 16.93       16.96        None    14.249s    0.057s      None
+drivers64/loop.BUG.c              false(reach)                 64.57       64.60        None    60.375s    0.238s      None
+drivers64/mISDN_core.BUG.c        false(reach)                 25.37       25.40        None    22.352s    0.034s      None
+drivers64/pktcdvd.BUG.c           unknown                   10845.44    10849.09        None 10800.575s   36.342s      None
+drivers64/ppp_generic.BUG.c       false(reach)                 22.52       22.56        None    19.009s    0.060s      None
+drivers64/pppox.c                 true                          4.70        4.73        None     3.600s    0.011s      None
+drivers64/synclink_gt.BUG.c       false(reach)                 12.84       12.87        None    10.726s    0.000s      None
+drivers64/ttusb_dec.BUG.c         false(reach)                 15.29       15.30        None    12.994s    0.017s      None
+drivers64/usbcore.BUG.c           EXCEPTION                    17.45       17.48        None       None      None      None
+drivers64/usbmouse.BUG.c          false(reach)                 16.71       16.73        None    14.248s    0.045s      None
+--------------------------------------------------------------------------------------------------------------------------
+Run set 2                         done                      91120.89    91133.22           -
+
+
+produce-witnesses-unexplored-predicate-from-explicit.original
+Run set 3 of 4: skipped 
+
+
+produce-witnesses-unexplored-explicit-from-explicit.original
+Run set 4 of 4: skipped 
