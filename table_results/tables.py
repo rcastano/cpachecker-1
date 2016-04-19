@@ -1,6 +1,8 @@
 
 
 import fileinput
+import sys
+
 prev_line = "None"
 bench_run = "None"
 ignore = 0
@@ -68,6 +70,10 @@ derived_from = {
     "produce-witnesses-unexplored-predicate-from-explicit.original":
         "generate-explicit.original",
     "produce-witnesses-unexplored-predicate-from-predicate.original":
+        "generate-predicate.original",
+    "produce-witnesses-unexplored-explicit-from-explicit.original":
+        "generate-explicit.original",
+    "produce-witnesses-unexplored-explicit-from-predicate.original":
         "generate-predicate.original"
 }
 
@@ -95,10 +101,12 @@ for der, base in derived_from.iteritems():
     for p in range(1,12,1):
         bound = float(p) * 0.05
         finished_within_bound = 0
+        unfinished = []
 
         for instance in benchs[der].keys():
             if (benchs[der][instance][column_indexes["status"]] != "true" and
             benchs[der][instance][column_indexes["status"]] != "false(reach)"):
+                unfinished += [instance]
                 continue
             if float(benchs[der][instance][column_indexes["cpu time"]]) < bound * float(benchs[base][instance][column_indexes["cpu time"]]):
                 finished_within_bound += 1
@@ -106,5 +114,20 @@ for der, base in derived_from.iteritems():
         finished_for[der][str(bound)] = 100 * (float(finished_within_bound) / float(len(benchs[der])))
         print "In " + der + ":"
         print "For bound " + str(bound * 100.0) + "% of original time: " + str(finished_for[der][str(bound)]) + "% completed."
+        print "Unfinished: "
+        print unfinished
 
+
+print ""
+print ""
+
+print "# % of cpu time \t| % 1-e 2-p \t| % 1-p 2-p |\t % 1-e 2-e \t| 1-p 2-e"
+for p in range(1,12,1):
+    bound = float(p) * 0.05
+    sys.stdout.write(str(bound * 100.0) + "\t")
+    sys.stdout.write(str(finished_for["produce-witnesses-unexplored-predicate-from-explicit.original"][str(bound)]) + "\t")
+    sys.stdout.write(str(finished_for["produce-witnesses-unexplored-predicate-from-predicate.original"][str(bound)]) + "\t")
+    sys.stdout.write(str(finished_for["produce-witnesses-unexplored-explicit-from-explicit.original"][str(bound)]) + "\t")
+    sys.stdout.write(str(finished_for["produce-witnesses-unexplored-explicit-from-predicate.original"][str(bound)]) + "\t")
+    print ""
 
