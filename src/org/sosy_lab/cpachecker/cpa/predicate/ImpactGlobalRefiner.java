@@ -75,7 +75,11 @@ import com.google.common.collect.SetMultimap;
  * refining infeasible paths one by one.
  */
 public class ImpactGlobalRefiner implements Refiner, StatisticsProvider {
+  protected TargetExtractor targetExtractor;
 
+  protected interface TargetExtractor {
+    public List<AbstractState> getTargets(ReachedSet pReached);
+  }
   private final LogManager logger;
 
   private final BooleanFormulaManagerView bfmgr;
@@ -130,7 +134,7 @@ public class ImpactGlobalRefiner implements Refiner, StatisticsProvider {
                                     predicateCpa.getPredicateManager());
   }
 
-  private ImpactGlobalRefiner(Configuration config, LogManager pLogger,
+  protected ImpactGlobalRefiner(Configuration config, LogManager pLogger,
       ARGCPA pArgCpa,
       Solver pSolver, PredicateAbstractionManager pPredAbsMgr)
           throws InvalidConfigurationException {
@@ -140,6 +144,15 @@ public class ImpactGlobalRefiner implements Refiner, StatisticsProvider {
     solver = pSolver;
     bfmgr = solver.getFormulaManager().getBooleanFormulaManager();
     impact = new ImpactUtility(config, solver.getFormulaManager(), pPredAbsMgr);
+
+    targetExtractor = new TargetExtractor() {
+      @Override
+      public List<AbstractState> getTargets(ReachedSet pReached) {
+        return from(pReached)
+            .filter(AbstractStates.IS_TARGET_STATE)
+            .toList();
+      }
+    };
 
     if (impact.requiresPreviousBlockAbstraction()) {
       // With global refinements, we go backwards through the trace,
@@ -154,10 +167,7 @@ public class ImpactGlobalRefiner implements Refiner, StatisticsProvider {
     totalTime.start();
     refinementCalls++;
     try {
-
-      List<AbstractState> targets = from(pReached)
-        .filter(AbstractStates.IS_TARGET_STATE)
-        .toList();
+      List<AbstractState> targets = targetExtractor.getTargets(pReached);
       assert !targets.isEmpty();
 
       do {
@@ -172,9 +182,7 @@ public class ImpactGlobalRefiner implements Refiner, StatisticsProvider {
         // there might be target states which were previously covered
         // and are now uncovered
 
-        targets = from(pReached)
-            .filter(AbstractStates.IS_TARGET_STATE)
-            .toList();
+        targets = targetExtractor.getTargets(pReached);
 
       } while (!targets.isEmpty());
 

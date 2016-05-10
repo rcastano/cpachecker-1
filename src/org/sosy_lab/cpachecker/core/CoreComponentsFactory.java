@@ -45,6 +45,7 @@ import org.sosy_lab.cpachecker.core.algorithm.CustomInstructionRequirementsExtra
 import org.sosy_lab.cpachecker.core.algorithm.ExceptionHandlingAlgorithm;
 import org.sosy_lab.cpachecker.core.algorithm.ExternalCBMCAlgorithm;
 import org.sosy_lab.cpachecker.core.algorithm.ParallelAlgorithm;
+import org.sosy_lab.cpachecker.core.algorithm.PruneUnreachableAlgorithm;
 import org.sosy_lab.cpachecker.core.algorithm.RestartAlgorithm;
 import org.sosy_lab.cpachecker.core.algorithm.RestartAlgorithmWithARGReplay;
 import org.sosy_lab.cpachecker.core.algorithm.RestartWithConditionsAlgorithm;
@@ -89,6 +90,12 @@ public class CoreComponentsFactory {
         + "\nYou need to specify a refiner with the cegar.refiner option."
         + "\nCurrently all refiner require the use of the ARGCPA.")
   private boolean useCEGAR = false;
+
+  @Option(secure=true, name="algorithm.prune",
+      description = "use CEGAR algorithm for lazy counter-example guided analysis"
+        + "\nYou need to specify a refiner with the cegar.refiner option."
+        + "\nCurrently all refiner require the use of the ARGCPA.")
+  private boolean pruneWaitlist = false;
 
   @Option(secure=true, description="use a second model checking run (e.g., with CBMC or a different CPAchecker configuration) to double-check counter-examples")
   private boolean checkCounterexamples = false;
@@ -299,6 +306,10 @@ public class CoreComponentsFactory {
 
       if (checkCounterexamplesWithBDDCPARestriction) {
         algorithm = new BDDCPARestrictionAlgorithm(algorithm, cpa, config, logger);
+      }
+
+      if (pruneWaitlist) {
+        algorithm = new PruneUnreachableAlgorithm(algorithm, cpa, cfa, programDenotation, config, logger, shutdownNotifier);
       }
 
       if (collectAssumptions) {
