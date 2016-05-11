@@ -34,6 +34,9 @@ import com.google.common.base.Preconditions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import org.sosy_lab.common.AbstractMBean;
+import org.sosy_lab.common.Classes;
+import org.sosy_lab.common.Classes.UnexpectedCheckedException;
+import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.common.configuration.ClassOption;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
@@ -172,6 +175,11 @@ public class CEGARAlgorithm implements Algorithm, StatisticsProvider {
     this.algorithm = algorithm;
     this.logger = logger;
     mRefiner = Preconditions.checkNotNull(pRefiner);
+  }
+
+  @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    algorithm.replaceNotifier(pNotifier);
   }
 
   @Override

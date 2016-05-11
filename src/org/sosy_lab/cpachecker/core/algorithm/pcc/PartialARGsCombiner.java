@@ -102,6 +102,11 @@ public class PartialARGsCombiner implements Algorithm, StatisticsProvider {
   }
 
   @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public AlgorithmStatus run(ReachedSet pReachedSet) throws CPAException, InterruptedException,
       CPAEnabledAnalysisPropertyViolationException {
     checkArgument(pReachedSet instanceof ForwardingReachedSet, "PartialARGsCombiner needs ForwardingReachedSet");

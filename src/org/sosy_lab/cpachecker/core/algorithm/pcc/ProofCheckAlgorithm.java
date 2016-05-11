@@ -129,6 +129,11 @@ public class ProofCheckAlgorithm implements Algorithm, StatisticsProvider {
   }
 
   @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public AlgorithmStatus run(final ReachedSet reachedSet) throws CPAException, InterruptedException {
 
     logger.log(Level.INFO, "Proof check algorithm started.");

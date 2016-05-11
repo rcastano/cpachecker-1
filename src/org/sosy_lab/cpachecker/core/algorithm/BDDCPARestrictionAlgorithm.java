@@ -25,6 +25,7 @@ package org.sosy_lab.cpachecker.core.algorithm;
 
 import com.google.common.collect.ImmutableList;
 
+import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.FileOption;
 import org.sosy_lab.common.configuration.FileOption.Type;
@@ -81,6 +82,11 @@ public class BDDCPARestrictionAlgorithm implements Algorithm, StatisticsProvider
 
     manager = bddCpa.getManager();
     errorSummary = manager.makeFalse();
+  }
+
+  @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -77,7 +77,7 @@ public class CounterexampleCPAChecker implements CounterexampleChecker {
       );
 
   private final LogManager logger;
-  private final ShutdownNotifier shutdownNotifier;
+  private ShutdownNotifier shutdownNotifier;
   private final Configuration config;
   private final CFA cfa;
   private final String filename;
@@ -105,6 +105,22 @@ public class CounterexampleCPAChecker implements CounterexampleChecker {
     this.shutdownNotifier = pShutdownNotifier;
     this.cfa = pCfa;
     this.filename = pFilename;
+  }
+
+  public CounterexampleCPAChecker(Configuration config, LogManager logger,
+      ShutdownNotifier pShutdownNotifier, CFA pCfa, String pFilename,
+      ARGCPA pCpa) throws InvalidConfigurationException {
+    this.logger = logger;
+    this.config = config;
+    config.inject(this);
+    this.shutdownNotifier = pShutdownNotifier;
+    this.cfa = pCfa;
+    this.filename = pFilename;
+    cpa = pCpa;
+  }
+
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    shutdownNotifier = pNotifier;
   }
 
   @Override

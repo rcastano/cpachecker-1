@@ -25,6 +25,7 @@ package org.sosy_lab.cpachecker.core.algorithm;
 
 import javax.annotation.CheckReturnValue;
 
+import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
 import org.sosy_lab.cpachecker.exceptions.CPAEnabledAnalysisPropertyViolationException;
 import org.sosy_lab.cpachecker.exceptions.CPAException;
@@ -127,4 +128,6 @@ public interface Algorithm {
           && isSound == other.isSound;
     }
   }
+
+  void replaceNotifier(ShutdownNotifier pNotifier);
 }

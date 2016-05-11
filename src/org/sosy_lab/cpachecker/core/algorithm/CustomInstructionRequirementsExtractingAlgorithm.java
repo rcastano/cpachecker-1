@@ -186,6 +186,11 @@ public class CustomInstructionRequirementsExtractingAlgorithm implements Algorit
   }
 
   @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public AlgorithmStatus run(ReachedSet pReachedSet) throws CPAException, InterruptedException,
       CPAEnabledAnalysisPropertyViolationException {
 

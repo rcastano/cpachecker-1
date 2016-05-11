@@ -109,6 +109,14 @@ public class CounterexampleCheckAlgorithm implements Algorithm, StatisticsProvid
   }
 
   @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    if (checker instanceof CounterexampleCPAChecker) {
+      ((CounterexampleCPAChecker) checker).replaceNotifier(pNotifier);
+    }
+    algorithm.replaceNotifier(pNotifier);
+  }
+
+  @Override
   public AlgorithmStatus run(ReachedSet reached) throws CPAException, InterruptedException {
     AlgorithmStatus status = AlgorithmStatus.SOUND_AND_PRECISE;
 

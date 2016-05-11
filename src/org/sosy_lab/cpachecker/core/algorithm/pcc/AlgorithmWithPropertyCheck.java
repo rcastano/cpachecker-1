@@ -26,6 +26,7 @@ package org.sosy_lab.cpachecker.core.algorithm.pcc;
 import java.util.Collection;
 import java.util.logging.Level;
 
+import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.cpachecker.core.algorithm.Algorithm;
 import org.sosy_lab.cpachecker.core.defaults.SingletonPrecision;
@@ -42,6 +43,11 @@ public class AlgorithmWithPropertyCheck implements Algorithm, StatisticsProvider
   private final Algorithm analysis;
   private final LogManager logger;
   private PropertyCheckerCPA cpa;
+
+  @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    throw new UnsupportedOperationException();
+  }
 
   public AlgorithmWithPropertyCheck(Algorithm analysisAlgorithm, LogManager logger,
       PropertyCheckerCPA cpa) {

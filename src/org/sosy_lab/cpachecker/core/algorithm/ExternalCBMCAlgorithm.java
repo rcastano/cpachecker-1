@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
+import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
 import org.sosy_lab.common.configuration.Option;
@@ -86,6 +87,11 @@ public class ExternalCBMCAlgorithm implements Algorithm, StatisticsProvider {
     this.fileName = fileName;
     this.logger = logger;
     config.inject(this);
+  }
+
+  @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -167,6 +167,11 @@ public class RestartAlgorithmWithARGReplay implements Algorithm, StatisticsProvi
   }
 
   @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public AlgorithmStatus run(ReachedSet pReached) throws CPAException, InterruptedException {
     checkArgument(pReached instanceof ForwardingReachedSet, "RestartAlgorithm needs ForwardingReachedSet");
     ForwardingReachedSet reached = (ForwardingReachedSet) pReached;

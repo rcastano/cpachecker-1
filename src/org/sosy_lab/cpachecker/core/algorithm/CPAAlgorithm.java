@@ -184,7 +184,7 @@ public class CPAAlgorithm implements Algorithm, StatisticsProvider {
 
   private final LogManager                  logger;
 
-  private final ShutdownNotifier                   shutdownNotifier;
+  private ShutdownNotifier                  shutdownNotifier;
 
   private final AlgorithmStatus status;
 
@@ -201,6 +201,11 @@ public class CPAAlgorithm implements Algorithm, StatisticsProvider {
     this.shutdownNotifier = pShutdownNotifier;
     this.forcedCovering = pForcedCovering;
     status = AlgorithmStatus.SOUND_AND_PRECISE.withPrecise(!pIsImprecise);
+  }
+
+  @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    shutdownNotifier = pNotifier;
   }
 
   @Override

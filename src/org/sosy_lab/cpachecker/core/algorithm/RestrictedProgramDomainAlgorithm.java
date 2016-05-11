@@ -23,10 +23,11 @@
  */
 package org.sosy_lab.cpachecker.core.algorithm;
 
+import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
-import org.sosy_lab.cpachecker.exceptions.CPAException;
 import org.sosy_lab.cpachecker.exceptions.CPAEnabledAnalysisPropertyViolationException;
+import org.sosy_lab.cpachecker.exceptions.CPAException;
 
 
 public class RestrictedProgramDomainAlgorithm implements Algorithm {
@@ -37,6 +38,11 @@ public class RestrictedProgramDomainAlgorithm implements Algorithm {
   public RestrictedProgramDomainAlgorithm(Algorithm pAlgorithm, CFA pCfa) {
     this.innerAlgorithm = pAlgorithm;
     this.cfa = pCfa;
+  }
+
+  @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    throw new UnsupportedOperationException();
   }
 
   @Override

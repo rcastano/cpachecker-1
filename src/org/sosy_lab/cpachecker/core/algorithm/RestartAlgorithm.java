@@ -238,6 +238,11 @@ public class RestartAlgorithm implements Algorithm, StatisticsProvider {
   @SuppressFBWarnings(value="DM_DEFAULT_ENCODING",
       justification="Encoding is irrelevant for null output stream")
   @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public AlgorithmStatus run(ReachedSet pReached) throws CPAException, InterruptedException {
     checkArgument(pReached instanceof ForwardingReachedSet, "RestartAlgorithm needs ForwardingReachedSet");
     checkArgument(pReached.size() <= 1, "RestartAlgorithm does not support being called several times with the same reached set");
