@@ -46,6 +46,7 @@ import org.sosy_lab.common.ShutdownManager;
 import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
+import org.sosy_lab.common.configuration.Option;
 import org.sosy_lab.common.configuration.Options;
 import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.common.time.Timer;
@@ -154,6 +155,11 @@ public class PruneUnreachableAlgorithm implements Algorithm, StatisticsProvider 
   // TODO(rcastano): fix createInstance instance of just hardcoding the value
   private Class<? extends Refiner> refiner = org.sosy_lab.cpachecker.cpa.predicate.FeasabilityRefiner.class;
 
+
+  @Option(secure=true, name="timeLimit", required = false,
+      description = "Time between waitlist pruning interruptions.")
+  private int timeLimit = 250;
+
   private final LogManager logger;
   private final Algorithm algorithm;
   private final Refiner mRefiner;
@@ -235,7 +241,7 @@ public class PruneUnreachableAlgorithm implements Algorithm, StatisticsProvider 
       do {
         try {
           // TODO(rcastano): add configuration option
-          r = ProcessCpuTimeLimit.fromNowOn(250, TimeUnit.SECONDS);
+          r = ProcessCpuTimeLimit.fromNowOn(timeLimit, TimeUnit.SECONDS);
         } catch (JMException e) {
           logger.log(Level.SEVERE, "Your Java VM does not support measuring the cpu time. Unable to periodically prune waitlist.");
           return status;

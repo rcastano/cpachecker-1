@@ -92,9 +92,7 @@ public class CoreComponentsFactory {
   private boolean useCEGAR = false;
 
   @Option(secure=true, name="algorithm.prune",
-      description = "use CEGAR algorithm for lazy counter-example guided analysis"
-        + "\nYou need to specify a refiner with the cegar.refiner option."
-        + "\nCurrently all refiner require the use of the ARGCPA.")
+      description = "Periodically prune unreachable abstract states from waitlist.")
   private boolean pruneWaitlist = false;
 
   @Option(secure=true, description="use a second model checking run (e.g., with CBMC or a different CPAchecker configuration) to double-check counter-examples")
