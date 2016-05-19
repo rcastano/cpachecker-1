@@ -42,7 +42,10 @@ def print_witness(witness, f, line_numbers):
     print >> f, ""
 def print_witnesses(witnesses, line_numbers=False, f=sys.stdout):
     n = len(witnesses)
-    l_size = int(math.log(n, 10)) + 1
+    if n == 0:
+        l_size = 1;
+    else:
+        l_size = int(math.log(n, 10)) + 1
     for i, w in enumerate(witnesses):
         if line_numbers:
             print >> f, "Witness: " + str(i)
@@ -62,7 +65,7 @@ def read_witness(data, i):
 def witnesses_calling(method, witnesses):
     res = []
     for w in witnesses:
-        if re.search(method, str(w)):
+        if re.search(method, str(expand_witness(w))):
             res.append(w)
     return res
 
@@ -287,11 +290,30 @@ def main(argv):
             filename = read_string("file? ")
             with open(filename, 'a') as f:
                 print >> f, "time: " + str(time.strftime("%d/%m/%Y"))
-                print_witnesses(witnesses, f)
+                print_witnesses(witnesses, f=f)
             continue
         if re.match('print', c):
-            line_numbers = bool(re.match('print_lines', c))
-            print_witnesses(witnesses, line_numbers=line_numbers)
+            line_numbers = bool(re.search('_lines', c))
+            if re.match('print_one', c):
+                n = -1;
+                while True:
+                    while True:
+                        try:
+                            print "Number of witnesses: " + str(len(witnesses))
+                            witness = read_string("which? (-1 for back, <enter> for next, starting from 0) ")
+                            if witness == "":
+                                n += 1
+                            else:
+                                n = int(witness)
+                            break
+                        except ValueError as e:
+                            print "Invalid value, enter a number"
+                    if n == -1:
+                        break
+                    print "Printing witness " + str(n) + ":"
+                    print_witness(witnesses[n], line_numbers=line_numbers, f=sys.stdout)
+            else:
+                print_witnesses(witnesses, line_numbers=line_numbers)
             continue
         print "not an available option"
         # TODO(rcastano) print available options
