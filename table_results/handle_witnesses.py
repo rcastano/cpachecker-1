@@ -310,6 +310,10 @@ def main(argv):
                             print "Invalid value, enter a number"
                     if n == -1:
                         break
+                    if n >= len(witnesses):
+                        break
+                    print ""
+                    print ""
                     print "Printing witness " + str(n) + ":"
                     print_witness(witnesses[n], line_numbers=line_numbers, f=sys.stdout)
             else:
