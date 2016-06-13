@@ -9,7 +9,7 @@ The script reproduce_case_studies runs only the witness generation phase and the
 For each case study, 4 files are generated, corresponding to the safe, unexplored, explored and emptiness components of the execution report.
 The 3 case studies included are "keyspan", "mem_slave_2" and "combined". The files for keyspan will be keyspan_input_emptiness.txt, keyspan_input_safe.txt, keyspan_input_explored.txt and keyspan_input_unexplored.txt.
 Each of the components can be explored in detail with the script table_results/handle_witnesses.py as follows:
-cat keyspan_input_unexplored.txt | python table_results/handle_witnesses.py 
+python table_results/handle_witnesses.py keyspan_input_unexplored.txt 
 The script accepts several commands such as:
 print -- print all witnesses
 collapse -- collapse a range of lines from a certain witness
