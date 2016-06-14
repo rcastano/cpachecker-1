@@ -8,7 +8,7 @@ rm -rf temp_benchexec_files/*
 # For each instance.c file, this will generate the appropriate 
 # instance.c.explicit.assumption_automaton and
 # instance.c.predicate.assumption_automaton files.
-benchexec -o temp_benchexec_files --rundefinition generate-predicate --rundefinition generate-explicit --limitCores 1 test/test-sets/experiment900.xml
+benchexec -d -o temp_benchexec_files --rundefinition generate-predicate --rundefinition generate-explicit --limitCores 1 test/test-sets/experiment900.xml
 results_file=`ls temp_benchexec_files/experiment900*.txt`
 # Moving the files to the default results folder
 mv $results_file unified_results.txt
@@ -43,6 +43,6 @@ results_file=`ls temp_benchexec_files/experiment900*.txt`
 cat $results_file >> unified_results.txt
 # Moving files to standard benchexec results folder.
 mv temp_benchexec_files/* results/
-cat unified_results | python table_results/completed_5percent.py 
+cat unified_results.txt | python table_results/completed_5percent.py 
 rm -rf temp_benchexec_files
 

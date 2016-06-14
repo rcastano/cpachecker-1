@@ -44,6 +44,6 @@ results_file=`ls temp_benchexec_files/experiment10800*.txt`
 cat $results_file >> unified_results.txt
 # Moving files to standard benchexec results folder.
 mv temp_benchexec_files/* results/
-cat unified_results | python table_results/completed_5percent.py 
+cat unified_results.txt | python table_results/completed_5percent.py 
 rm -rf temp_benchexec_files
 
