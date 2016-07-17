@@ -8,7 +8,7 @@ rm -rf temp_benchexec_files/*
 # For each instance.c file, this will generate the appropriate 
 # instance.c.explicit.assumption_automaton and
 # instance.c.predicate.assumption_automaton files.
-benchexec -o temp_benchexec_files --rundefinition generate-predicate --rundefinition generate-explicit --limitCores 1 test/test-sets/experiment10800.xml
+benchexec -o temp_benchexec_files --rundefinition generate-predicate --rundefinition generate-explicit --limitCores 1 experiments/experiment10800.xml
 results_file=`ls temp_benchexec_files/experiment10800*.txt`
 # Moving the files to the default results folder
 mv $results_file unified_results.txt
@@ -17,7 +17,7 @@ mv temp_benchexec_files/* results/
 # Generating .swapped files, which have the TRUE and FALSE states
 # swapped. This step is necessary to generate "safe" components of
 # the execution reports.
-./reproduce/preprocess_safe_component_input.sh
+./pre_process/preprocess_safe_component_input.sh
 # Generate all components
 benchexec -o temp_benchexec_files \
 --tasks original
@@ -37,7 +37,7 @@ benchexec -o temp_benchexec_files \
 --rundefinition produce-witnesses-emptiness-predicate-from-explicit \
 --rundefinition produce-witnesses-emptiness-explicit-from-predicate \
 --rundefinition produce-witnesses-emptiness-explicit-from-explicit \
---limitCores 1 test/test-sets/experiment10800.xml
+--limitCores 1 experiments/experiment10800.xml
 # Should be only one.
 results_file=`ls temp_benchexec_files/experiment10800*.txt`
 # Appending results from the second phase to unified_results.txt

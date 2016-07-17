@@ -12,16 +12,16 @@ benchexec -o temp_benchexec_files \
 --rundefinition produce-witnesses-safe-predicate-from-explicit \
 --rundefinition produce-witnesses-emptiness-predicate-from-predicate \
 --rundefinition produce-witnesses-emptiness-predicate-from-explicit \
---limitCores 1 test/test-sets/experiment10800.xml
-./reproduce/generate_input.sh predicate-from-explicit benchexec-outputs/keyspan_remote.BUG.c 
+--limitCores 1 experiments/experiment10800.xml
+./post_processing/generate_input.sh predicate-from-explicit benchexec-outputs/keyspan_remote.BUG.c 
 for file in input_*.txt; do
     mv $file keyspan_$file;
 done
-./reproduce/generate_input.sh predicate-from-predicate benchexec-outputs/mem_slave_tlm.2.c
+./post_processing/generate_input.sh predicate-from-predicate benchexec-outputs/mem_slave_tlm.2.c
 for file in input_*.txt; do
     mv $file mem_slave_2_$file;
 done
-./reproduce/generate_input.sh predicate-from-explicit benchexec-outputs/mem_slave_tlm.1+keyspan_remote.BUG.c
+./post_processing/generate_input.sh predicate-from-explicit benchexec-outputs/mem_slave_tlm.1+keyspan_remote.BUG.c
 for file in input_*.txt; do
     mv $file combined_$file;
 done
