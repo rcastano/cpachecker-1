@@ -90,14 +90,6 @@ derived_from = {
     "produce-witnesses-safe-explicit-from-explicit.original":
         "generate-explicit.original",
     "produce-witnesses-safe-explicit-from-predicate.original":
-        "generate-predicate.original",
-    "produce-witnesses-emptiness-predicate-from-explicit.original":
-        "generate-explicit.original",
-    "produce-witnesses-emptiness-predicate-from-predicate.original":
-        "generate-predicate.original",
-    "produce-witnesses-emptiness-explicit-from-explicit.original":
-        "generate-explicit.original",
-    "produce-witnesses-emptiness-explicit-from-predicate.original":
         "generate-predicate.original"
 }
 
@@ -216,16 +208,11 @@ table_order = {
         ["produce-witnesses-safe-predicate-from-explicit.original",
         "produce-witnesses-safe-predicate-from-predicate.original",
         "produce-witnesses-safe-explicit-from-explicit.original",
-        "produce-witnesses-safe-explicit-from-predicate.original"],
-        "emptiness" :
-        ["produce-witnesses-emptiness-predicate-from-explicit.original",
-        "produce-witnesses-emptiness-predicate-from-predicate.original",
-        "produce-witnesses-emptiness-explicit-from-explicit.original",
-        "produce-witnesses-emptiness-explicit-from-predicate.original"]
+        "produce-witnesses-safe-explicit-from-predicate.original"]
     }
 
 print "\t\t p from e\t| p from p\t| e from e\t| e from p"
-for component in ["unexplored", "explored", "safe", "emptiness"]:
+for component in ["unexplored", "explored", "safe"]:
     sys.stdout.write(component + "\t")
     if (component == "safe"):
         sys.stdout.write("\t")
