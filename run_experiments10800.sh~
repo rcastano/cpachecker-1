@@ -10,7 +10,7 @@ for file in $(find my-programs -type f -name \*assumption_automaton\*)
 do
   dest_dir=$dir_backup/$(dirname $file)/
   mkdir -p $dest_dir
-  mv $file $dest_dir
+  mv file $dest_dir
 done
 # Run initial verification phase (predicate analysis and
 # explicit value, separately)
