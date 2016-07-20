@@ -37,10 +37,6 @@ benchexec -o ../temp_benchexec_files \
 --rundefinition produce-witnesses-safe-predicate-from-explicit \
 --rundefinition produce-witnesses-safe-explicit-from-predicate \
 --rundefinition produce-witnesses-safe-explicit-from-explicit \
---rundefinition produce-witnesses-emptiness-predicate-from-predicate \
---rundefinition produce-witnesses-emptiness-predicate-from-explicit \
---rundefinition produce-witnesses-emptiness-explicit-from-predicate \
---rundefinition produce-witnesses-emptiness-explicit-from-explicit \
 --limitCores 1 ../experiments/experiment900.xml
 # Should be only one.
 results_file=`ls ../temp_benchexec_files/experiment900*.txt`

@@ -4,6 +4,9 @@ if [ ! -z ${DO_NOT_ACTIVATE_BENCHEXEC+x} ]; then ./activate_benchexec.sh; fi
 mkdir temp_benchexec_files
 mkdir results
 rm -rf temp_benchexec_files/*
+dir_backup=backup_$(date +%Y%m%d_%H%M%S)
+mkdir $dir_backup
+mv `find my-programs -type f -name \*assumption_automaton\*` $dir_backup
 # Run initial verification phase (predicate analysis and
 # explicit value, separately)
 # For each instance.c file, this will generate the appropriate 
@@ -37,10 +40,6 @@ benchexec -o ../temp_benchexec_files \
 --rundefinition produce-witnesses-safe-predicate-from-explicit \
 --rundefinition produce-witnesses-safe-explicit-from-predicate \
 --rundefinition produce-witnesses-safe-explicit-from-explicit \
---rundefinition produce-witnesses-emptiness-predicate-from-predicate \
---rundefinition produce-witnesses-emptiness-predicate-from-explicit \
---rundefinition produce-witnesses-emptiness-explicit-from-predicate \
---rundefinition produce-witnesses-emptiness-explicit-from-explicit \
 --limitCores 1 ../experiments/experiment10800.xml
 # Should be only one.
 results_file=`ls ../temp_benchexec_files/experiment10800*.txt`
