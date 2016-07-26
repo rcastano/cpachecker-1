@@ -604,4 +604,9 @@ public class TerminationAlgorithm implements Algorithm, AutoCloseable, Statistic
       return TraversalProcess.CONTINUE;
     }
   }
+
+  @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    throw new UnsupportedOperationException();
+  }
 }

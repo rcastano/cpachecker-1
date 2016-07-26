@@ -579,4 +579,9 @@ public class ParallelAlgorithm implements Algorithm, StatisticsProvider {
   public void collectStatistics(Collection<Statistics> pStatsCollection) {
     pStatsCollection.add(stats);
   }
+
+  @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    throw new UnsupportedOperationException();
+  }
 }

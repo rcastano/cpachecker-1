@@ -50,6 +50,7 @@ import org.sosy_lab.cpachecker.core.interfaces.ConfigurableProgramAnalysis;
 import org.sosy_lab.cpachecker.core.interfaces.StateSpacePartition;
 import org.sosy_lab.cpachecker.core.reachedset.AggregatedReachedSets;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
+import org.sosy_lab.cpachecker.cpa.arg.ARGCPA;
 import org.sosy_lab.cpachecker.cpa.arg.ARGState;
 import org.sosy_lab.cpachecker.cpa.arg.ARGUtils;
 import org.sosy_lab.cpachecker.exceptions.CPAException;
@@ -116,7 +117,6 @@ public class CounterexampleCPAChecker implements CounterexampleChecker {
     this.shutdownNotifier = pShutdownNotifier;
     this.cfa = pCfa;
     this.filename = pFilename;
-    cpa = pCpa;
   }
 
   public void replaceNotifier(ShutdownNotifier pNotifier) {

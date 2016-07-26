@@ -371,4 +371,9 @@ public class ExceptionHandlingAlgorithm implements Algorithm, StatisticsProvider
       ((StatisticsProvider) algorithm).collectStatistics(pStatsCollection);
     }
   }
+
+  @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    throw new UnsupportedOperationException();
+  }
 }
