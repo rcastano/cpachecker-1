@@ -23,13 +23,12 @@
  */
 package org.sosy_lab.cpachecker.cfa.parser.eclipse.c;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 
 import org.sosy_lab.cpachecker.cfa.CProgramScope;
 import org.sosy_lab.cpachecker.cfa.ast.c.CComplexTypeDeclaration;
@@ -48,9 +47,12 @@ import org.sosy_lab.cpachecker.cfa.types.c.CType;
 import org.sosy_lab.cpachecker.cfa.types.c.CVoidType;
 import org.sosy_lab.cpachecker.util.VariableClassificationBuilder;
 
-import com.google.common.base.Joiner;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
-import com.google.common.collect.ImmutableMap;
 
 
 /**
@@ -58,7 +60,7 @@ import com.google.common.collect.ImmutableMap;
  * Only variables can be declared.
  * Provides the mechanism to have nested scopes (i.e., inside {} blocks).
  */
-class FunctionScope extends AbstractScope {
+public class FunctionScope extends AbstractScope {
 
   private final Scope artificialScope;
   private final Map<String, CFunctionDeclaration> localFunctions = new HashMap<>();

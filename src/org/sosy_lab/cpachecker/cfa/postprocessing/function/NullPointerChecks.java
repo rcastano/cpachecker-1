@@ -25,7 +25,6 @@ package org.sosy_lab.cpachecker.cfa.postprocessing.function;
 
 import static org.sosy_lab.cpachecker.util.CFAUtils.leavingEdges;
 
-import java.util.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
@@ -76,6 +75,7 @@ import org.sosy_lab.cpachecker.exceptions.UnrecognizedCCodeException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 /******************************************************************+

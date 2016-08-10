@@ -70,6 +70,7 @@ import org.sosy_lab.cpachecker.core.reachedset.AggregatedReachedSets;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
 import org.sosy_lab.cpachecker.exceptions.CPAException;
 import org.sosy_lab.cpachecker.exceptions.ParserException;
+import org.sosy_lab.cpachecker.util.CFAUtils;
 import org.sosy_lab.cpachecker.util.CPAs;
 import org.sosy_lab.cpachecker.util.LoopStructure;
 import org.sosy_lab.cpachecker.util.LoopStructure.Loop;
@@ -79,7 +80,9 @@ import org.sosy_lab.cpachecker.util.globalinfo.GlobalInfo;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Writer;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -134,6 +137,14 @@ public class CPAchecker {
     description = "stop CPAchecker after startup (internal option, not intended for users)"
   )
   private boolean disableAnalysis = false;
+
+
+  @Option(secure=true, name="cfaAutomatonFile", description="write collected assumptions as automaton to file")
+  @FileOption(FileOption.Type.OUTPUT_FILE)
+  private Path cfaAutomatonFile = Paths.get("cfaAutomaton.txt");
+
+  @Option(secure=true, name="exportCFAAutomaton", description="write collected assumptions to file")
+  private boolean exportCFAAutomaton = true;
 
   public static enum InitialStatesFor {
     /**
@@ -420,6 +431,15 @@ public class CPAchecker {
 
     Splitter commaSplitter = Splitter.on(',').omitEmptyStrings().trimResults();
     CFA cfa = cfaCreator.parseFileAndCreateCFA(commaSplitter.splitToList(fileNamesCommaSeparated));
+    if (exportCFAAutomaton) {
+      try (Writer w =
+          MoreFiles.openOutputFile(cfaAutomatonFile, Charset.defaultCharset())) {
+       CFAUtils.writeAutomaton(w, cfa);
+      } catch (IOException e) {
+        logger.logUserException(Level.WARNING, e, "Could not write assumptions to file");
+      }
+    }
+    // Relevant(rcastano)
     stats.setCFA(cfa);
     return cfa;
   }

@@ -305,6 +305,7 @@ public class AssumptionCollectorAlgorithm implements Algorithm, StatisticsProvid
   public static int writeAutomaton(Appendable sb, ARGState initialState,
       Set<ARGState> relevantStates, Set<AbstractState> falseAssumptionStates, int branchingThreshold,
       boolean ignoreAssumptions) throws IOException {
+   // Relevant(rcastano)
    int numProducedStates = 0;
     sb.append("OBSERVER AUTOMATON AssumptionAutomaton\n\n");
 

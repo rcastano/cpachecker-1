@@ -26,7 +26,6 @@ package org.sosy_lab.cpachecker.cfa;
 import static com.google.common.base.Predicates.instanceOf;
 import static org.sosy_lab.cpachecker.util.CFAUtils.enteringEdges;
 
-import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -71,6 +70,7 @@ import org.sosy_lab.cpachecker.cfa.postprocessing.function.CFASimplifier;
 import org.sosy_lab.cpachecker.cfa.postprocessing.function.CFunctionPointerResolver;
 import org.sosy_lab.cpachecker.cfa.postprocessing.function.ExpandFunctionPointerArrayAssignments;
 import org.sosy_lab.cpachecker.cfa.postprocessing.function.NullPointerChecks;
+import org.sosy_lab.cpachecker.cfa.postprocessing.function.UniqueReturnWithLabel;
 import org.sosy_lab.cpachecker.cfa.postprocessing.global.CFACloner;
 import org.sosy_lab.cpachecker.cfa.postprocessing.global.FunctionCallUnwinder;
 import org.sosy_lab.cpachecker.cfa.postprocessing.global.singleloop.CFASingleLoopTransformation;
@@ -107,6 +107,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -265,6 +266,10 @@ private boolean classifyNodes = false;
 
   private final CFACreatorStatistics stats = new CFACreatorStatistics();
   private final Configuration config;
+
+  @Option(secure=true, name="cfa.uniqueReturnWithLabel",
+      description="Preprocesses the CFA such that it contains a single return statement.")
+  private boolean uniqueReturnWithLabel = false;
 
   public CFACreator(Configuration config, LogManager logger, ShutdownNotifier pShutdownNotifier)
       throws InvalidConfigurationException {
@@ -598,6 +603,19 @@ private boolean classifyNodes = false;
     if (useGlobalVars) {
       // add global variables at the beginning of main
       insertGlobalDeclarations(cfa, globalDeclarations);
+    }
+
+    if (uniqueReturnWithLabel) {
+      if (language != Language.C) {
+        throw new InvalidConfigurationException("Unique return not implemented for languages other than C");
+      }
+      UniqueReturnWithLabel uniqueReturnPreprocessing = new UniqueReturnWithLabel(logger, config, machineModel);
+      try {
+        uniqueReturnPreprocessing.createUniqueReturnWithLabel(cfa);
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
     }
 
     return cfa;

@@ -42,6 +42,7 @@ import com.google.common.collect.UnmodifiableIterator;
 import org.sosy_lab.common.Optionals;
 import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.common.collect.Collections3;
+import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.cfa.ast.AAstNode;
 import org.sosy_lab.cpachecker.cfa.ast.AbstractSimpleDeclaration;
 import org.sosy_lab.cpachecker.cfa.ast.FileLocation;
@@ -88,18 +89,21 @@ import org.sosy_lab.cpachecker.cfa.types.c.CEnumType.CEnumerator;
 import org.sosy_lab.cpachecker.util.CFATraversal.DefaultCFAVisitor;
 import org.sosy_lab.cpachecker.util.CFATraversal.TraversalProcess;
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 
 public class CFAUtils {
-
+  // Relevant(rcastano)
   /**
    * Return an {@link Iterable} that contains all entering edges of a given CFANode,
    * including the summary edge if the node has one.
@@ -674,5 +678,130 @@ public class CFAUtils {
     public Iterable<CAstNode> visit(CFieldDesignator pNode) {
       return ImmutableList.of();
     }
+  }
+
+  static long id;
+  static long getFreshId() {
+    return ++id;
+  }
+
+  static void resetId() {
+    id = 0;
+  }
+
+  /**
+   * Create a String containing the assumption automaton.
+   * @param sb Where to write the String into.
+   * 
+   * @return the number of states contained in the written automaton
+   */
+  public static int writeAutomaton(Appendable sb, CFA cfa/*, CFANode initialState,
+      Set<ARGState> relevantStates, Set<AbstractState> falseAssumptionStates, int branchingThreshold,
+      boolean ignoreAssumptions*/) throws IOException {
+   // Relevant(rcastano)
+   resetId();
+   Map<CFANode, Long> ids = new HashMap<>();
+   for (CFANode s : cfa.getAllNodes()) {
+     ids.put(s, getFreshId());
+   }
+
+   CFANode initialState = cfa.getMainFunction();
+   int numProducedStates = 0;
+    sb.append("OBSERVER AUTOMATON AssumptionAutomaton\n\n");
+
+    String actionOnFinalEdges = "";
+
+    sb.append("INITIAL STATE ARG" + ids.get(initialState) + ";\n\n");
+    sb.append("STATE __TRUE :\n");
+    sb.append("    TRUE -> GOTO __TRUE;\n\n");
+
+    for (final CFANode s : cfa.getAllNodes()) {
+      sb.append("STATE USEFIRST ARG" + ids.get(s) + " :\n");
+      numProducedStates++;
+
+      final StringBuilder descriptionForInnerMultiEdges = new StringBuilder();
+      int multiEdgeID = 0;
+
+      for (int i = 0; i < s.getNumLeavingEdges(); ++i) {
+        CFANode child = s.getLeavingEdge(i).getSuccessor();
+
+        List<CFAEdge> edges = new ArrayList<>();
+        edges.add(s.getLeavingEdge(i));
+
+        if (edges.size() > 1) {
+          sb.append("    MATCH \"");
+          escape(edges.get(0).getRawStatement(), sb);
+          sb.append("\" -> ");
+          sb.append("GOTO ARG" + ids.get(s) + "M" + multiEdgeID);
+
+          boolean first = true;
+          for (CFAEdge innerEdge : from(edges).skip(1)) {
+
+            if (!first) {
+              multiEdgeID++;
+              descriptionForInnerMultiEdges.append("GOTO ARG" + ids.get(s) + "M" + multiEdgeID + ";\n");
+              descriptionForInnerMultiEdges.append("    TRUE -> " + actionOnFinalEdges + "GOTO __TRUE;\n\n");
+            } else {
+              first = false;
+            }
+
+            descriptionForInnerMultiEdges.append("STATE USEFIRST ARG" + ids.get(s) + "M" + multiEdgeID + " :\n");
+            numProducedStates++;
+            descriptionForInnerMultiEdges.append("    MATCH \"");
+            escape(innerEdge.getRawStatement(), descriptionForInnerMultiEdges);
+            descriptionForInnerMultiEdges.append("\" -> ");
+          }
+
+          /* AssumptionStorageState assumptionChild = AbstractStates.extractStateByType(child, AssumptionStorageState.class); */
+          finishTransition(descriptionForInnerMultiEdges, child, ids);
+          descriptionForInnerMultiEdges.append(";\n");
+          descriptionForInnerMultiEdges.append("    TRUE -> " + actionOnFinalEdges + "GOTO __TRUE;\n\n");
+
+        } else {
+
+          sb.append("    MATCH \"");
+          escape(Iterables.getOnlyElement(edges).getRawStatement(), sb);
+          sb.append("\" -> ");
+
+          /* AssumptionStorageState assumptionChild = AbstractStates.extractStateByType(child, AssumptionStorageState.class); */
+          finishTransition(sb, child, ids);
+
+        }
+
+        sb.append(";\n");
+      }
+      sb.append("    TRUE -> " + actionOnFinalEdges + "GOTO __TRUE;\n\n");
+      sb.append(descriptionForInnerMultiEdges);
+
+    }
+    sb.append("END AUTOMATON\n");
+    return numProducedStates;
+  }
+
+  private static void escape(String s, Appendable appendTo) throws IOException {
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      switch (c) {
+      case '\n':
+        appendTo.append("\\n");
+        break;
+      case '\"':
+        appendTo.append("\\\"");
+        break;
+      case '\\':
+        appendTo.append("\\\\");
+        break;
+      case '`':
+        break;
+      default:
+        appendTo.append(c);
+        break;
+      }
+    }
+  }
+
+  private static void finishTransition(final Appendable writer, final CFANode child, Map<CFANode, Long> ids)
+      throws IOException {
+    writer.append("GOTO ARG" + ids.get(child));
   }
 }
