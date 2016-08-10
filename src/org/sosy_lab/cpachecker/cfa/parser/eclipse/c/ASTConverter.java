@@ -1417,8 +1417,6 @@ class ASTConverter {
   public CReturnStatement convert(final IASTReturnStatement s) {
     final FileLocation loc = getLocation(s);
     final Optional<CExpression> returnExp = Optional.ofNullable(convertExpressionWithoutSideEffects(s.getReturnValue()));
-    System.out.println("ASTConverter");
-    System.out.println(scope.getClass().getClassLoader());
     final Optional<CVariableDeclaration> returnVariableDeclaration = ((FunctionScope)scope).getReturnVariable();
 
     final Optional<CAssignment> returnAssignment;
