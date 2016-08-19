@@ -41,26 +41,19 @@ import org.sosy_lab.cpachecker.cfa.blocks.builder.ExtendedBlockPartitioningBuild
 import org.sosy_lab.cpachecker.cfa.blocks.builder.FunctionAndLoopPartitioning;
 import org.sosy_lab.cpachecker.cfa.blocks.builder.PartitioningHeuristic;
 import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
-import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.core.defaults.AbstractSingleWrapperCPA;
 import org.sosy_lab.cpachecker.core.defaults.AutomaticCPAFactory;
-import org.sosy_lab.cpachecker.core.interfaces.AbstractDomain;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.interfaces.CPAFactory;
 import org.sosy_lab.cpachecker.core.interfaces.ConfigurableProgramAnalysis;
 import org.sosy_lab.cpachecker.core.interfaces.ConfigurableProgramAnalysisWithBAM;
 import org.sosy_lab.cpachecker.core.interfaces.MergeOperator;
-import org.sosy_lab.cpachecker.core.interfaces.Precision;
 import org.sosy_lab.cpachecker.core.interfaces.Reducer;
-import org.sosy_lab.cpachecker.core.interfaces.StateSpacePartition;
 import org.sosy_lab.cpachecker.core.interfaces.Statistics;
 import org.sosy_lab.cpachecker.core.interfaces.StatisticsProvider;
 import org.sosy_lab.cpachecker.core.interfaces.StopOperator;
-import org.sosy_lab.cpachecker.core.interfaces.WrapperCPA;
 import org.sosy_lab.cpachecker.core.interfaces.pcc.ProofChecker;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSetFactory;
-import org.sosy_lab.cpachecker.cpa.policyiteration.PolicyCPA;
-import org.sosy_lab.cpachecker.cpa.predicate.BAMPredicateCPA;
 import org.sosy_lab.cpachecker.exceptions.CPAException;
 import org.sosy_lab.cpachecker.exceptions.CPATransferException;
 import org.sosy_lab.cpachecker.exceptions.UnsupportedCCodeException;
@@ -120,8 +113,13 @@ public class BAMCPA extends AbstractSingleWrapperCPA implements StatisticsProvid
       description = "Use more fast partitioning builder, which can not handle loops")
   private boolean useExtendedPartitioningBuilder = false;
 
-  public BAMCPA(ConfigurableProgramAnalysis pCpa, Configuration config, LogManager pLogger,
-      ReachedSetFactory pReachedSetFactory, ShutdownNotifier pShutdownNotifier, CFA pCfa) throws InvalidConfigurationException, CPAException {
+  public BAMCPA(
+      ConfigurableProgramAnalysis pCpa,
+      Configuration config,
+      LogManager pLogger,
+      ReachedSetFactory pReachedSetFactory,
+      ShutdownNotifier pShutdownNotifier,
+      CFA pCfa) throws InvalidConfigurationException, CPAException {
     super(pCpa);
     config.inject(this);
 
@@ -157,8 +155,8 @@ public class BAMCPA extends AbstractSingleWrapperCPA implements StatisticsProvid
 
       if (pCfa.getVarClassification().isPresent() && !pCfa.getVarClassification().get().getRelevantFields().isEmpty()) {
         // TODO remove this ugly hack as soon as possible :-)
-        throw new UnsupportedCCodeException("BAM does not support pointer-analysis for recursive programs.", pCfa
-            .getMainFunction().getLeavingEdge(0));
+        throw new UnsupportedCCodeException("BAM does not support pointer-analysis for recursive programs.",
+            pCfa.getMainFunction().getLeavingEdge(0));
       }
 
       transfer =
@@ -208,34 +206,8 @@ public class BAMCPA extends AbstractSingleWrapperCPA implements StatisticsProvid
       BlockToDotWriter writer = new BlockToDotWriter(partitioning);
       writer.dump(exportBlocksPath, logger);
     }
-
-    BAMPredicateCPA predicateCpa =
-        ((WrapperCPA) getWrappedCpa()).retrieveWrappedCpa(BAMPredicateCPA.class);
-    if (predicateCpa != null) {
-      predicateCpa.setPartitioning(partitioning);
-    }
-    PolicyCPA policyCPA = ((WrapperCPA) getWrappedCpa()).retrieveWrappedCpa(PolicyCPA.class);
-    if (policyCPA != null) {
-      policyCPA.setPartitioning(partitioning);
-    }
-
+    getWrappedCpa().setPartitioning(partitioning);
     return partitioning;
-  }
-
-  @Override
-  public AbstractState getInitialState(CFANode pNode, StateSpacePartition pPartition)
-      throws InterruptedException {
-    return getWrappedCpa().getInitialState(pNode, pPartition);
-  }
-
-  @Override
-  public Precision getInitialPrecision(CFANode pNode, StateSpacePartition pPartition) throws InterruptedException {
-    return getWrappedCpa().getInitialPrecision(pNode, pPartition);
-  }
-
-  @Override
-  public AbstractDomain getAbstractDomain() {
-    return getWrappedCpa().getAbstractDomain();
   }
 
   @Override
@@ -263,9 +235,9 @@ public class BAMCPA extends AbstractSingleWrapperCPA implements StatisticsProvid
   }
 
   @Override
-  protected ConfigurableProgramAnalysis getWrappedCpa() {
+  protected ConfigurableProgramAnalysisWithBAM getWrappedCpa() {
     // override for visibility
-    return super.getWrappedCpa();
+    return (ConfigurableProgramAnalysisWithBAM) super.getWrappedCpa();
   }
 
   public BlockPartitioning getBlockPartitioning() {

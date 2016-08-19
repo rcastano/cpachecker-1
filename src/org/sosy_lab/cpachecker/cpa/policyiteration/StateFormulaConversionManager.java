@@ -1,5 +1,6 @@
 package org.sosy_lab.cpachecker.cpa.policyiteration;
 
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -22,9 +23,9 @@ import org.sosy_lab.cpachecker.util.predicates.smt.FormulaManagerView;
 import org.sosy_lab.cpachecker.util.predicates.smt.Solver;
 import org.sosy_lab.cpachecker.util.templates.Template;
 import org.sosy_lab.cpachecker.util.templates.TemplateToFormulaConversionManager;
-import org.sosy_lab.solver.SolverException;
-import org.sosy_lab.solver.api.BooleanFormula;
-import org.sosy_lab.solver.api.Formula;
+import org.sosy_lab.java_smt.api.SolverException;
+import org.sosy_lab.java_smt.api.BooleanFormula;
+import org.sosy_lab.java_smt.api.Formula;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -126,7 +127,7 @@ public class StateFormulaConversionManager {
     return constraints;
   }
 
-  private BooleanFormula templateToConstraint(
+  BooleanFormula templateToConstraint(
       Template template,
       PolicyBound bound,
       PathFormulaManager pfmgrv,
@@ -214,9 +215,8 @@ public class StateFormulaConversionManager {
       Set<Template> others = Sets.filter(nonRedundant, t2 -> t2 != t);
 
       // if others imply the constraint, remove it.
-      BooleanFormula othersConstraint = bfmgr.and(
-          bfmgr.and(others.stream().map(tb -> templatesToConstraints.get(tb))
-              .collect(Collectors.toList())));
+      BooleanFormula othersConstraint =
+          bfmgr.and(Collections2.transform(others, tb -> templatesToConstraints.get(tb)));
 
       try {
         if (solver.implies(othersConstraint, constraint)) {

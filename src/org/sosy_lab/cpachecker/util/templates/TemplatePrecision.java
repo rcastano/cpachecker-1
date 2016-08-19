@@ -24,6 +24,7 @@
 package org.sosy_lab.cpachecker.util.templates;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.ListMultimap;
@@ -54,8 +55,10 @@ import org.sosy_lab.cpachecker.cfa.ast.c.CSimpleDeclaration;
 import org.sosy_lab.cpachecker.cfa.ast.c.CStatement;
 import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
+import org.sosy_lab.cpachecker.cfa.model.FunctionEntryNode;
 import org.sosy_lab.cpachecker.cfa.model.c.CAssumeEdge;
 import org.sosy_lab.cpachecker.cfa.model.c.CFunctionCallEdge;
+import org.sosy_lab.cpachecker.cfa.model.c.CFunctionEntryNode;
 import org.sosy_lab.cpachecker.cfa.model.c.CReturnStatementEdge;
 import org.sosy_lab.cpachecker.cfa.model.c.CStatementEdge;
 import org.sosy_lab.cpachecker.cfa.types.c.CBasicType;
@@ -109,6 +112,11 @@ public class TemplatePrecision implements Precision {
           + " Set to '-1' for no limit.")
   private long templateConstantThreshold = 100;
 
+  @Option(secure=true,
+      description="Force the inclusion of function parameters into the "
+          + "generated templates. Required for summaries computation.")
+  private boolean includeFunctionParameters = false;
+
   public enum VarFilteringStrategy {
 
     /**
@@ -151,6 +159,13 @@ public class TemplatePrecision implements Precision {
       ArrayListMultimap.create();
   private final ImmutableSet<ASimpleDeclaration> allVariables;
 
+  /**
+   * Mapping from function name to a set of function parameters.
+   * Variables represented parameters should be kept in precision
+   * at the return node in order to compute summaries.
+   */
+  private final ImmutableMap<String, Set<ASimpleDeclaration>> functionParameters;
+
   public TemplatePrecision(
       LogManager pLogger,
       Configuration pConfig,
@@ -183,6 +198,19 @@ public class TemplatePrecision implements Precision {
 
     allVariables = ImmutableSet.copyOf(
         cfa.getLiveVariables().get().getAllLiveVariables());
+
+    ImmutableMap.Builder<String, Set<ASimpleDeclaration>> builder = ImmutableMap.builder();
+    if (includeFunctionParameters) {
+      for (FunctionEntryNode node : cfa.getAllFunctionHeads()) {
+        CFunctionEntryNode casted = (CFunctionEntryNode) node;
+
+        Set<ASimpleDeclaration> qualifiedNames = casted.getFunctionParameters()
+            .stream()
+            .map(p -> p.asVariableDeclaration()).collect(Collectors.toSet());
+        builder.put(node.getFunctionName(), qualifiedNames);
+      }
+    }
+    functionParameters = builder.build();
   }
 
   /**
@@ -390,8 +418,12 @@ public class TemplatePrecision implements Precision {
           !liveVariables.isVariableLive(id.getDeclaration(), node)) {
         return true;
       }
-      if (varFiltering == VarFilteringStrategy.ALL_LIVE &&
-          !liveVariables.isVariableLive(id.getDeclaration(), node)) {
+      if (varFiltering == VarFilteringStrategy.ALL_LIVE
+          && !liveVariables.isVariableLive(id.getDeclaration(), node)
+
+          // Enforce inclusion of function parameters.
+          && !functionParameters.getOrDefault(node.getFunctionName(), ImmutableSet.of())
+            .contains(id.getDeclaration())) {
         return false;
       }
     }
@@ -403,7 +435,7 @@ public class TemplatePrecision implements Precision {
     for (CFANode node : cfa.getAllNodes()) {
       for (CFAEdge edge : CFAUtils.allEnteringEdges(node)) {
         out.addAll(
-            extractTemplatesFromEdge(edge).stream().filter(t -> t.size() > 1)
+            extractTemplatesFromEdge(edge).stream().filter(t -> t.size() >= 1)
                 .collect(Collectors.toSet()));
       }
     }
@@ -624,7 +656,10 @@ public class TemplatePrecision implements Precision {
 
   public Set<ASimpleDeclaration> getVarsForNode(CFANode node) {
     if (varFiltering == VarFilteringStrategy.ALL_LIVE) {
-      return cfa.getLiveVariables().get().getLiveVariablesForNode(node).toSet();
+      return Sets.union(
+          cfa.getLiveVariables().get().getLiveVariablesForNode(node).toSet(),
+          functionParameters.getOrDefault(node.getFunctionName(), ImmutableSet.of())
+      );
     } else {
       return allVariables;
     }

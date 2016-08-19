@@ -311,7 +311,7 @@ private boolean classifyNodes = false;
   }
 
   /**
-   * Parse a file and create a CFA, including all post-processing etc.
+   * Parse a program given as String and create a CFA, including all post-processing etc.
    *
    * @param program  The program represented as String to parse.
    * @return A representation of the CFA.
@@ -319,7 +319,7 @@ private boolean classifyNodes = false;
    * @throws IOException If an I/O error occurs.
    * @throws ParserException If the parser or the CFA builder cannot handle the C code.
    */
-  public CFA parseFileAndCreateCFA(String program)
+  public CFA parseSourceAndCreateCFA(String program)
       throws InvalidConfigurationException, IOException, ParserException, InterruptedException {
 
     stats.totalTime.start();
@@ -336,7 +336,7 @@ private boolean classifyNodes = false;
   }
 
   /**
-   * Parse a file and create a CFA, including all post-processing etc.
+   * Parse some files and create a CFA, including all post-processing etc.
    *
    * @param sourceFiles  The files to parse.
    * @return A representation of the CFA.

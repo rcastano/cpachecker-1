@@ -1,9 +1,15 @@
 package org.sosy_lab.cpachecker.cpa.policyiteration;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.util.predicates.pathformula.PathFormula;
+import org.sosy_lab.java_smt.api.Model.ValueAssignment;
 
 import java.util.Objects;
+
+import javax.annotation.Nullable;
 
 public final class PolicyIntermediateState extends PolicyState {
 
@@ -17,10 +23,11 @@ public final class PolicyIntermediateState extends PolicyState {
    */
   private final PolicyAbstractedState startingAbstraction;
 
+  private @Nullable transient ImmutableList<ValueAssignment> counterexample = null;
   /**
    * Meta-information for determining the coverage.
    */
-  private transient PolicyIntermediateState mergedInto;
+  private @Nullable transient PolicyIntermediateState mergedInto = null;
   private transient int hashCache = 0;
 
   private PolicyIntermediateState(
@@ -40,6 +47,10 @@ public final class PolicyIntermediateState extends PolicyState {
   ) {
     return new PolicyIntermediateState(
         node, pPathFormula, generatingState);
+  }
+
+  public void setCounterexample(ImmutableList<ValueAssignment> pCounterexample) {
+    counterexample = pCounterexample;
   }
 
   public PolicyIntermediateState withPathFormula(
@@ -76,7 +87,10 @@ public final class PolicyIntermediateState extends PolicyState {
 
   @Override
   public String toDOTLabel() {
-    return "";
+    if (counterexample == null) {
+      return "";
+    }
+    return Joiner.on('\n').join(counterexample);
   }
 
   @Override
@@ -89,7 +103,7 @@ public final class PolicyIntermediateState extends PolicyState {
     if (this == pO) {
       return true;
     }
-    if (pO == null || getClass() != pO.getClass()) {
+    if (!(pO instanceof PolicyIntermediateState)) {
       return false;
     }
     PolicyIntermediateState that = (PolicyIntermediateState) pO;
