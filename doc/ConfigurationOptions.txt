@@ -136,10 +136,11 @@ analysis.algorithm.proofCheck = false
 # ConfigurableProgramAnalysisWithPropertyChecker
 analysis.algorithm.propertyCheck = false
 
-# Use termination algorithm to prove (non-)termination.
-analysis.algorithm.termination = false
 # Periodically prune unreachable abstract states from waitlist.
 analysis.algorithm.prune = false
+
+# Use termination algorithm to prove (non-)termination.
+analysis.algorithm.termination = false
 
 # use a second model checking run (e.g., with CBMC or a different CPAchecker
 # configuration) to double-check counter-examples
@@ -2632,6 +2633,9 @@ precision.variableWhitelist = ""
 # List of property files (INTERNAL USAGE ONLY - DO NOT USE)
 properties = []
 
+# Time between waitlist pruning interruptions.
+prune.timeLimit = 250
+
 # Quantifier elimination strategy
 rcnf.boundVarsHandling = QE_LIGHT_THEN_DROP
   enum:     [QE_LIGHT_THEN_DROP, QE, DROP]
@@ -2643,8 +2647,6 @@ rcnf.expandEquality = false
 # Limit on the size of the resulting number of lemmas from the explicit
 # expansion
 rcnf.expansionResultSizeLimit = 100
-# Time between waitlist pruning interruptions.
-prune.timeLimit = 250
 
 # print reached set to graph file
 reachedSet.dot = "reached.dot"

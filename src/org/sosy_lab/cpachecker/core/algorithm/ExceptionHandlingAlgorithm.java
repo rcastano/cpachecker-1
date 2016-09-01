@@ -94,7 +94,7 @@ public class ExceptionHandlingAlgorithm implements Algorithm, StatisticsProvider
 
   private final Algorithm algorithm;
   private final LogManager logger;
-  private final ShutdownNotifier shutdownNotifier;
+  private ShutdownNotifier shutdownNotifier;
   private final ExceptionHandlingOptions options;
 
   private ExceptionHandlingAlgorithm(Algorithm pAlgorithm, ConfigurableProgramAnalysis pCpa,
@@ -374,6 +374,7 @@ public class ExceptionHandlingAlgorithm implements Algorithm, StatisticsProvider
 
   @Override
   public void replaceNotifier(ShutdownNotifier pNotifier) {
-    throw new UnsupportedOperationException();
+    shutdownNotifier = pNotifier;
+    algorithm.replaceNotifier(shutdownNotifier);
   }
 }

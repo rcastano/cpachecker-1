@@ -27,17 +27,9 @@ import static com.google.common.collect.FluentIterable.from;
 import static org.sosy_lab.cpachecker.util.AbstractStates.IS_TARGET_STATE;
 import static org.sosy_lab.cpachecker.util.statistics.StatisticsUtils.div;
 
-import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
+import com.google.common.base.Throwables;
 
-import javax.management.JMException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import org.sosy_lab.common.AbstractMBean;
 import org.sosy_lab.common.Classes;
@@ -64,9 +56,17 @@ import org.sosy_lab.cpachecker.util.resources.ProcessCpuTimeLimit;
 import org.sosy_lab.cpachecker.util.resources.ResourceLimit;
 import org.sosy_lab.cpachecker.util.resources.ResourceLimitChecker;
 
-import com.google.common.base.Throwables;
+import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import javax.management.JMException;
 
 @Options(prefix="prune")
 public class PruneUnreachableAlgorithm implements Algorithm, StatisticsProvider {
@@ -158,7 +158,7 @@ public class PruneUnreachableAlgorithm implements Algorithm, StatisticsProvider 
 
   @Option(secure=true, name="timeLimit", required = false,
       description = "Time between waitlist pruning interruptions.")
-  private int timeLimit = 250;
+  private int timeLimit = 20;
 
   private final LogManager logger;
   private final Algorithm algorithm;
@@ -257,7 +257,7 @@ public class PruneUnreachableAlgorithm implements Algorithm, StatisticsProvider 
         // run algorithm
         try {
           logger.log(Level.INFO, "Running inner analysis.");
-          status.update(algorithm.run(reached));
+          status = status.update(algorithm.run(reached));
         } catch (InterruptedException e) {
           shutdownNotifier.shutdownIfNecessary();
         } catch (Exception e) {
@@ -281,7 +281,7 @@ public class PruneUnreachableAlgorithm implements Algorithm, StatisticsProvider 
 
   @SuppressWarnings("NonAtomicVolatileUpdate") // statistics written only by one thread
   private boolean refine(ReachedSet reached) throws CPAException, InterruptedException {
-    logger.log(Level.FINE, "Error found, performing CEGAR");
+    logger.log(Level.FINE, "No error found yet, timeout triggered Unreachable states pruning.");
     stats.countRefinements++;
     stats.totalReachedSizeBeforeRefinement += reached.size();
     stats.maxReachedSizeBeforeRefinement = Math.max(stats.maxReachedSizeBeforeRefinement, reached.size());
