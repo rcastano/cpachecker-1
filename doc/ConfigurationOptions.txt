@@ -514,6 +514,9 @@ cfa.transformIntoSingleLoop.omitExplicitLastProgramCounterAssumption = false
 cfa.transformIntoSingleLoop.subgraphGrowthStrategy = MULTIPLE_PATHS
   enum:     [MULTIPLE_PATHS, SINGLE_PATH, SINGLE_EDGE]
 
+# Preprocesses the CFA such that it contains a single return statement.
+cfa.uniqueReturnWithLabel = false
+
 # clone functions of the CFA, such that there are several identical CFAs for
 # each function, only with different names.
 cfa.useCFACloningForMultiThreadedPrograms = false
@@ -532,6 +535,9 @@ cfa.variableClassification.printStatsOnStartup = false
 
 # Dump variable type mapping to a file.
 cfa.variableClassification.typeMapFile = "VariableTypeMapping.txt"
+
+# write collected assumptions as automaton to file
+cfaAutomatonFile = "cfaAutomaton.txt"
 
 # Output an input file, with invariants embedded as assume constraints.
 cinvariants.export = false
@@ -2318,6 +2324,9 @@ enabledanalysis.allowLazyRefinement = false
 # Which CPA is used as enabler in the current analysis.
 enabledanalysis.enablerCPA = PREDICATE
   enum:     [APRON, INTERVAL, OCTAGON, PREDICATE, VALUE]
+
+# write collected assumptions to file
+exportCFAAutomaton = true
 
 # enable the Forced Covering optimization
 impact.useForcedCovering = true

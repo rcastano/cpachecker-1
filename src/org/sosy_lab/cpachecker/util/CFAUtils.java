@@ -853,7 +853,7 @@ public class CFAUtils {
   /**
    * Create a String containing the assumption automaton.
    * @param sb Where to write the String into.
-   * 
+   *
    * @return the number of states contained in the written automaton
    */
   public static int writeAutomaton(Appendable sb, CFA cfa/*, CFANode initialState,
@@ -877,7 +877,7 @@ public class CFAUtils {
     sb.append("    TRUE -> GOTO __TRUE;\n\n");
 
     for (final CFANode s : cfa.getAllNodes()) {
-      sb.append("STATE USEFIRST ARG" + ids.get(s) + " :\n");
+      sb.append("STATE USEALL ARG" + ids.get(s) + " :\n");
       numProducedStates++;
 
       final StringBuilder descriptionForInnerMultiEdges = new StringBuilder();

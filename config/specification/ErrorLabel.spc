@@ -6,5 +6,6 @@ INITIAL STATE Init;
 STATE USEFIRST Init :
    // this transition matches if the label of the successor CFA location is "error"
    MATCH LABEL [[Ee\][Rr\][Rr\][Oo\][Rr\]] -> ERROR("error label in $location");
+   MATCH LABEL [[Oo\][Tt\][Hh\][Ee\][Rr\]] -> ERROR("Other error");
 
 END AUTOMATON

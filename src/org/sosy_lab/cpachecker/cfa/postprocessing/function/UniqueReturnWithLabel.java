@@ -67,6 +67,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.logging.Level;
 
 
 /******************************************************************+
@@ -116,7 +117,6 @@ public class UniqueReturnWithLabel {
       }
     }
 
-    assert !returnStatementEdges.isEmpty();
     return returnStatementEdges;
   }
   public void createUniqueReturnWithLabel(final MutableCFA cfa) throws Exception {
@@ -127,6 +127,10 @@ public class UniqueReturnWithLabel {
 
       Scope scope = new CProgramScope(cfa, logger);
       List<CFAEdge> returnEdges = edgesLeadingToFunctionExit(cfa, function);
+      if (returnEdges.isEmpty()) {
+        logger.log(Level.INFO, "There are no control flow edges leaving from method '" + function + "'.");
+        continue;
+      }
 
       // Cannot fail, by definition of the edges returned.
       FunctionExitNode exitNode = (FunctionExitNode) returnEdges.get(0).getSuccessor();
@@ -139,7 +143,7 @@ public class UniqueReturnWithLabel {
         for (CFAEdge e : returnEdges) {
           Verify.verify(
               e instanceof AReturnStatementEdge,
-              "Not yet supporting non-void methods with no explicit return expression.");
+              "Not yet supporting non-void methods (" + function + ") with no explicit return expression.");
         }
         assert cfa.getFunctionHead(function).getNumLeavingEdges() == 1;
         FunctionEntryNode entryNode = cfa.getFunctionHead(function);
@@ -149,7 +153,7 @@ public class UniqueReturnWithLabel {
         final CFANode succ = entryNode.getLeavingEdge(0).getSuccessor();
         succ.removeEnteringEdge(firstEdge);
         entryNode.removeLeavingEdge(firstEdge);
-        CFAEdge newEdge = createOldEdgeWithNewNodes(dummy, succ, firstEdge);
+        CFAEdge newEdge = createOldEdgeWithNewNodes(entryNode, dummy, firstEdge);
         CFACreationUtils.addEdgeUnconditionallyToCFA(newEdge);
 
         new_ret_variable_decl =
@@ -168,7 +172,7 @@ public class UniqueReturnWithLabel {
         // TODO(rcastano) check if first parameter is ok, not sure what's expected
         String rawSignature = functionReturnType + " " + new_ret_variable + ";";
         CFAEdge ret_var_decl_edge =
-            new CDeclarationEdge(rawSignature, FileLocation.DUMMY, entryNode, dummy, new_ret_variable_decl);
+            new CDeclarationEdge(rawSignature, FileLocation.DUMMY, dummy, succ, new_ret_variable_decl);
         CFACreationUtils.addEdgeUnconditionallyToCFA(ret_var_decl_edge);
       }
 

@@ -126,7 +126,8 @@ int min (int a, int b) {
 }
 
 int push(int *a, int n) {
-  __VERIFIER_assert((count % n) < 6);
+  __VERIFIER_assert(start + count <= size * 2);
+  // __VERIFIER_assert((count % n) < 6);
   if (!initialized) {
     init();
     initialized = 1;
@@ -208,12 +209,13 @@ void harness(int total_pushed) {
       // do pop
       int old_count = count;
       pop(b,n);
-      if (n > size) {
-        __VERIFIER_assert(count == 0 || old_count == count + n);
+      // if (n > size)
+      {
+        // __VERIFIER_assert(count == 0 || old_count == count + n);
         // count != 0 ==> old_count == count + n;
       }
     }
-    __VERIFIER_assert(count >= 0);
+    // __VERIFIER_assert(count >= 0);
   }
 }
 
@@ -244,5 +246,5 @@ int main(void) {
   harness(total_pushed);
 
 
-
+  return 0;
 }
