@@ -2,7 +2,7 @@
  *  CPAchecker is a tool for configurable software verification.
  *  This file is part of CPAchecker.
  *
- *  Copyright (C) 2007-2014  Dirk Beyer
+ *  Copyright (C) 2007-2016  Dirk Beyer
  *  All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,10 +21,11 @@
  *  CPAchecker web page:
  *    http://cpachecker.sosy-lab.org
  */
-package org.sosy_lab.cpachecker.cpa.andersen;
 
-import org.sosy_lab.cpachecker.core.interfaces.Precision;
-
-public class AndersenPrecision implements Precision {
-
-}
+/**
+ * Transition computation for Property-Directed Reachability.
+ */
+@javax.annotation.ParametersAreNonnullByDefault
+@org.sosy_lab.common.annotations.FieldsAreNonnullByDefault
+@org.sosy_lab.common.annotations.ReturnValuesAreNonnullByDefault
+package org.sosy_lab.cpachecker.core.algorithm.pdr.transition;

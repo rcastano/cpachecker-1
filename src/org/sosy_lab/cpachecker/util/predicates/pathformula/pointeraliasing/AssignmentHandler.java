@@ -57,10 +57,10 @@ import org.sosy_lab.cpachecker.util.predicates.pathformula.pointeraliasing.Expre
 import org.sosy_lab.cpachecker.util.predicates.smt.ArrayFormulaManagerView;
 import org.sosy_lab.cpachecker.util.predicates.smt.BooleanFormulaManagerView;
 import org.sosy_lab.cpachecker.util.predicates.smt.FormulaManagerView;
-import org.sosy_lab.solver.api.ArrayFormula;
-import org.sosy_lab.solver.api.BooleanFormula;
-import org.sosy_lab.solver.api.Formula;
-import org.sosy_lab.solver.api.FormulaType;
+import org.sosy_lab.java_smt.api.ArrayFormula;
+import org.sosy_lab.java_smt.api.BooleanFormula;
+import org.sosy_lab.java_smt.api.Formula;
+import org.sosy_lab.java_smt.api.FormulaType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -131,18 +131,19 @@ class AssignmentHandler {
    * @throws UnrecognizedCCodeException If the C code was unrecognizable.
    * @throws InterruptedException If the execution was interrupted.
    */
-  BooleanFormula handleAssignment(final CLeftHandSide lhs,
-                                  final CLeftHandSide lhsForChecking,
-                                  final @Nullable CRightHandSide rhs,
-                                  final boolean batchMode,
-                                  final @Nullable Set<CType> destroyedTypes)
-  throws UnrecognizedCCodeException, InterruptedException {
+  BooleanFormula handleAssignment(
+      final CLeftHandSide lhs,
+      final CLeftHandSide lhsForChecking,
+      final CType lhsType,
+      final @Nullable CRightHandSide rhs,
+      final boolean batchMode,
+      final @Nullable Set<CType> destroyedTypes)
+      throws UnrecognizedCCodeException, InterruptedException {
     if (!conv.isRelevantLeftHandSide(lhsForChecking)) {
       // Optimization for unused variables and fields
       return conv.bfmgr.makeBoolean(true);
     }
 
-    final CType lhsType = typeHandler.getSimplifiedType(lhs);
     final CType rhsType =
         rhs != null ? typeHandler.getSimplifiedType(rhs) : CNumericTypes.SIGNED_CHAR;
 
@@ -163,12 +164,12 @@ class AssignmentHandler {
     pts.addEssentialFields(rhsVisitor.getInitializedFields());
     pts.addEssentialFields(rhsVisitor.getUsedFields());
     final List<Pair<CCompositeType, String>> rhsAddressedFields = rhsVisitor.getAddressedFields();
-    final Map<String, CType> rhsUsedDeferredAllocationPointers = rhsVisitor.getUsedDeferredAllocationPointers();
+    final Map<String, CType> rhsLearnedPointersTypes = rhsVisitor.getLearnedPointerTypes();
 
     // LHS handling
     final CExpressionVisitorWithPointerAliasing lhsVisitor = new CExpressionVisitorWithPointerAliasing(conv, edge, function, ssa, constraints, errorConditions, pts);
     final Location lhsLocation = lhs.accept(lhsVisitor).asLocation();
-    final Map<String, CType> lhsUsedDeferredAllocationPointers = lhsVisitor.getUsedDeferredAllocationPointers();
+    final Map<String, CType> lhsLearnedPointerTypes = lhsVisitor.getLearnedPointerTypes();
     pts.addEssentialFields(lhsVisitor.getInitializedFields());
     pts.addEssentialFields(lhsVisitor.getUsedFields());
     // the pattern matching possibly aliased locations
@@ -178,9 +179,14 @@ class AssignmentHandler {
 
     if (conv.options.revealAllocationTypeFromLHS() || conv.options.deferUntypedAllocations()) {
       DynamicMemoryHandler memoryHandler = new DynamicMemoryHandler(conv, edge, ssa, pts, constraints, errorConditions);
-      memoryHandler.handleDeferredAllocationsInAssignment(lhs, rhs,
-          lhsLocation, rhsExpression, lhsType,
-          lhsUsedDeferredAllocationPointers, rhsUsedDeferredAllocationPointers);
+      memoryHandler.handleDeferredAllocationsInAssignment(
+          lhs,
+          rhs,
+          rhsExpression,
+          lhsType,
+          lhsVisitor,
+          lhsLearnedPointerTypes,
+          rhsLearnedPointersTypes);
     }
 
     final BooleanFormula result =
@@ -196,6 +202,17 @@ class AssignmentHandler {
       pts.addField(field.getFirst(), field.getSecond());
     }
     return result;
+  }
+
+  BooleanFormula handleAssignment(
+      final CLeftHandSide lhs,
+      final CLeftHandSide lhsForChecking,
+      final @Nullable CRightHandSide rhs,
+      final boolean batchMode,
+      final @Nullable Set<CType> destroyedTypes)
+      throws UnrecognizedCCodeException, InterruptedException {
+    return handleAssignment(
+        lhs, lhsForChecking, typeHandler.getSimplifiedType(lhs), rhs, batchMode, destroyedTypes);
   }
 
   /**
@@ -361,12 +378,12 @@ class AssignmentHandler {
       final List<CExpressionAssignmentStatement> pAssignments,
       final CExpressionVisitorWithPointerAliasing pRhsVisitor)
       throws UnrecognizedCCodeException {
-    Value tmp = null;
+    Expression tmp = null;
     for (CExpressionAssignmentStatement assignment : pAssignments) {
       if (tmp == null) {
-        tmp = assignment.getRightHandSide().accept(pRhsVisitor).asValue();
+        tmp = assignment.getRightHandSide().accept(pRhsVisitor);
       }
-      if (!tmp.equals(assignment.getRightHandSide().accept(pRhsVisitor).asValue())) {
+      if (!tmp.equals(assignment.getRightHandSide().accept(pRhsVisitor))) {
         return false;
       }
     }

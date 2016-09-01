@@ -475,6 +475,8 @@ class WebInterface:
         @param svn_revision: overrides the svn revision given in the constructor (optional)
         @param result_files_patterns: list of result_files_pattern (optional)
         @param required_files: list of additional file required to execute the run (optional)
+        @raise WebClientError: if the HTTP request could not be created
+        @raise HTTPError: if the HTTP request was not successful
         """
         if result_files_pattern:
             if result_files_patterns:
@@ -575,6 +577,7 @@ class WebInterface:
 
     def _handle_options(self, run, params, rlimits):
         opened_files = []
+        config = None
 
         # TODO use code from CPAchecker module, it add -stats and sets -timelimit,
         # instead of doing it here manually, too
@@ -649,8 +652,12 @@ class WebInterface:
                     elif option == "-setprop":
                         params.append(("option", next(i)))
 
-                    elif option[0] == '-' and 'configuration' not in params :
-                        params.append(('configuration', option[1:]))
+                    elif option[0] == '-':
+                        if config:
+                            raise WebClientError("More than one configuration: '{}' and '{}'".format(config, option[1:]))
+                        else:
+                            params.append(('configuration', option[1:]))
+                            config = option[1:]
                     else:
                         return (option, opened_files)
 

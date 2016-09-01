@@ -29,8 +29,10 @@ import static org.sosy_lab.cpachecker.util.AbstractStates.extractReportedFormula
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import org.sosy_lab.common.collect.Collections3;
 import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.core.algorithm.invariants.InvariantSupplier;
@@ -42,9 +44,9 @@ import org.sosy_lab.cpachecker.util.predicates.pathformula.PathFormula;
 import org.sosy_lab.cpachecker.util.predicates.pathformula.PathFormulaManager;
 import org.sosy_lab.cpachecker.util.predicates.smt.FormulaManagerView;
 import org.sosy_lab.cpachecker.util.predicates.smt.FormulaManagerView.FormulaTransformationVisitor;
-import org.sosy_lab.solver.api.BooleanFormula;
-import org.sosy_lab.solver.api.BooleanFormulaManager;
-import org.sosy_lab.solver.api.Formula;
+import org.sosy_lab.java_smt.api.BooleanFormula;
+import org.sosy_lab.java_smt.api.BooleanFormulaManager;
+import org.sosy_lab.java_smt.api.Formula;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -54,7 +56,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -172,13 +173,9 @@ public class FormulaInvariantsSupplier implements InvariantSupplier {
       if (cache.containsKey(key)) {
         invariants = cache.get(key);
       } else {
-        final BooleanFormulaManager bfmgr = pFmgr.getBooleanFormulaManager();
         invariants =
-            invariantSuppliers
-                .stream()
-                .map(s -> s.getInvariantFor(pNode, pFmgr))
-                .filter(f -> !bfmgr.isTrue(f))
-                .collect(Collectors.toList());
+            Collections3.transformedImmutableListCopy(
+                invariantSuppliers, s -> s.getInvariantFor(pNode, pFmgr));
 
         cache.put(key, invariants);
       }
@@ -188,22 +185,18 @@ public class FormulaInvariantsSupplier implements InvariantSupplier {
       // add pointer target information if possible/necessary
       if (pContext != null) {
         invariants =
-            invariants
-                .stream()
-                .map(
-                    i -> {
-                      try {
-                        return pFmgr.transformRecursively(
-                            i, new AddPointerInformationVisitor(pFmgr, pContext, pPfmgr));
-                      } catch (IllegalArgumentException e) {
-                        logger.logUserException(
-                            Level.INFO,
-                            e,
-                            "Ignoring invariant which could not be wrapped properly.");
-                        return bfmgr.makeBoolean(true);
-                      }
-                    })
-                .collect(Collectors.toList());
+            Lists.transform(
+                invariants,
+                i -> {
+                  try {
+                    return pFmgr.transformRecursively(
+                        i, new AddPointerInformationVisitor(pFmgr, pContext, pPfmgr));
+                  } catch (IllegalArgumentException e) {
+                    logger.logUserException(
+                        Level.INFO, e, "Ignoring invariant which could not be wrapped properly.");
+                    return bfmgr.makeBoolean(true);
+                  }
+                });
       }
 
       return verifyNotNull(bfmgr.and(invariants));

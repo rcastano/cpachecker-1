@@ -27,7 +27,6 @@ import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.stream.Collectors.toList;
 import static org.sosy_lab.cpachecker.core.algorithm.bmc.AbstractLocationFormulaInvariant.makeLocationInvariant;
 import static org.sosy_lab.cpachecker.cpa.arg.ARGUtils.getAllStatesOnPathsTo;
 import static org.sosy_lab.cpachecker.util.AbstractStates.EXTRACT_LOCATION;
@@ -104,10 +103,10 @@ import org.sosy_lab.cpachecker.util.statistics.StatInt;
 import org.sosy_lab.cpachecker.util.statistics.StatKind;
 import org.sosy_lab.cpachecker.util.statistics.StatTimer;
 import org.sosy_lab.cpachecker.util.statistics.StatisticsWriter;
-import org.sosy_lab.solver.SolverException;
-import org.sosy_lab.solver.api.BooleanFormula;
-import org.sosy_lab.solver.api.BooleanFormulaManager;
-import org.sosy_lab.solver.visitors.DefaultBooleanFormulaVisitor;
+import org.sosy_lab.java_smt.api.SolverException;
+import org.sosy_lab.java_smt.api.BooleanFormula;
+import org.sosy_lab.java_smt.api.BooleanFormulaManager;
+import org.sosy_lab.java_smt.visitors.DefaultBooleanFormulaVisitor;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -773,7 +772,7 @@ class PredicateCPAInvariantsManager implements StatisticsProvider, InvariantSupp
               .allMatch(equalTo(fmgr.getBooleanFormulaManager().makeBoolean(true)));
 
       if (wasSuccessful) {
-        foundInvariants.addAll(invariants.stream().map(Pair::getFirst).collect(toList()));
+        from(invariants).transform(Pair::getFirst).copyInto(foundInvariants);
       }
 
       return wasSuccessful;

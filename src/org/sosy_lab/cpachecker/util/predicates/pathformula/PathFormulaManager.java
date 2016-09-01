@@ -32,10 +32,10 @@ import org.sosy_lab.cpachecker.exceptions.CPATransferException;
 import org.sosy_lab.cpachecker.exceptions.UnrecognizedCCodeException;
 import org.sosy_lab.cpachecker.util.Pair;
 import org.sosy_lab.cpachecker.util.predicates.pathformula.pointeraliasing.PointerTargetSet;
-import org.sosy_lab.solver.api.BooleanFormula;
-import org.sosy_lab.solver.api.BooleanFormulaManager;
-import org.sosy_lab.solver.api.Formula;
-import org.sosy_lab.solver.api.Model.ValueAssignment;
+import org.sosy_lab.java_smt.api.BooleanFormula;
+import org.sosy_lab.java_smt.api.BooleanFormulaManager;
+import org.sosy_lab.java_smt.api.Formula;
+import org.sosy_lab.java_smt.api.Model.ValueAssignment;
 
 import java.util.List;
 import java.util.Map;
@@ -75,7 +75,9 @@ public interface PathFormulaManager {
   /**
    * Takes a variable name and its type to create the corresponding formula out of it. The
    * <code>pContext</code> is used to supply this method with the necessary {@link SSAMap}
-   * and (if necessary) the {@link PointerTargetSet}.
+   * and (if necessary) the {@link PointerTargetSet}. The variable is assumed not to be a
+   * function parameter, i.e. array won't be treated as pointer variable, but as a constant representing
+   * starting address of the array.
    *
    * @param pContext the context in which the variable should be created
    * @param pVarName the name of the variable

@@ -79,10 +79,10 @@ import org.sosy_lab.cpachecker.util.predicates.pathformula.PathFormulaManager;
 import org.sosy_lab.cpachecker.util.predicates.smt.BooleanFormulaManagerView;
 import org.sosy_lab.cpachecker.util.predicates.smt.FormulaManagerView;
 import org.sosy_lab.cpachecker.util.predicates.smt.Solver;
-import org.sosy_lab.solver.SolverException;
-import org.sosy_lab.solver.api.BooleanFormula;
-import org.sosy_lab.solver.api.ProverEnvironment;
-import org.sosy_lab.solver.api.SolverContext.ProverOptions;
+import org.sosy_lab.java_smt.api.SolverException;
+import org.sosy_lab.java_smt.api.BooleanFormula;
+import org.sosy_lab.java_smt.api.ProverEnvironment;
+import org.sosy_lab.java_smt.api.SolverContext.ProverOptions;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -135,7 +135,6 @@ abstract class AbstractBMCAlgorithm implements StatisticsProvider {
   protected final LogManager logger;
   private final ReachedSetFactory reachedSetFactory;
   private final CFA cfa;
-  private final Set<CFANode> loopHeads;
   private final Specification specification;
 
   protected final ShutdownNotifier shutdownNotifier;
@@ -166,7 +165,6 @@ abstract class AbstractBMCAlgorithm implements StatisticsProvider {
     logger = pLogger;
     reachedSetFactory = pReachedSetFactory;
     cfa = pCFA;
-    loopHeads = BMCHelper.getLoopHeads(pCFA);
     specification = checkNotNull(pSpecification);
 
     shutdownNotifier = pShutdownManager.getNotifier();
@@ -175,7 +173,7 @@ abstract class AbstractBMCAlgorithm implements StatisticsProvider {
     if (induction) {
       induction = checkIfInductionIsPossible(pCFA, pLogger);
       // if there is no loop we do not need induction, although loop information is available
-      induction = induction && cfa.getLoopStructure().get().getCount() > 0 && !loopHeads.isEmpty();
+      induction = induction && cfa.getLoopStructure().get().getCount() > 0 && !getLoopHeads().isEmpty();
     }
 
     if (induction) {
@@ -232,7 +230,7 @@ abstract class AbstractBMCAlgorithm implements StatisticsProvider {
           new AbstractInvariantGenerator() {
 
             @Override
-            public void start(CFANode pInitialLocation) {
+            protected void startImpl(CFANode pInitialLocation) {
               // do nothing
             }
 
@@ -611,6 +609,6 @@ abstract class AbstractBMCAlgorithm implements StatisticsProvider {
    * @return the loop heads.
    */
   protected Set<CFANode> getLoopHeads() {
-    return loopHeads;
+    return BMCHelper.getLoopHeads(cfa, targetLocationProvider);
   }
 }

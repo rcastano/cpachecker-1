@@ -24,28 +24,27 @@
 package org.sosy_lab.cpachecker.core.algorithm.termination.lasso_analysis.lasso_ranker.construction;
 
 import static org.sosy_lab.cpachecker.core.algorithm.termination.lasso_analysis.lasso_ranker.construction.LassoBuilder.TERMINATION_AUX_VARS_PREFIX;
-import static org.sosy_lab.solver.api.FunctionDeclarationKind.DIV;
-import static org.sosy_lab.solver.api.FunctionDeclarationKind.MODULO;
+import static org.sosy_lab.java_smt.api.FunctionDeclarationKind.DIV;
+import static org.sosy_lab.java_smt.api.FunctionDeclarationKind.MODULO;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
-import de.uni_freiburg.informatik.ultimate.lassoranker.preprocessors.RewriteDivision;
 
 import org.sosy_lab.common.UniqueIdGenerator;
 import org.sosy_lab.cpachecker.util.predicates.smt.BooleanFormulaManagerView;
 import org.sosy_lab.cpachecker.util.predicates.smt.BooleanFormulaManagerView.BooleanFormulaTransformationVisitor;
 import org.sosy_lab.cpachecker.util.predicates.smt.FormulaManagerView;
-import org.sosy_lab.solver.api.BooleanFormula;
-import org.sosy_lab.solver.api.Formula;
-import org.sosy_lab.solver.api.FormulaManager;
-import org.sosy_lab.solver.api.FormulaType;
-import org.sosy_lab.solver.api.FunctionDeclaration;
-import org.sosy_lab.solver.visitors.DefaultFormulaVisitor;
+import org.sosy_lab.java_smt.api.BooleanFormula;
+import org.sosy_lab.java_smt.api.Formula;
+import org.sosy_lab.java_smt.api.FormulaManager;
+import org.sosy_lab.java_smt.api.FormulaType;
+import org.sosy_lab.java_smt.api.FunctionDeclaration;
+import org.sosy_lab.java_smt.visitors.DefaultFormulaVisitor;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import de.uni_freiburg.informatik.ultimate.lassoranker.preprocessors.RewriteDivision;
 
 class DivAndModElimination extends BooleanFormulaTransformationVisitor {
 
@@ -105,11 +104,11 @@ class DivAndModElimination extends BooleanFormulaTransformationVisitor {
     public Formula visitFunction(
         Formula pF, List<Formula> pArgs, FunctionDeclaration<?> pFunctionDeclaration) {
 
-      List<Formula> newArgs =
-          pArgs.stream().map(f -> fmgrView.visit(f, this)).collect(Collectors.toList());
+      List<Formula> newArgs = Lists.transform(pArgs, f -> fmgrView.visit(f, this));
 
       if (pFunctionDeclaration.getKind().equals(DIV)
-          || pFunctionDeclaration.getName().equalsIgnoreCase("div")) {
+          || pFunctionDeclaration.getName().equalsIgnoreCase("div")
+          || pFunctionDeclaration.getName().equalsIgnoreCase("Integer__/_")) {
         assert newArgs.size() == 2;
         return transformDivision(newArgs.get(0), newArgs.get(1), pFunctionDeclaration.getType());
 
@@ -200,9 +199,13 @@ class DivAndModElimination extends BooleanFormulaTransformationVisitor {
                   + ID_GENERATOR.getFreshId());
 
       /*
-       * (divisor > 0 ==> quotientAuxVar * divisor <= dividend < (quotientAuxVar+1) * divisor)
-       * and
-       * (divisor < 0 ==> quotientAuxVar * divisor <= dividend < (quotientAuxVar-1) * divisor)
+       * ((divisor > 0 and dividend >= 0) ==> quotientAuxVar * divisor <= dividend < (quotientAuxVar+1) * divisor)
+       * or
+       * ((divisor < 0 and dividend >= 0) ==> quotientAuxVar * divisor <= dividend < (quotientAuxVar-1) * divisor)
+       * or
+       * ((divisor > 0 and dividend < 0) ==> quotientAuxVar * divisor => dividend > (quotientAuxVar+1) * divisor)
+       * or
+       * ((divisor < 0 and dividend < 0) ==> quotientAuxVar * divisor => dividend > (quotientAuxVar-1) * divisor)
        */
 
       Formula one = fmgrView.makeNumber(formulaType, 1);
@@ -210,24 +213,58 @@ class DivAndModElimination extends BooleanFormulaTransformationVisitor {
 
       BooleanFormula divisorIsNegative = fmgrView.makeLessThan(divisor, zero, true);
       BooleanFormula divisorIsPositive = fmgrView.makeGreaterThan(divisor, zero, true);
+      BooleanFormula dividendIsNegative = fmgrView.makeLessThan(dividend, zero, true);
+      BooleanFormula dividendIsPositive = fmgrView.makeGreaterOrEqual(dividend, zero, true);
       Formula quotientMulDivisor = fmgrView.makeMultiply(quotientAuxVar, divisor);
-      BooleanFormula isLowerBound = fmgrView.makeLessOrEqual(quotientMulDivisor, dividend, true);
+      BooleanFormula isLowerBoundPosDivident =
+          fmgrView.makeLessOrEqual(quotientMulDivisor, dividend, true);
+      BooleanFormula isUpperBoundNegDivident =
+          fmgrView.makeGreaterOrEqual(quotientMulDivisor, dividend, true);
 
-      Formula strictUpperBoundPosDivisor =
+      Formula stictBoundPosDivisor =
           fmgrView.makeMultiply(fmgrView.makePlus(quotientAuxVar, one), divisor);
-      Formula strictUpperBoundNegDivisor =
+      Formula strictBoundNegDivisor =
           fmgrView.makeMultiply(fmgrView.makeMinus(quotientAuxVar, one), divisor);
-      BooleanFormula isUpperBoundPosDivisor =
-          fmgrView.makeLessThan(dividend, strictUpperBoundPosDivisor, true);
-      BooleanFormula isUpperBoundNegDivisor =
-          fmgrView.makeLessThan(dividend, strictUpperBoundNegDivisor, true);
+      BooleanFormula isUpperBoundPosDivisorPosDivident =
+          fmgrView.makeLessThan(dividend, stictBoundPosDivisor, true);
+      BooleanFormula isUpperBoundNegDivisorPosDivident =
+          fmgrView.makeLessThan(dividend, strictBoundNegDivisor, true);
+      BooleanFormula isLowerBoundPosDivisorNegDivident =
+          fmgrView.makeGreaterThan(dividend, stictBoundPosDivisor, true);
+      BooleanFormula isLowerBoundNegDivisorNegDivident =
+          fmgrView.makeGreaterThan(dividend, strictBoundNegDivisor, true);
 
-      BooleanFormula divisorIsPositiveFormula =
-          booleanFormulaManager.and(divisorIsPositive, isLowerBound, isUpperBoundPosDivisor);
-      BooleanFormula divisorIsNegativeFormula =
-          booleanFormulaManager.and(divisorIsNegative, isLowerBound, isUpperBoundNegDivisor);
+      BooleanFormula posDivisorPosDividentFormula =
+          booleanFormulaManager.and(
+              divisorIsPositive,
+              dividendIsPositive,
+              isLowerBoundPosDivident,
+              isUpperBoundPosDivisorPosDivident);
+      BooleanFormula negDivisorPosDividentFormula =
+          booleanFormulaManager.and(
+              divisorIsNegative,
+              dividendIsPositive,
+              isLowerBoundPosDivident,
+              isUpperBoundNegDivisorPosDivident);
+      BooleanFormula posDivisorNegDividentFormula =
+          booleanFormulaManager.and(
+              divisorIsPositive,
+              dividendIsNegative,
+              isUpperBoundNegDivident,
+              isLowerBoundPosDivisorNegDivident);
+      BooleanFormula negDivisorNegDividentFormula =
+          booleanFormulaManager.and(
+              divisorIsNegative,
+              dividendIsNegative,
+              isUpperBoundNegDivident,
+              isLowerBoundNegDivisorNegDivident);
 
-      additionalAxioms.add(fmgrView.makeOr(divisorIsPositiveFormula, divisorIsNegativeFormula));
+      additionalAxioms.add(
+          booleanFormulaManager.or(
+              posDivisorPosDividentFormula,
+              negDivisorPosDividentFormula,
+              posDivisorNegDividentFormula,
+              negDivisorNegDividentFormula));
 
       return quotientAuxVar;
     }

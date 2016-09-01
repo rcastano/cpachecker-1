@@ -23,9 +23,10 @@
  */
 package org.sosy_lab.cpachecker.cpa.policyiteration;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
+import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.cpachecker.cfa.blocks.Block;
 import org.sosy_lab.cpachecker.cfa.blocks.ReferencedVariable;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
@@ -33,13 +34,15 @@ import org.sosy_lab.cpachecker.cfa.model.FunctionExitNode;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.interfaces.Precision;
 import org.sosy_lab.cpachecker.core.interfaces.Reducer;
-import org.sosy_lab.cpachecker.util.Pair;
+import org.sosy_lab.cpachecker.util.predicates.pathformula.SSAMap;
 import org.sosy_lab.cpachecker.util.templates.Template;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -47,101 +50,110 @@ import java.util.stream.Collectors;
  */
 public class PolicyReducer implements Reducer {
 
+  private final LogManager logger;
+
+  public PolicyReducer(LogManager pLogger) {
+    logger = pLogger;
+  }
+
   /**
    * Remove all information from the {@code expandedState} which is not
    * relevant to {@code context}.
    */
   @Override
-  public AbstractState getVariableReducedState(
+  public PolicyAbstractedState getVariableReducedState(
       AbstractState expandedState, Block context, CFANode callNode) {
     PolicyState pState = (PolicyState) expandedState;
-
-    if (!pState.isAbstract()) {
-      // Intermediate states stay as-is.
-      return pState;
-    }
+    Preconditions.checkState(pState.isAbstract());
 
     PolicyAbstractedState aState = pState.asAbstracted();
     Set<String> blockVars = getBlockVariables(context);
 
-    // TODO: what about congruence?
-    // Also can't we finally move it to a different CPA?
-    // problem : might require second abstraction, which is somewhat
-    // undesirable.
     Map<Template, PolicyBound> newAbstraction = Maps.filterKeys(
         aState.getAbstraction(),
-        template -> !Sets.intersection(
-            template.getUsedVars().collect(Collectors.toSet()), blockVars
-        ).isEmpty()
+        template -> blockVars.containsAll(
+            template.getUsedVars().collect(Collectors.toSet()))
     );
-    return aState.withNewAbstraction(newAbstraction);
+    return aState.withNewAbstractionAndSSA(
+        newAbstraction,
+        SSAMap.emptySSAMap().withDefault(1)
+    );
   }
 
   @Override
-  public AbstractState getVariableExpandedState(
-      AbstractState rootState,
+  public PolicyState getVariableExpandedState(
+      AbstractState entryState,
       Block reducedContext,
-      AbstractState reducedState) {
-    PolicyState pRootState = (PolicyState) rootState;
-    PolicyState pReducedState = (PolicyState) reducedState;
+      AbstractState returnState) {
+    PolicyState pEntryState = (PolicyState) entryState;
+    PolicyState pReturnState = (PolicyState) returnState;
 
-    // TODO: perform the calculation for the congruence as well.
-    // (makes considerably more sense if in a separate CPA).
-    if (!pReducedState.isAbstract()) {
+    if (!pReturnState.isAbstract()) {
+      // BAM-specific hack: intermediate states come from target states,
+      // but this information can not be expressed by having only a PolicyState.
+      return pReturnState;
+    }
+    Preconditions.checkState(pEntryState.isAbstract());
+    Preconditions.checkState(pReturnState.isAbstract());
 
-      // Intermediate states stay as-is.
-      return pReducedState;
+    PolicyAbstractedState aEntryState = pEntryState.asAbstracted();
+    PolicyAbstractedState aReturnState = pReturnState.asAbstracted();
+
+    // Enrich the {@code pReturnState} with bounds obtained from {@code
+    // pEntryState} which were dropped during the reduction.
+    Map<Template, PolicyBound> rootAbstraction =
+        aEntryState.getAbstraction();
+    Map<Template, PolicyBound> fullAbstraction =
+        new HashMap<>(aReturnState.getAbstraction());
+    for (Entry<Template, PolicyBound> e : rootAbstraction.entrySet()) {
+      Template t = e.getKey();
+
+      if (staysInvariantUnderBlock(t, aReturnState)) {
+        fullAbstraction.put(t, e.getValue());
+      } else {
+        logger.log(Level.INFO, "Not inserting the bound for the template",
+            t, "which is", e.getValue().getBound());
+      }
     }
 
-    // Enrich the {@code pReducedState} with bounds obtained from {@code
-    // pRootState} which were dropped during the reduction.
-    Map<Template, PolicyBound> rootAbstraction =
-        pRootState.asAbstracted().getAbstraction();
-    Map<Template, PolicyBound> reducedAbstraction =
-        new HashMap<>(pReducedState.asAbstracted().getAbstraction());
-    rootAbstraction.forEach(reducedAbstraction::putIfAbsent);
+    return pReturnState.asAbstracted().withNewAbstraction(fullAbstraction);
+  }
 
-    return pReducedState.asAbstracted().withNewAbstraction(reducedAbstraction);
+  private boolean staysInvariantUnderBlock(
+      Template t,
+      PolicyAbstractedState returnState) {
+
+    // todo: unsound handling for pointed-to variables.
+    return t.getUsedVars().allMatch(v ->
+        !returnState.getBound(t).isPresent()
+        && !(returnState.getSSA().getIndex(v) > 1));
   }
 
   @Override
   public Precision getVariableReducedPrecision(
       Precision precision, Block context) {
-    // todo?
+    // Currently, precision is a singleton.
     return precision;
   }
 
   @Override
   public Precision getVariableExpandedPrecision(
       Precision rootPrecision, Block rootContext, Precision reducedPrecision) {
+    // Currently, precision is a singleton.
     return rootPrecision;
   }
 
   @Override
   public Object getHashCodeForState(
       AbstractState stateKey, Precision precisionKey) {
-    return Pair.of(stateKey, precisionKey);
-  }
+    PolicyState pState = (PolicyState) stateKey;
 
-  @Override
-  public int measurePrecisionDifference(
-      Precision pPrecision, Precision pOtherPrecision) {
-    // TODO? seems not strictly necessary.
-    return 0;
-  }
-
-  @Override
-  public AbstractState getVariableReducedStateForProofChecking(
-      AbstractState expandedState, Block context, CFANode callNode) {
-    return getVariableReducedState(expandedState, context, callNode);
-  }
-
-  @Override
-  public AbstractState getVariableExpandedStateForProofChecking(
-      AbstractState rootState,
-      Block reducedContext,
-      AbstractState reducedState) {
-    return getVariableExpandedState(rootState, reducedContext, reducedState);
+    // Discard all the meta-information attached to the bounds.
+    return pState.asAbstracted().getAbstraction().entrySet().stream()
+        .collect(Collectors.toMap(
+            e -> e.getKey(),
+            e -> e.getValue().getBound()
+        ));
   }
 
   /**
@@ -149,19 +161,21 @@ public class PolicyReducer implements Reducer {
    * remove all bounds associated with global variables,
    * add all globals from the expandedState,
    * add assignment to return function value from expandedState.
+   *
+   * TODO: this function was not tested yet.
    */
   @Override
-  public AbstractState rebuildStateAfterFunctionCall(
+  public PolicyAbstractedState rebuildStateAfterFunctionCall(
       AbstractState rootState,
       AbstractState entryState,
       AbstractState expandedState,
       FunctionExitNode exitLocation) {
     PolicyState pRootState = (PolicyState) rootState;
     PolicyState pExpandedState = (PolicyState) expandedState;
-
-    if (!pExpandedState.isAbstract()) {
-      return pExpandedState;
-    }
+    PolicyState pEntryState = (PolicyState) entryState;
+    Preconditions.checkState(pRootState.isAbstract());
+    Preconditions.checkState(pEntryState.isAbstract());
+    Preconditions.checkState(pExpandedState.isAbstract());
 
     // Remove all global values from root state.
     Map<Template, PolicyBound> rootAbstraction
@@ -189,8 +203,9 @@ public class PolicyReducer implements Reducer {
       String retVarName = retName.get();
 
       // Drop all templates which contain the return variable
-      // name (TODO: prob need to call simplex at this point to figure out the
-      // new bounds).
+      // name.
+      // TODO: probably need to call simplex at this point to figure out the
+      // new bounds.
       Map<Template, PolicyBound> noRetVar = Maps.filterKeys(
           noGlobals,
           t -> t.getUsedVars()

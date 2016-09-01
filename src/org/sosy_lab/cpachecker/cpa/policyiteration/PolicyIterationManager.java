@@ -3,6 +3,7 @@ package org.sosy_lab.cpachecker.cpa.policyiteration;
 import static org.sosy_lab.cpachecker.cpa.policyiteration.PolicyIterationManager.DecompositionStatus.ABSTRACTION_REQUIRED;
 import static org.sosy_lab.cpachecker.cpa.policyiteration.PolicyIterationManager.DecompositionStatus.BOUND_COMPUTED;
 import static org.sosy_lab.cpachecker.cpa.policyiteration.PolicyIterationManager.DecompositionStatus.UNBOUNDED;
+import static org.sosy_lab.cpachecker.util.AbstractStates.asIterable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
@@ -23,6 +24,7 @@ import org.sosy_lab.common.rationals.Rational;
 import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.cfa.ast.c.CExpression;
 import org.sosy_lab.cpachecker.cfa.ast.c.CIdExpression;
+import org.sosy_lab.cpachecker.cfa.blocks.BlockPartitioning;
 import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
@@ -33,6 +35,7 @@ import org.sosy_lab.cpachecker.core.interfaces.PrecisionAdjustmentResult;
 import org.sosy_lab.cpachecker.core.interfaces.PrecisionAdjustmentResult.Action;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
 import org.sosy_lab.cpachecker.core.reachedset.UnmodifiableReachedSet;
+import org.sosy_lab.cpachecker.cpa.arg.ARGState;
 import org.sosy_lab.cpachecker.cpa.loopstack.LoopstackState;
 import org.sosy_lab.cpachecker.cpa.policyiteration.PolicyIterationStatistics.TemplateUpdateEvent;
 import org.sosy_lab.cpachecker.cpa.policyiteration.ValueDeterminationManager.ValueDeterminationConstraints;
@@ -46,20 +49,24 @@ import org.sosy_lab.cpachecker.util.Pair;
 import org.sosy_lab.cpachecker.util.predicates.RCNFManager;
 import org.sosy_lab.cpachecker.util.predicates.pathformula.PathFormula;
 import org.sosy_lab.cpachecker.util.predicates.pathformula.PathFormulaManager;
+import org.sosy_lab.cpachecker.util.predicates.pathformula.SSAMap;
+import org.sosy_lab.cpachecker.util.predicates.pathformula.pointeraliasing.PointerTargetSet;
 import org.sosy_lab.cpachecker.util.predicates.smt.FormulaManagerView;
 import org.sosy_lab.cpachecker.util.predicates.smt.Solver;
 import org.sosy_lab.cpachecker.util.templates.Template;
 import org.sosy_lab.cpachecker.util.templates.Template.Kind;
 import org.sosy_lab.cpachecker.util.templates.TemplatePrecision;
 import org.sosy_lab.cpachecker.util.templates.TemplateToFormulaConversionManager;
-import org.sosy_lab.solver.SolverException;
-import org.sosy_lab.solver.api.BooleanFormula;
-import org.sosy_lab.solver.api.BooleanFormulaManager;
-import org.sosy_lab.solver.api.Formula;
-import org.sosy_lab.solver.api.Model;
-import org.sosy_lab.solver.api.OptimizationProverEnvironment;
-import org.sosy_lab.solver.api.OptimizationProverEnvironment.OptStatus;
-import org.sosy_lab.solver.basicimpl.tactics.Tactic;
+import org.sosy_lab.java_smt.api.BooleanFormula;
+import org.sosy_lab.java_smt.api.BooleanFormulaManager;
+import org.sosy_lab.java_smt.api.Formula;
+import org.sosy_lab.java_smt.api.Model;
+import org.sosy_lab.java_smt.api.OptimizationProverEnvironment;
+import org.sosy_lab.java_smt.api.OptimizationProverEnvironment.OptStatus;
+import org.sosy_lab.java_smt.api.ProverEnvironment;
+import org.sosy_lab.java_smt.api.SolverContext.ProverOptions;
+import org.sosy_lab.java_smt.api.SolverException;
+import org.sosy_lab.java_smt.api.Tactic;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,7 +80,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+
+import javax.annotation.Nullable;
 
 /**
  * Main logic in a single class.
@@ -150,6 +158,9 @@ public class PolicyIterationManager {
       + "let other CPAs use the output of LPI.")
   private boolean delayAbstractionUntilStrengthen = false;
 
+  @Option(secure=true, description="Use the new SSA after the merge operation.")
+  private boolean useNewSSAAfterMerge = false;
+
   private final FormulaManagerView fmgr;
   private final CFA cfa;
   private final PathFormulaManager pfmgr;
@@ -165,6 +176,7 @@ public class PolicyIterationManager {
   private final RCNFManager rcnfManager;
   private final TemplatePrecision initialPrecision;
   private final TemplateToFormulaConversionManager templateToFormulaConversionManager;
+  @Nullable private BlockPartitioning partitioning;
 
   public PolicyIterationManager(
       Configuration pConfig,
@@ -196,7 +208,7 @@ public class PolicyIterationManager {
     statistics = pStatistics;
     linearizationManager = pLinearizationManager;
 
-    /** Compute the cache for loops */
+    // Compute the cache for loops.
     Builder<CFANode, Loop> loopStructureBuilder =
         ImmutableMap.builder();
     LoopStructure loopStructure1 = pCfa.getLoopStructure().get();
@@ -242,8 +254,8 @@ public class PolicyIterationManager {
     return initialPrecision;
   }
 
-  public Collection<? extends PolicyState> getAbstractSuccessors(PolicyState oldState,
-      CFAEdge edge) throws CPATransferException, InterruptedException {
+  public Collection<? extends PolicyState> getAbstractSuccessors(
+      PolicyState oldState, CFAEdge edge) throws CPATransferException, InterruptedException {
 
     CFANode node = edge.getSuccessor();
     PolicyIntermediateState iOldState;
@@ -315,28 +327,36 @@ public class PolicyIterationManager {
       final UnmodifiableReachedSet states,
       final AbstractState pArgState) throws CPAException, InterruptedException {
 
-    Preconditions.checkState(!inputState.isAbstract());
-    final PolicyIntermediateState iState = inputState.asIntermediate();
+    if (inputState.isAbstract()) {
 
-    final boolean hasTargetState = StreamSupport
-        .stream(AbstractStates.asIterable(pArgState).spliterator(), false)
-        .filter(AbstractStates::isTargetState).iterator().hasNext();
+      // Expanded states require resetting the backpointer.
+      return Optional.of(
+          updateBackpointerForExpanded(pArgState, states, inputState.asAbstracted()));
+    }
+    Preconditions.checkState(!inputState.isAbstract());
+
+    PolicyIntermediateState iState = inputState.asIntermediate();
+    boolean hasTargetState = !AbstractStates.asIterable(pArgState)
+        .filter(AbstractStates::isTargetState)
+        .isEmpty();
+
     // Formulas reported by other CPAs.
     BooleanFormula extraInvariant = extractFormula(pArgState);
 
-    final boolean shouldPerformAbstraction = shouldPerformAbstraction(iState, pArgState);
+    CFANode node = iState.getNode();
+    final boolean shouldAbstract = shouldPerformAbstraction(iState, pArgState);
 
     // Perform reachability checking, for property states, or before the abstractions.
-    if (((hasTargetState && checkTargetStates) || shouldPerformAbstraction)
-        && isUnreachable(iState, extraInvariant)) {
+    boolean isTarget = hasTargetState && checkTargetStates;
+    if (((isTarget) || shouldAbstract)
+        && isUnreachable(iState, extraInvariant, isTarget)) {
 
       logger.log(Level.INFO, "Returning bottom state");
       return Optional.empty();
     }
 
     // Perform the abstraction, if necessary.
-    if (shouldPerformAbstraction) {
-      CFANode node = inputState.getNode();
+    if (shouldAbstract) {
       Optional<PolicyAbstractedState> sibling = findSibling(iState, states, pArgState);
 
       PolicyAbstractedState abstraction;
@@ -375,6 +395,93 @@ public class PolicyIterationManager {
     }
   }
 
+  /**
+   * We need to reset the backpointer on the expanded states,
+   * in order to "fake" that control has come down from the summary edge.
+   */
+  private PolicyAbstractedState updateBackpointerForExpanded(
+      AbstractState pFullState,
+      UnmodifiableReachedSet states,
+      PolicyAbstractedState expandedState
+  ) {
+    ARGState state = AbstractStates.extractStateByType(pFullState, ARGState.class);
+    assert state != null : "ARGCPA is needed for BAM";
+    CFANode node = AbstractStates.extractLocation(pFullState);
+    Preconditions.checkState(state.getParents().size() == 1,
+        "Expanded state should have a unique parent.");
+    AbstractState parent = state.getParents().iterator().next();
+    PolicyState parentState = AbstractStates.extractStateByType(
+        parent, PolicyState.class);
+    assert parentState != null;
+    Preconditions.checkState(parentState.isAbstract(),
+        "ARG Parent of the expanded state should be abstract");
+    PolicyAbstractedState aParentState = parentState.asAbstracted();
+
+    SSAMap ssa = expandedState.getSSA();
+    PointerTargetSet pointerTargetSet = expandedState.getPointerTargetSet();
+
+    BooleanFormula formula = bfmgr.and(stateFormulaConversionManager
+        .abstractStateToConstraints(fmgr, expandedState, false));
+    PathFormula pf = new PathFormula(formula, ssa, pointerTargetSet, 1);
+    PolicyIntermediateState generator = PolicyIntermediateState.of(
+        node, pf, aParentState);
+    Optional<PolicyAbstractedState> sibling = findSibling(
+        generator, states, pFullState);
+    int locationID = getLocationID(sibling, node);
+    Map<Template, PolicyBound> newAbstraction = updateAbstractionForExpanded(
+        expandedState.getAbstraction(), pf, aParentState
+    );
+
+    return PolicyAbstractedState.of(
+        newAbstraction,
+        node,
+        locationID,
+        stateFormulaConversionManager,
+        ssa,
+        pointerTargetSet,
+        bfmgr.makeTrue(),
+        generator,
+        sibling
+    );
+  }
+
+  /**
+   * Update the meta-information for policies coming from the summary edge.
+   */
+  Map<Template, PolicyBound> updateAbstractionForExpanded(
+      Map<Template, PolicyBound> pAbstraction,
+      PathFormula inputPath,
+      PolicyAbstractedState pParent
+  ) {
+    ImmutableMap.Builder<Template, PolicyBound> newAbstraction =
+        ImmutableMap.builder();
+    for (Entry<Template, PolicyBound> e : pAbstraction.entrySet()) {
+      Template template = e.getKey();
+      PolicyBound bound = e.getValue();
+
+      BooleanFormula policyFormula = stateFormulaConversionManager
+          .templateToConstraint(template, bound, pfmgr, fmgr, inputPath);
+      PathFormula policy = inputPath.updateFormula(policyFormula);
+
+      PolicyBound policyBound = PolicyBound.of(
+          policy,
+          bound.getBound(),
+          pParent,
+
+          // TODO: filter the set of dependent templates, at least
+          // syntactically.
+          pParent.getAbstraction().keySet()
+      );
+      newAbstraction.put(template, policyBound);
+    }
+    return newAbstraction.build();
+  }
+
+  /**
+   * Post-precision-adjustment strengthening.
+   *
+   * <p>Injecting new invariants might force us to re-compute the abstraction.
+   */
   public Optional<AbstractState> strengthen(
       PolicyState pState, TemplatePrecision pPrecision,
       List<AbstractState> pOtherStates)
@@ -394,14 +501,15 @@ public class PolicyIterationManager {
                 .stream()
                 .map(state -> AbstractStates.extractReportedFormulas(fmgr, state))
                 .filter(state -> !bfmgr.isTrue(state))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList())
+        );
     if (bfmgr.isTrue(strengthening) && !delayAbstractionUntilStrengthen) {
 
       // No interesting strengthening.
       return Optional.of(pState);
     }
 
-    if (isUnreachable(iState, strengthening)) {
+    if (isUnreachable(iState, strengthening, false)) {
 
       logger.log(Level.INFO, "Returning bottom state");
       return Optional.empty();
@@ -559,8 +667,8 @@ public class PolicyIterationManager {
         TemplateUpdateEvent updateEvent = TemplateUpdateEvent.of(
             newState.getLocationID(), template);
 
-        if (statistics.templateUpdateCounter.count(updateEvent) ==
-            wideningThreshold) {
+        if (statistics.templateUpdateCounter.count(updateEvent) == wideningThreshold) {
+
           // Set the value to infinity if the widening threshold was reached.
           logger.log(Level.FINE, "Widening threshold for template", template,
               "at", newState.getNode(), "was reached, widening to infinity.");
@@ -580,6 +688,9 @@ public class PolicyIterationManager {
       newAbstraction.put(template, mergedBound);
     }
 
+    // Cache coherence for CachingPathFormulaManager is better with oldSSA,
+    // but newSSA is required for LPI+BAM.
+    SSAMap mergedSSA = useNewSSAAfterMerge ? newState.getSSA() : oldState.getSSA();
 
     PolicyAbstractedState merged =
         PolicyAbstractedState.of(
@@ -587,8 +698,7 @@ public class PolicyIterationManager {
             oldState.getNode(),
             newState.getLocationID(),
             stateFormulaConversionManager,
-            oldState.getSSA(), // Very important to use the old SSA so that PathFormulaManager
-            // can use the cached values.
+            mergedSSA,
             newState.getPointerTargetSet(),
             extraInvariant,
             newState.getGeneratingState().get(),
@@ -716,7 +826,10 @@ public class PolicyIterationManager {
   /**
    * @return Whether the <code>state</code> is unreachable.
    */
-  private boolean isUnreachable(PolicyIntermediateState state, BooleanFormula extraInvariant)
+  private boolean isUnreachable(
+      PolicyIntermediateState state,
+      BooleanFormula extraInvariant,
+      boolean pIsTarget)
       throws CPAException, InterruptedException {
     BooleanFormula startConstraints =
         stateFormulaConversionManager.getStartConstraintsWithExtraInvariant(state);
@@ -730,8 +843,19 @@ public class PolicyIterationManager {
 
     try {
       statistics.checkSATTimer.start();
-      return solver.isUnsat(
+      boolean out = solver.isUnsat(
           bfmgr.toConjunctionArgs(constraint, true), state.getNode());
+      if (!out && pIsTarget) {
+
+        // Set counterexample information for reachable target states.
+        try (ProverEnvironment env = solver.newProverEnvironment
+            (ProverOptions.GENERATE_MODELS)) {
+          env.push(constraint);
+          Preconditions.checkState(!env.isUnsat());
+          state.setCounterexample(env.getModelAssignments());
+        }
+      }
+      return out;
     } catch (SolverException e) {
       throw new CPATransferException("Failed solving", e);
     } finally {
@@ -1214,9 +1338,18 @@ public class PolicyIterationManager {
    */
   private boolean shouldPerformAbstraction(
       PolicyIntermediateState iState,
-      AbstractState totalState) {
+      AbstractState totalState
+  ) {
 
     CFANode node = iState.getNode();
+
+    // If BAM is enabled, and we are at the start/end of the partition,
+    // abstraction is necessary.
+    if (partitioning != null &&
+        (partitioning.isCallNode(node) || partitioning.isReturnNode(node))) {
+      return true;
+    }
+
     switch (abstractionLocations) {
       case ALL:
         return true;
@@ -1349,11 +1482,19 @@ public class PolicyIterationManager {
 
   private BooleanFormula extractFormula(AbstractState pFormulaState) {
     List<BooleanFormula> constraints = new ArrayList<>();
-    for (AbstractState a : AbstractStates.asIterable(pFormulaState)) {
+    for (AbstractState a : asIterable(pFormulaState)) {
       if (!(a instanceof PolicyAbstractedState) && a instanceof FormulaReportingState) {
         constraints.add(((FormulaReportingState) a).getFormulaApproximation(fmgr));
       }
     }
     return bfmgr.and(constraints);
+  }
+
+  /**
+   * Ugly hack for communicating with
+   * {@link org.sosy_lab.cpachecker.cpa.bam.BAMCPA}.
+   */
+  void setPartitioning(BlockPartitioning pPartitioning) {
+    partitioning = pPartitioning;
   }
 }

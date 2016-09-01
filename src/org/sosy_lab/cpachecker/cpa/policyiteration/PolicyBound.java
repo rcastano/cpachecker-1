@@ -8,7 +8,7 @@ import org.sosy_lab.common.rationals.Rational;
 import org.sosy_lab.cpachecker.util.Triple;
 import org.sosy_lab.cpachecker.util.predicates.pathformula.PathFormula;
 import org.sosy_lab.cpachecker.util.templates.Template;
-import org.sosy_lab.solver.api.BooleanFormula;
+import org.sosy_lab.java_smt.api.BooleanFormula;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -55,7 +55,8 @@ public class PolicyBound {
   private PolicyBound(
       PathFormula pFormula, Rational pBound,
       PolicyAbstractedState pPredecessor,
-      Collection<Template> pDependencies, boolean pComputedByValueDetermination) {
+      Collection<Template> pDependencies,
+      boolean pComputedByValueDetermination) {
     formula = pFormula;
     bound = pBound;
     predecessor = pPredecessor;
@@ -67,7 +68,9 @@ public class PolicyBound {
     return computedByValueDetermination;
   }
 
-  public static PolicyBound of(PathFormula pFormula, Rational bound,
+  public static PolicyBound of(
+      PathFormula pFormula,
+      Rational bound,
       PolicyAbstractedState pUpdatedFrom,
       Collection<Template> pDependencies
   ) {
@@ -114,6 +117,7 @@ public class PolicyBound {
   public ImmutableSet<Template> getDependencies() {
     return dependencies;
   }
+
 
   @Override
   public int hashCode() {

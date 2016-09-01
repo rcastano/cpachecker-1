@@ -129,6 +129,9 @@ analysis.algorithm.conditionAdjustment = false
 # Use McMillan's Impact algorithm for lazy interpolation
 analysis.algorithm.impact = false
 
+# use PDR algorithm
+analysis.algorithm.pdr = false
+
 # use a proof check algorithm to validate a previously generated proof
 analysis.algorithm.proofCheck = false
 
@@ -293,8 +296,7 @@ assumptions.export = true
 assumptions.file = "assumptions.txt"
 
 # comma-separated list of files with specifications that should be used 
-# in a backwards analysis; used if the full analysis consists of a forward
-# AND a backward part!
+# in a backwards analysis; used if the analysis starts at the target states!
 # (see config/specification/ for examples)
 backwardSpecification = []
 
@@ -812,7 +814,7 @@ cpa.automaton.prec.topOnFinalSelfLoopingState = false
 # This should be the standard use case.
 cpa.automaton.treatErrorsAsTargets = true
 
-# if enabled, cache queries also consider blocks with non-matching precision
+# If enabled, cache queries also consider blocks with non-matching precision
 # for reuse.
 cpa.bam.aggressiveCaching = true
 
@@ -832,7 +834,7 @@ cpa.bam.doPrecisionRefinementForAllStates = false
 # export blocks
 cpa.bam.exportBlocksPath = "block_cfa.dot"
 
-# if enabled, the reached set cache is analysed for each cache miss to find
+# If enabled, the reached set cache is analysed for each cache miss to find
 # the cause of the miss.
 cpa.bam.gatherCacheMissStatistics = false
 
@@ -880,6 +882,10 @@ cpa.bdd.logfile = "BDDCPA_tracked_variables.log"
 
 # mergeType
 cpa.bdd.merge = "join"
+
+# Threshold for unrolling blocks before stopping. A value of 0 disables the
+# threshold.
+cpa.blockcount.threshold = 1
 
 # Number of loop iterations before the loop counter is abstracted. Zero is
 # equivalent to no limit.
@@ -1217,6 +1223,9 @@ cpa.lpi.linearizePolicy = true
 # Run naive value determination first, switch to namespaced if it fails.
 cpa.lpi.runHopefulValueDetermination = true
 
+# Remove redundant items when abstract values.
+cpa.lpi.simplifyDotOutput = true
+
 # Algorithm for converting a formula to a set of lemmas
 cpa.lpi.toLemmasAlgorithm = "RCNF"
   allowed values: [CNF, RCNF, NONE]
@@ -1229,6 +1238,9 @@ cpa.lpi.useCachingOptSolver = false
 
 # Cache formulas produced by path formula manager
 cpa.lpi.useCachingPathFormulaManager = true
+
+# Use the new SSA after the merge operation.
+cpa.lpi.useNewSSAAfterMerge = false
 
 # Syntactically pre-compute dependencies for value determination
 cpa.lpi.valDetSyntacticCheck = true
@@ -2587,6 +2599,10 @@ precision.template.generateFromAsserts = true
 # Generate templates from all program statements
 precision.template.generateFromStatements = true
 
+# Force the inclusion of function parameters into the generated templates.
+# Required for summaries computation.
+precision.template.includeFunctionParameters = false
+
 # Maximum size for the generated template
 precision.template.maxExpressionSize = 1
 
@@ -2781,23 +2797,39 @@ termination.check = false
 # instead of the current one.
 termination.config = no default value
 
-# Analysis type used for synthesis of termination arguments.
-termination.lassoAnalysis.analysisType = LINEAR_WITH_GUESSES
+# Shell command used to call the external SMT solver.
+termination.lassoAnalysis.externalSolverCommand = "./lib/native/x86_64-linux/z3 -smt2 -in SMTLIB2_COMPLIANT=true "
+
+# Analysis type used for synthesis of linear termination arguments.
+termination.lassoAnalysis.linear.analysisType = LINEAR_WITH_GUESSES
   enum:     [DISABLED, LINEAR, LINEAR_WITH_GUESSES, NONLINEAR]
 
 # If true, an external tool is used as SMT solver instead of SMTInterpol.
-termination.lassoAnalysis.externalSolver = false
+# This affects only synthesis of linear termination arguments.
+termination.lassoAnalysis.linear.externalSolver = false
 
-# Shell command used to call the external SMT solver.
-termination.lassoAnalysis.externalSolverCommand = "./lib/native/x86_64-linux/z3 -smt2 -in SMTLIB2_COMPLIANT=true "
+# Maximal number of functions used in a ranking function template.
+termination.lassoAnalysis.maxTemplateFunctions = 3
 
 # Number of non-strict supporting invariants for each Motzkin transformation
 # during synthesis of termination arguments.
 termination.lassoAnalysis.nonStrictInvariants = 3
 
+# Analysis type used for synthesis of non-linear termination arguments.
+termination.lassoAnalysis.nonlinear.analysisType = LINEAR_WITH_GUESSES
+  enum:     [DISABLED, LINEAR, LINEAR_WITH_GUESSES, NONLINEAR]
+
+# If true, an external tool is used as SMT solver instead of SMTInterpol.
+# This affects only synthesis of non-linear termination arguments and
+# non-termination arguments.
+termination.lassoAnalysis.nonlinear.externalSolver = false
+
 # Number of strict supporting invariants for each Motzkin transformation
 # during synthesis of termination arguments.
 termination.lassoAnalysis.strictInvariants = 2
+
+# Simplifies loop and stem formulas.
+termination.lassoBuilder.simplify = false
 
 # maximal number of repeated ranking functions per loop before stopping
 # analysis
