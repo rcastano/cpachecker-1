@@ -19,7 +19,7 @@ done
 # instance.c.explicit.assumption_automaton and
 # instance.c.predicate.assumption_automaton files.
 cd cpachecker_files
-benchexec -o ../temp_benchexec_files --rundefinition generate-predicate --rundefinition generate-explicit --limitCores 1 ../experiments/experiment10800.xml
+./scripts/benchmark.py -o ../temp_benchexec_files --rundefinition generate-predicate --rundefinition generate-explicit --limitCores 1 ../experiments/experiment10800.xml
 results_file=`ls ../temp_benchexec_files/experiment10800*.txt`
 # Moving the files to the default results folder
 cp $results_file ../unified_results.txt
@@ -32,7 +32,7 @@ mv ./temp_benchexec_files/* ./results/
 ./pre_process/preprocess_safe_component_input.sh
 # Generate all components
 cd cpachecker_files
-benchexec -o ../temp_benchexec_files \
+./scripts/benchmark.py -o ../temp_benchexec_files \
 --tasks original \
 --rundefinition produce-witnesses-unexplored-predicate-from-predicate \
 --rundefinition produce-witnesses-unexplored-predicate-from-explicit \
