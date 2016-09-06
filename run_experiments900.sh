@@ -26,10 +26,6 @@ cp $results_file ../unified_results.txt
 cd ../
 # Leaving temp_benchexec_files/ empty.
 mv ./temp_benchexec_files/* ./results/
-# Generating .swapped files, which have the TRUE and FALSE states
-# swapped. This step is necessary to generate "safe" components of
-# the execution reports.
-./pre_process/preprocess_safe_component_input.sh
 # Generate all components
 cd cpachecker_files
 benchexec -o ../temp_benchexec_files \
