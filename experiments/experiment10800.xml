@@ -1,8 +1,11 @@
 <?xml version="1.0"?>
 <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.0//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.0.dtd">
 <benchmark tool="cpachecker"
+           timelimit="900s"
+           hardtimelimit="1000s"
+           cpuCores="1" 
            memlimit="12000 MB">
-  <option name="-heap">12000M</option>
+  <option name="-heap">8000M</option>
 
   <tasks name="original">
     <includesfile>../my-programs/instances.set</includesfile>
@@ -14,21 +17,18 @@
 
   <rundefinition name="generate-explicit">
     <option name="-setprop">assumptions.automatonFile=../${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton</option>
-    <option name="-setprop">limits.time.cpu=10800s</option>
     <option name="-config">${sourcefile_path}/../../../test-configs/generate/explicitAnalysis-generate-assumption.properties</option>
     <option name="-skipRecursion"/>
   </rundefinition>
 
   <rundefinition name="generate-predicate">
     <option name="-setprop">assumptions.automatonFile=../${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton</option>
-    <option name="-setprop">limits.time.cpu=10800s</option>
     <option name="-config">${sourcefile_path}/../../../test-configs/generate/predicateAnalysis-generate-cmc-condition.properties</option>
     <option name="-skipRecursion"/>
   </rundefinition>
 
   <rundefinition name="produce-witnesses-unexplored-predicate-from-explicit">
     <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
-    <option name="-setprop">limits.time.cpu=10800s</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
@@ -36,7 +36,6 @@
 
   <rundefinition name="produce-witnesses-unexplored-predicate-from-predicate">
     <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
-    <option name="-setprop">limits.time.cpu=10800s</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
@@ -44,7 +43,6 @@
 
   <rundefinition name="produce-witnesses-unexplored-explicit-from-explicit">
     <option name="-config">../test-configs/extend/explicitAnalysis.properties</option>
-    <option name="-setprop">limits.time.cpu=10800s</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
@@ -52,7 +50,6 @@
 
   <rundefinition name="produce-witnesses-unexplored-explicit-from-predicate">
     <option name="-config">../test-configs/extend/explicitAnalysis.properties</option>
-    <option name="-setprop">limits.time.cpu=10800s</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
@@ -60,7 +57,6 @@
 
   <rundefinition name="produce-witnesses-explored-predicate-from-explicit">
     <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
-    <option name="-setprop">limits.time.cpu=600s</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-explored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
@@ -68,7 +64,6 @@
 
   <rundefinition name="produce-witnesses-explored-predicate-from-predicate">
     <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
-    <option name="-setprop">limits.time.cpu=600s</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-explored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
@@ -76,7 +71,6 @@
 
   <rundefinition name="produce-witnesses-explored-explicit-from-explicit">
     <option name="-config">../test-configs/extend/explicitAnalysis.properties</option>
-    <option name="-setprop">limits.time.cpu=600s</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-explored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
@@ -84,7 +78,6 @@
 
   <rundefinition name="produce-witnesses-explored-explicit-from-predicate">
     <option name="-config">../test-configs/extend/explicitAnalysis.properties</option>
-    <option name="-setprop">limits.time.cpu=600s</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-explored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
@@ -92,7 +85,6 @@
 
   <rundefinition name="produce-witnesses-safe-predicate-from-explicit">
     <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
-    <option name="-setprop">limits.time.cpu=600s</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton.swapped,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
@@ -100,7 +92,6 @@
 
   <rundefinition name="produce-witnesses-safe-predicate-from-predicate">
     <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
-    <option name="-setprop">limits.time.cpu=600s</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton.swapped,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
@@ -108,7 +99,6 @@
 
   <rundefinition name="produce-witnesses-safe-explicit-from-explicit">
     <option name="-config">../test-configs/extend/explicitAnalysis.properties</option>
-    <option name="-setprop">limits.time.cpu=600s</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton.swapped,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
@@ -116,7 +106,6 @@
 
   <rundefinition name="produce-witnesses-safe-explicit-from-predicate">
     <option name="-config">../test-configs/extend/explicitAnalysis.properties</option>
-    <option name="-setprop">limits.time.cpu=600s</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton.swapped,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
