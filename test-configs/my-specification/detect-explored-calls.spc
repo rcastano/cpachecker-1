@@ -9,7 +9,9 @@ CONTROL AUTOMATON ControlAutomatonTest
 INITIAL STATE Init;
 
 STATE USEALL Init :
-  IS_CALL && ! CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") -> GOTO IsAlreadyExploredCall;
+  ( MATCH { $1($?); } || MATCH { $? = $1($?); } ) 
+  && CHECK(location, "functionName==$1") 
+  && ! CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") -> GOTO IsAlreadyExploredCall;
 
 STATE USEALL IsAlreadyExploredCall :
   TRUE -> GOTO Init;
