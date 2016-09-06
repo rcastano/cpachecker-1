@@ -137,6 +137,9 @@ successful = {}
 throw_error = {}
 multiples = [1] # range(1, 12, 1)
 for der, base in derived_from.iteritems():
+
+    if len(benchs[der]) == 0:
+        print "No instances processed in execution '" + der "'."
     for p in multiples:
         bound = float(p) * 0.05
         finished_within_bound = 0
