@@ -11,18 +11,6 @@
     <includesfile>../my-programs/instances.set</includesfile>
   </tasks>
 
-  <rundefinition name="generate-explicit">
-    <option name="-setprop">assumptions.automatonFile=../${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton</option>
-    <option name="-config">${sourcefile_path}/../../../test-configs/generate/explicitAnalysis-generate-assumption.properties</option>
-    <option name="-skipRecursion"/>
-  </rundefinition>
-
-  <rundefinition name="generate-predicate">
-    <option name="-setprop">assumptions.automatonFile=../${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton</option>
-    <option name="-config">${sourcefile_path}/../../../test-configs/generate/predicateAnalysis-generate-cmc-condition.properties</option>
-    <option name="-skipRecursion"/>
-  </rundefinition>
-
   <rundefinition name="produce-witnesses-unexplored-predicate-from-explicit">
     <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>

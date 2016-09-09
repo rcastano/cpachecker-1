@@ -19,7 +19,7 @@ done
 # instance.c.explicit.assumption_automaton and
 # instance.c.predicate.assumption_automaton files.
 cd cpachecker_files
-./scripts/benchmark.py -o ../temp_benchexec_files --rundefinition generate-predicate --rundefinition generate-explicit --limitCores 1 ../experiments/experiment10800.xml
+./scripts/benchmark.py -o ../temp_benchexec_files --rundefinition generate-predicate-10800 --rundefinition generate-explicit-10800 --limitCores 1 ../experiments/generate.xml
 results_file=`ls ../temp_benchexec_files/experiment10800*.txt`
 # Moving the files to the default results folder
 cp $results_file ../unified_results.txt

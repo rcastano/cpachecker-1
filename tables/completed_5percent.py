@@ -139,7 +139,7 @@ multiples = [1] # range(1, 12, 1)
 for der, base in derived_from.iteritems():
 
     if len(benchs[der]) == 0:
-        print "No instances processed in execution '" + der "'."
+        print "No instances processed in execution '" + der + "'."
     for p in multiples:
         bound = float(p) * 0.05
         finished_within_bound = 0
@@ -163,7 +163,10 @@ for der, base in derived_from.iteritems():
             else:
                 unfinished_for[der] += [instance]
 
-        finished_for[der][str(bound)] = 100 * (float(finished_within_bound) / float(len(benchs[der])))
+        if len(benchs[der]) == 0:
+            finished_for[der][str(bound)] = -1
+        else:
+            finished_for[der][str(bound)] = 100 * (float(finished_within_bound) / float(len(benchs[der])))
         print "In " + der + ":"
         print "For bound " + str(bound * 100.0) + "% of original time: " + str(finished_for[der][str(bound)]) + "% completed."
         # print "Unfinished: "
