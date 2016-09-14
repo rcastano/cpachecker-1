@@ -23,9 +23,6 @@
  */
 package org.sosy_lab.cpachecker.cpa.predicate;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
 import org.sosy_lab.common.log.LogManager;
@@ -35,6 +32,9 @@ import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
 import org.sosy_lab.cpachecker.cpa.arg.ARGCPA;
 import org.sosy_lab.cpachecker.util.CPAs;
 import org.sosy_lab.cpachecker.util.predicates.smt.Solver;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Performs refinements against all waiting state.
@@ -68,7 +68,7 @@ public class FeasabilityRefiner extends ImpactGlobalRefiner {
     targetExtractor = new TargetExtractor() {
       @Override
       public List<AbstractState> getTargets(ReachedSet pReached) {
-        return new ArrayList(pReached.getWaitlist());
+        return new ArrayList<>(pReached.getWaitlist());
       }
     };
   }

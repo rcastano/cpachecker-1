@@ -100,7 +100,7 @@ public class PDRAlgorithm implements Algorithm, StatisticsProvider {
   private final BooleanFormulaManagerView bfmgr;
 
   private final LogManager logger;
-  private final ShutdownNotifier shutdownNotifier;
+  private ShutdownNotifier shutdownNotifier;
 
   private final BackwardTransition backwardTransition;
   private final Algorithm algorithm;
@@ -527,5 +527,12 @@ public class PDRAlgorithm implements Algorithm, StatisticsProvider {
       stats.getErrorPathCreationTimer().stop();
     }
     Blocks.combineReachedSets(pBlocks, pTargetReachedSet);
+  }
+
+  @Override
+  public void replaceNotifier(ShutdownNotifier pNotifier) {
+    shutdownNotifier = pNotifier;
+    algorithm.replaceNotifier(shutdownNotifier);
+
   }
 }
