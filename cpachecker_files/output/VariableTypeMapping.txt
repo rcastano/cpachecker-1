@@ -1,0 +1,22 @@
+pop::*a	0
+init::circular_buffer[i]	0
+harness::total_pushed	4
+count	4
+harness::size_b	6
+harness::b	0
+harness::op	7
+start	4
+main::__retval__	7
+push::circular_buffer[(start + count) - 1000]	0
+harness::x	0
+push::circular_buffer[start + count]	0
+init::i	4
+initialized	6
+main::total_pushed	4
+pop::__retval__	6
+__VERIFIER_assert::cond	4
+push::x	0
+harness::old_count	4
+pop::a	0
+circular_buffer	0
+push::__retval__	6

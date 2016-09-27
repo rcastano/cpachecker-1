@@ -1,0 +1,21 @@
+digraph functioncalls {
+rankdir=LR;
+
+main [shape="box", color=blue];
+__VERIFIER_error [shape="box", color=grey];
+__VERIFIER_assert -> __VERIFIER_error;
+__VERIFIER_nondet_uint [shape="box", color=grey];
+harness -> __VERIFIER_nondet_uint;
+harness -> harness;
+harness -> pop;
+harness -> push;
+__VERIFIER_nondet_int [shape="box", color=grey];
+main -> __VERIFIER_nondet_int;
+main -> main;
+main -> harness;
+pop -> pop;
+pop -> init;
+push -> push;
+push -> __VERIFIER_assert;
+push -> init;
+}

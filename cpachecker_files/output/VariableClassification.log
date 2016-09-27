@@ -1,0 +1,15 @@
+IntBool
+
+[harness::op, main::__retval__]
+
+IntEq
+
+[harness::size_b, initialized, pop::__retval__, push::__retval__]
+
+IntAdd
+
+[harness::total_pushed, count, start, init::i, main::total_pushed, __VERIFIER_assert::cond, harness::old_count]
+
+ALL
+
+[pop::*a, init::circular_buffer[i], harness::total_pushed, count, harness::size_b, harness::b, harness::op, start, main::__retval__, push::circular_buffer[(start + count) - 1000], harness::x, push::circular_buffer[start + count], init::i, initialized, main::total_pushed, pop::__retval__, __VERIFIER_assert::cond, push::x, harness::old_count, pop::a, circular_buffer, push::__retval__]

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <key attr.name="nodeType" attr.type="string" for="node" id="nodetype">
+  <default>path</default>
+ </key>
+ <key attr.name="originFileName" attr.type="string" for="edge" id="originfile">
+  <default>../fork/my-programs/my-crafted/small.c</default>
+ </key>
+ <key attr.name="isFrontierNode" attr.type="boolean" for="node" id="frontier">
+  <default>false</default>
+ </key>
+ <key attr.name="isViolationNode" attr.type="boolean" for="node" id="violation">
+  <default>false</default>
+ </key>
+ <key attr.name="isEntryNode" attr.type="boolean" for="node" id="entry">
+  <default>false</default>
+ </key>
+ <key attr.name="isSinkNode" attr.type="boolean" for="node" id="sink">
+  <default>false</default>
+ </key>
+ <key attr.name="invariant" attr.type="string" for="node" id="invariant"/>
+ <key attr.name="invariant.scope" attr.type="string" for="node" id="invariant.scope"/>
+ <key attr.name="namedValue" attr.type="string" for="node" id="named"/>
+ <key attr.name="violatedProperty" attr.type="string" for="node" id="violatedProperty"/>
+ <key attr.name="sourcecodeLanguage" attr.type="string" for="graph" id="sourcecodelang"/>
+ <key attr.name="programFile" attr.type="string" for="graph" id="programfile"/>
+ <key attr.name="programHash" attr.type="string" for="graph" id="programhash"/>
+ <key attr.name="specification" attr.type="string" for="graph" id="specification"/>
+ <key attr.name="memoryModel" attr.type="string" for="graph" id="memorymodel"/>
+ <key attr.name="architecture" attr.type="string" for="graph" id="architecture"/>
+ <key attr.name="producer" attr.type="string" for="graph" id="producer"/>
+ <key attr.name="sourcecode" attr.type="string" for="edge" id="sourcecode"/>
+ <key attr.name="startline" attr.type="int" for="edge" id="startline"/>
+ <key attr.name="startoffset" attr.type="int" for="edge" id="startoffset"/>
+ <key attr.name="lineColSet" attr.type="string" for="edge" id="lineCols"/>
+ <key attr.name="control" attr.type="string" for="edge" id="control"/>
+ <key attr.name="assumption" attr.type="string" for="edge" id="assumption"/>
+ <key attr.name="assumption.scope" attr.type="string" for="edge" id="assumption.scope"/>
+ <key attr.name="enterFunction" attr.type="string" for="edge" id="enterFunction"/>
+ <key attr.name="returnFromFunction" attr.type="string" for="edge" id="returnFrom"/>
+ <key attr.name="predecessor" attr.type="string" for="edge" id="predecessor"/>
+ <key attr.name="successor" attr.type="string" for="edge" id="successor"/>
+ <key attr.name="witness-type" attr.type="string" for="graph" id="witness-type"/>
+ <graph edgedefault="directed">
+  <data key="witness-type">violation_witness</data>
+  <data key="sourcecodelang">C</data>
+  <data key="producer">CPAchecker 1.5-svn 81c13df+</data>
+  <data key="programfile">../fork/my-programs/my-crafted/small.c</data>
+  <data key="programhash">a9dd75a959f9f2ff50c6038532bd0e57b01b2624</data>
+  <data key="memorymodel">precise</data>
+  <data key="architecture">32bit</data>
+  <node id="A0">
+   <data key="entry">true</data>
+  </node>
+  <node id="A12"/>
+  <edge source="A0" target="A12">
+   <data key="sourcecode">int circular_buffer[1000];</data>
+   <data key="startline">48</data>
+   <data key="startoffset">503</data>
+  </edge>
+  <node id="A14"/>
+  <edge source="A12" target="A14">
+   <data key="sourcecode">int count = 0;</data>
+   <data key="startline">49</data>
+   <data key="startoffset">542</data>
+   <data key="assumption">count == (0);</data>
+  </edge>
+  <node id="A16"/>
+  <edge source="A14" target="A16">
+   <data key="sourcecode">int start;</data>
+   <data key="startline">50</data>
+   <data key="startoffset">545</data>
+   <data key="assumption">start == (0);</data>
+  </edge>
+  <node id="A18"/>
+  <edge source="A16" target="A18">
+   <data key="sourcecode">int initialized = 0;</data>
+   <data key="startline">51</data>
+   <data key="startoffset">556</data>
+   <data key="assumption">initialized == (0);</data>
+  </edge>
+  <node id="A32"/>
+  <edge source="A18" target="A32">
+   <data key="sourcecode">int total_pushed = __VERIFIER_nondet_int();</data>
+   <data key="startline">215</data>
+   <data key="startoffset">1764</data>
+  </edge>
+  <node id="A34"/>
+  <edge source="A32" target="A34">
+   <data key="sourcecode">int total_pushed = __VERIFIER_nondet_int();</data>
+   <data key="startline">215</data>
+   <data key="startoffset">1783</data>
+  </edge>
+  <node id="A38"/>
+  <edge source="A34" target="A38">
+   <data key="sourcecode">[!(total_pushed &lt; 0)]</data>
+   <data key="startline">216</data>
+   <data key="startoffset">1814</data>
+   <data key="control">condition-false</data>
+  </edge>
+  <node id="sink">
+   <data key="sink">true</data>
+  </node>
+  <edge source="A34" target="sink">
+   <data key="sourcecode">[total_pushed &lt; 0]</data>
+   <data key="startline">216</data>
+   <data key="startoffset">1814</data>
+   <data key="control">condition-true</data>
+  </edge>
+  <node id="A40"/>
+  <edge source="A38" target="A40">
+   <data key="sourcecode">harness(total_pushed);</data>
+   <data key="startline">219</data>
+   <data key="startoffset">1882</data>
+   <data key="enterFunction">harness</data>
+  </edge>
+  <node id="A67"/>
+  <edge source="A40" target="A67">
+   <data key="sourcecode">count = 0;</data>
+   <data key="startline">168</data>
+   <data key="startoffset">1383</data>
+   <data key="assumption">count == (0);</data>
+   <data key="assumption.scope">harness</data>
+  </edge>
+  <node id="A69"/>
+  <edge source="A67" target="A69">
+   <data key="sourcecode">int size_b = 20;</data>
+   <data key="startline">170</data>
+   <data key="startoffset">1410</data>
+   <data key="assumption">size_b == (20);</data>
+   <data key="assumption.scope">harness</data>
+  </edge>
+  <node id="A71"/>
+  <edge source="A69" target="A71">
+   <data key="sourcecode">int b[size_b];</data>
+   <data key="startline">171</data>
+   <data key="startoffset">1416</data>
+  </edge>
+  <node id="A76"/>
+  <edge source="A71" target="A76">
+   <data key="sourcecode">[total_pushed &gt; 0]</data>
+   <data key="startline">172</data>
+   <data key="startoffset">1440</data>
+   <data key="control">condition-true</data>
+  </edge>
+  <edge source="A71" target="sink">
+   <data key="sourcecode">[!(total_pushed &gt; 0)]</data>
+   <data key="startline">172</data>
+   <data key="startoffset">1440</data>
+   <data key="control">condition-false</data>
+  </edge>
+  <node id="A85"/>
+  <edge source="A76" target="A85">
+   <data key="sourcecode">unsigned int op = __VERIFIER_nondet_uint();</data>
+   <data key="startline">173</data>
+   <data key="startoffset">1464</data>
+  </edge>
+  <node id="A87"/>
+  <edge source="A85" target="A87">
+   <data key="sourcecode">unsigned int op = __VERIFIER_nondet_uint();</data>
+   <data key="startline">173</data>
+   <data key="startoffset">1482</data>
+  </edge>
+  <node id="A91"/>
+  <edge source="A87" target="A91">
+   <data key="sourcecode">[!(op == 0)]</data>
+   <data key="startline">174</data>
+   <data key="startoffset">1516</data>
+   <data key="control">condition-false</data>
+  </edge>
+  <edge source="A87" target="sink">
+   <data key="sourcecode">[op == 0]</data>
+   <data key="startline">174</data>
+   <data key="startoffset">1516</data>
+   <data key="control">condition-true</data>
+  </edge>
+  <node id="A93"/>
+  <edge source="A91" target="A93">
+   <data key="sourcecode">int old_count = count;</data>
+   <data key="startline">183</data>
+   <data key="startoffset">1627</data>
+   <data key="assumption">old_count == (0);</data>
+   <data key="assumption.scope">harness</data>
+  </edge>
+  <node id="A95"/>
+  <edge source="A93" target="A95">
+   <data key="sourcecode">pop(b);</data>
+   <data key="startline">184</data>
+   <data key="startoffset">1656</data>
+   <data key="enterFunction">pop</data>
+  </edge>
+  <node id="A133"/>
+  <edge source="A95" target="A133">
+   <data key="sourcecode">[initialized == 0]</data>
+   <data key="startline">149</data>
+   <data key="startoffset">1151</data>
+   <data key="control">condition-true</data>
+  </edge>
+  <node id="A135">
+   <data key="violation">true</data>
+   <data key="violatedProperty">No error, trace has been explored by previous analysis.</data>
+  </node>
+  <edge source="A133" target="A135">
+   <data key="sourcecode">init();</data>
+   <data key="startline">150</data>
+   <data key="startoffset">1170</data>
+   <data key="enterFunction">init</data>
+  </edge>
+ </graph>
+</graphml>

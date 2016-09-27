@@ -1,0 +1,11 @@
+line 51:	N93 -{int initialized = 0;}-> N94
+line 215:	N79 -{total_pushed = __VERIFIER_nondet_int();}-> N80
+line 216:	N80 -{[!(total_pushed < 0)]}-> N81
+line 219:	N81 -{harness(total_pushed)}-> N57
+lines 172-192:	N61 -{while}-> N62
+line 172:	N62 -{[total_pushed > 0]}-> N63
+line 173:	N65 -{op = __VERIFIER_nondet_uint();}-> N66
+line 174:	N66 -{[!(op == 0)]}-> N69
+line 184:	N74 -{pop(b)}-> N40
+line 149:	N41 -{[initialized == 0]}-> N43
+line 150:	N43 -{init()}-> N9
