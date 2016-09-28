@@ -16,7 +16,7 @@
   </tasks>
 
   <rundefinition name="produce-witnesses-unexplored-predicate-from-explicit">
-    <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
+    <option name="-config">../test-configs/predicateAnalysis.properties</option>
     <option name="-setprop">analysis.stopAfterError=false</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
@@ -24,7 +24,7 @@
   </rundefinition>
 
   <rundefinition name="produce-witnesses-unexplored-predicate-from-predicate">
-    <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
+    <option name="-config">../test-configs/predicateAnalysis.properties</option>
     <option name="-setprop">analysis.stopAfterError=false</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
@@ -48,7 +48,7 @@
   </rundefinition>
 
   <rundefinition name="produce-witnesses-explored-predicate-from-explicit">
-    <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
+    <option name="-config">../test-configs/predicateAnalysis.properties</option>
     <option name="-setprop">analysis.stopAfterError=false</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-explored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
@@ -56,7 +56,7 @@
   </rundefinition>
 
   <rundefinition name="produce-witnesses-explored-predicate-from-predicate">
-    <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
+    <option name="-config">../test-configs/predicateAnalysis.properties</option>
     <option name="-setprop">analysis.stopAfterError=false</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-explored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
@@ -80,7 +80,7 @@
   </rundefinition>
 
   <rundefinition name="produce-witnesses-safe-predicate-from-explicit">
-    <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
+    <option name="-config">../test-configs/predicateAnalysis.properties</option>
     <option name="-setprop">analysis.stopAfterError=false</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton.swapped,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
@@ -88,7 +88,7 @@
   </rundefinition>
 
   <rundefinition name="produce-witnesses-safe-predicate-from-predicate">
-    <option name="-config">../test-configs/components/predicateAnalysis-generate-and-use-cmc-condition-print-specified-calls.properties</option>
+    <option name="-config">../test-configs/predicateAnalysis.properties</option>
     <option name="-setprop">analysis.stopAfterError=false</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton.swapped,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
