@@ -1,3 +1,0 @@
-line 215:	N79 -{total_pushed = __VERIFIER_nondet_int();}-> N80
-line 216:	N80 -{[!(total_pushed < 0)]}-> N81
-line 219:	N81 -{harness(total_pushed)}-> N57
