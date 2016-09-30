@@ -1,5 +1,4 @@
 #!/bin/bash 
-if [ -z ${DO_NOT_ACTIVATE_BENCHEXEC+x} ]; then ./activate_benchexec.sh; fi
 # Create temp directory (clear contents in case it already existed).
 mkdir temp_benchexec_files
 # This should only run once
@@ -26,10 +25,12 @@ cp $results_file ../unified_results.txt
 cd ../
 # Leaving temp_benchexec_files/ empty.
 mv ./temp_benchexec_files/* ./results/
-# Generating .swapped files, which have the TRUE and FALSE states
-# swapped. This step is necessary to generate "safe" components of
-# the execution reports.
-./pre_process/preprocess_safe_component_input.sh
+
+if [ ! -z ${ONLY_GENERATE} ];
+then
+# var is set
+exit
+fi
 # Generate all components
 cd cpachecker_files
 ./scripts/benchmark.py -o ../temp_benchexec_files \

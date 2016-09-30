@@ -15,7 +15,7 @@ echo JoinControllers=cpuset,cpuacct,memory,freezer >> /etc/systemd/system.conf
 mv config_benchexec_systemd/benchexec-cgroup.service /etc/systemd/system/
 
 groupadd benchexec
-adduser $ACTUAL_USER benchexec
+usermod -aG benchexec $ACTUAL_USER
 
 update-initramfs -u
 echo "The changes require a system restart"
