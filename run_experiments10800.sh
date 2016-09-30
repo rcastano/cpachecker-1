@@ -1,4 +1,7 @@
 #!/bin/bash 
+
+SCRIPT_DIR=$(dirname $0)
+cd $SCRIPT_DIR
 # Create temp directory (clear contents in case it already existed).
 mkdir temp_benchexec_files
 # This should only run once
