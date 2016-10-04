@@ -22,7 +22,7 @@ done
 # instance.c.predicate.assumption_automaton files.
 cd cpachecker_files
 ./scripts/benchmark.py -o ../temp_benchexec_files --rundefinition generate-predicate-900 --rundefinition generate-explicit-900 --limitCores 1 ../experiments/generate.xml
-results_file=`ls ../temp_benchexec_files/experiment900*.txt`
+results_file=`ls ../temp_benchexec_files/generate*.txt`
 # Moving the files to the default results folder
 cp $results_file ../unified_results.txt
 cd ../
