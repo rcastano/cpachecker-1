@@ -6,3 +6,4 @@ docker run \
     --name experiments-container \
     experiments-execution-reports \
     /home/benchs/run_experiments900.sh
+docker commit experiments-container finished-experiments-image
