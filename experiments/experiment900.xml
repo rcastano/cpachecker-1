@@ -7,8 +7,11 @@
            memlimit="12000 MB">
   <option name="-heap">8000M</option>
 
-  <tasks name="original">
-    <includesfile>../my-programs/instances.set</includesfile>
+  <tasks name="from-explicit-900">
+    <includesfile>../my-programs/generate-explicit-900.original.set</includesfile>
+  </tasks>
+  <tasks name="from-predicate-900">
+    <includesfile>../my-programs/generate-predicate-900.original.set</includesfile>
   </tasks>
 
   <rundefinition name="produce-witnesses-unexplored-predicate-from-explicit">
