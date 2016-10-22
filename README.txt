@@ -4,6 +4,11 @@ This branch contains additional files necessary to reproduce our experiments.
 
 To reproduce the experiments end-to-end, we provide the scripts run_experiments900.sh. These scripts have not been heavily tested, please contact us if any problems should arise or for additional information.
 
+To run a sample verification attempt that will result inconclusive and 
+subsequently generate the corresponding Execution Report, run the following
+script and follow the instructions:
+examples/example1/run_example.sh
+
 Directory structure:
 cpachecker_files
         CPAchecker
@@ -11,11 +16,15 @@ cpachecker_files
         git-svn-id: https://svn.sosy-lab.org/software/cpachecker/trunk@23188
 docker-img
         Dockerfile and scripts to be able to experiment without complicated
-        setup.   
+        setup.
+examples/example1/run_example.sh 
 experiments
         XML files specifying BenchExec experiments.
 my-programs
         SystemC and DeviceDrivers instances from SV-COMP
+scripts/execution-reports
+        Utility scripts to generate execution reports from inconclusive
+        executions.
 setup_scripts
         Scripts used to set up the system for BenchExec experiments.
         We strongly advice against running these scripts, since they might
