@@ -124,6 +124,7 @@ public class CPAMain {
         throw new InvalidConfigurationException("Please specify a program to analyze on the command line.");
       }
       dumpConfiguration(options, cpaConfig, logManager);
+      logManager.log(Level.INFO, "Start time: " + System.currentTimeMillis());
 
       limits = ResourceLimitChecker.fromConfiguration(cpaConfig, logManager, shutdownManager);
       limits.start();

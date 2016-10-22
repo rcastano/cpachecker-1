@@ -189,6 +189,7 @@ public class CounterexampleCheckAlgorithm implements Algorithm, StatisticsProvid
 
     if (feasibility) {
       logger.log(Level.INFO, "Error path found and confirmed by counterexample check with " + checkerType + ".");
+      logger.log(Level.INFO, "Counterexample time: " + System.currentTimeMillis());
 
     } else {
       numberOfInfeasiblePaths++;
