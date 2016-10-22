@@ -17,7 +17,8 @@ cpachecker_files
 docker-img
         Dockerfile and scripts to be able to experiment without complicated
         setup.
-examples/example1/run_example.sh 
+examples
+        Example to show how to use the tools.
 experiments
         XML files specifying BenchExec experiments.
 my-programs
