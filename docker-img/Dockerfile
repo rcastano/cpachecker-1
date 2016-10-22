@@ -1,8 +1,5 @@
 FROM ubuntu:16.04
 
-ADD proxyon.sh /root/proxyon.sh
-RUN /root/proxyon.sh proxy.uba.ar 8080
-
 RUN mkdir /home/benchs/
 RUN apt-get -y update
 RUN apt-get install -y git
