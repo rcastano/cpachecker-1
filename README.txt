@@ -2,6 +2,16 @@ To see the original CPAchecker README.txt file, please look at cpachecker_files/
 
 This branch contains additional files necessary to reproduce our experiments.
 
+To run a sample verification attempt that will result inconclusive and 
+subsequently generate the corresponding Execution Report, run the following
+script and follow the instructions:
+examples/example1/run_example.sh
+
+The example requires:
+ - Python
+ - ant
+ - Java 8
+
 To reproduce the experiments end-to-end, we provide the scripts run_experiments900.sh and run_experiments900_until_first.sh. These scripts have not been heavily tested, please contact us if any problems should arise or for additional information.
 
 Both scripts first run CPAchecker (1st phase) with two different configurations on all the instances in directory 'my-programs' and generate an Assumption Automaton for each execution that did not yield a conclusive result (either a counterexample or finished verifiying the instance).
@@ -13,10 +23,14 @@ A series of tables are printed through standard output, showing the percentage o
 
 Also, several charts (.eps files) are produced, showing aggregated information, such as the number of instances with one component other than explored finished for different fractions of the original verification time (Figure 4 in the paper).
 
-To run a sample verification attempt that will result inconclusive and 
-subsequently generate the corresponding Execution Report, run the following
-script and follow the instructions:
-examples/example1/run_example.sh
+It is worth noting that we do not enforce hard time limits for the 1st phase because we need to allow CPAchecker to produce the Assumption Automaton once the soft time limit is reached.
+
+Experiments require additional configuration to support BenchExec measurements.
+BenchExec documentation: https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md
+
+The script docker-img/run_experiments_docker.sh creates a Docker image (Docker should already be installed and configured) and executes the experiments.
+The created image (experiments-execution-reports), contains the repository in folder "/home/benchs/" and can be used instead of installing any dependencies on the host machine.
+It is worth noting that to have reliable measurements, swap memory should be disabled in the host machine even when running the experiments using Docker.
 
 Directory structure:
 cpachecker_files
