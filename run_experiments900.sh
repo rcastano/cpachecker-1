@@ -1,6 +1,8 @@
 #!/bin/bash
-
-SCRIPT_DIR=$(dirname $0)
+RELPATH=`dirname $0`
+pushd $RELPATH > /dev/null
+SCRIPT_DIR=`pwd -P`
+popd > /dev/null
 cd $SCRIPT_DIR
 # Create temp directory (clear contents in case it already existed).
 mkdir temp_benchexec_files
@@ -32,6 +34,7 @@ cd cpachecker_files
 results_file=`ls ../temp_benchexec_files/generate*.txt`
 # Moving the files to the default results folder
 cp $results_file ../unified_results.txt
+cat $results_file | python ./tables/completed_5percent.py --print_unfinished --instances_root_path my-programs/
 cd ../
 # Leaving temp_benchexec_files/ empty.
 mv ./temp_benchexec_files/* ./results/
