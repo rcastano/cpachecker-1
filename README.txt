@@ -2,7 +2,16 @@ To see the original CPAchecker README.txt file, please look at cpachecker_files/
 
 This branch contains additional files necessary to reproduce our experiments.
 
-To reproduce the experiments end-to-end, we provide the scripts run_experiments900.sh. These scripts have not been heavily tested, please contact us if any problems should arise or for additional information.
+To reproduce the experiments end-to-end, we provide the scripts run_experiments900.sh and run_experiments900_until_first.sh. These scripts have not been heavily tested, please contact us if any problems should arise or for additional information.
+
+Both scripts first run CPAchecker (1st phase) with two different configurations on all the instances in directory 'my-programs' and generate an Assumption Automaton for each execution that did not yield a conclusive result (either a counterexample or finished verifiying the instance).
+
+After that, both scripts create Execution Reports (2nd phase) for each of the Assumption Automata generated, again using two different configurations.
+The only difference between the two scripts is that run_experiments900_until_first.sh only produces one counterexample during the 2nd phase.
+
+A series of tables are printed through standard output, showing the percentage of instances for which execution ended within different fractions of the original verification time (Table 1 in the paper).
+
+Also, several charts (.eps files) are produced, showing aggregated information, such as the number of instances with one component other than explored finished for different fractions of the original verification time (Figure 4 in the paper).
 
 To run a sample verification attempt that will result inconclusive and 
 subsequently generate the corresponding Execution Report, run the following
