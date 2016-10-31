@@ -9,24 +9,10 @@
     <includesfile>../my-programs/instances.set</includesfile>
   </tasks>
 
-  <rundefinition name="generate-explicit-10800">
-    <option name="-setprop">limits.time.cpu=10800s</option>
-    <option name="-setprop">assumptions.automatonFile=../${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton</option>
-    <option name="-config">${sourcefile_path}/../../../test-configs/generate/explicitAnalysis-generate-cmc-condition.properties</option>
-    <option name="-skipRecursion"/>
-  </rundefinition>
-
   <rundefinition name="generate-explicit-900">
     <option name="-setprop">limits.time.cpu=900s</option>
     <option name="-setprop">assumptions.automatonFile=../${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton</option>
     <option name="-config">${sourcefile_path}/../../../test-configs/generate/explicitAnalysis-generate-cmc-condition.properties</option>
-    <option name="-skipRecursion"/>
-  </rundefinition>
-
-  <rundefinition name="generate-predicate-10800">
-    <option name="-setprop">limits.time.cpu=10800s</option>
-    <option name="-setprop">assumptions.automatonFile=../${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton</option>
-    <option name="-config">${sourcefile_path}/../../../test-configs/generate/predicateAnalysis-generate-cmc-condition.properties</option>
     <option name="-skipRecursion"/>
   </rundefinition>
 
