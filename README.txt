@@ -60,5 +60,5 @@ tables
 test-configs
         Configurations used in the experiments.
 
-Note: When running the experiments, ignore warnings about missing property files. Specifications are set using command line options instead of the standard BenchExec mechanism, triggering the warning. This is necessary due to differences in the language supported in property files compared to CPAchecker specifications.
-
+Note 1: When running the experiments, ignore warnings about missing property files. Specifications are set using command line options instead of the standard BenchExec mechanism, triggering the warning. This is necessary due to differences in the language supported in property files compared to CPAchecker specifications.
+Note 2: When running the experiments, the build step "Downloading and installing dependencies with Ivy" might take a long time, this is normal.
