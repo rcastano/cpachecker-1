@@ -1,4 +1,12 @@
-#!/bin/bash 
+#!/bin/bash
+
+RELPATH=`dirname $0`
+pushd $RELPATH > /dev/null
+SCRIPTPATH=`pwd -P`
+popd > /dev/null
+CPACHECKER_DIR=$SCRIPTPATH/../../cpachecker_files/
+ROOT_DIR=$SCRIPTPATH/../../
+
 CONFIG_TO_BE_USED=""
 USED_CONFIG_FILE=""
 
@@ -118,7 +126,7 @@ mkdir $REPORT_DIR/safe
 PATHS_DIR=$REPORT_DIR/paths
 mkdir $PATHS_DIR
 
-CPACHECKER=./scripts/cpa.sh
+CPACHECKER=$CPACHECKER_DIR/scripts/cpa.sh
 
 function get_json_from_html {
     CEX=$1
@@ -140,7 +148,7 @@ function show_paths {
     mkdir json_temp
 
     for file in $COUNTEREXAMPLE_FILES; do 
-      get_json_from_html $file | python ./scripts/execution-reports/json_to_witness.py
+      get_json_from_html $file | python $SCRIPTPATH/json_to_witness.py
       echo -n "  >>> File: "
       echo $file
     done
@@ -150,7 +158,7 @@ function show_paths {
 
 for witness_type in unexplored explored safe;
 do
-    SPEC=$ASSUMPTION_AUTOMATON_FILE,config/specification/execution-reports/detect-$witness_type-calls.spc
+    SPEC=$ASSUMPTION_AUTOMATON_FILE,$ROOT_DIR/config/specification/execution-reports/detect-$witness_type-calls.spc
     $CPACHECKER \
         -config $CONFIG_TO_BE_USED \
         -setprop specification=$SPEC \
@@ -169,4 +177,4 @@ echo $REPORT_DIR/witnesses_safe.txt
 echo
 echo The following script allows easier visualization and manipulation of
 echo the witnesses.
-echo python ./scripts/execution-reports/view_witnesses.py $REPORT_DIR/witnesses_unexplored.txt
+echo python $RELPATH/view_witnesses.py $REPORT_DIR/witnesses_unexplored.txt
