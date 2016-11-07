@@ -8,14 +8,14 @@ popd > /dev/null
 INSTANCES_DIR=$1
 UNIVERSAL_BENCH_DIR=$2
 
-instances=$(find $INSTANCES_DIR/ -type f)
+instances=$(find $INSTANCES_DIR/ -type f -name \*.c)
 for name in $(ls $UNIVERSAL_BENCH_DIR/);
 do
     instance=$(echo $instances | tr " " "\n" | grep $name)
     cp $instance $UNIVERSAL_BENCH_DIR/$name/
 done
 
-for leaf in $(find UNIVERSAL_BENCH_DIR/ -type d -name \*cex\*);
+for leaf in $(find $UNIVERSAL_BENCH_DIR/ -type d -name \*cex\*);
 do
     pushd $leaf > /dev/null
     instance=$(ls ../../*.c)
