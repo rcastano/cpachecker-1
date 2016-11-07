@@ -15,8 +15,8 @@ do
     # We remove the timestamp by matching whatever comes after
     # the last "/" and before the end-of-line '$'.
     dir_no_timestamp=$(echo $directory | sed 's@[^/]*$@@g')
-    $SCRIPTPATH/all-cex-to-spec.sh \
-        $directory
+    $SCRIPTPATH/all-cex-to-spec.sh      \
+        $directory                      \
         $dest_dir/$dir_no_timestamp/
 done
 
