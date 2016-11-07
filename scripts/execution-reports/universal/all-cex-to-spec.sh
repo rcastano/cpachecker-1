@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-ELPATH=`dirname $0`
+RELPATH=`dirname $0`
 pushd $RELPATH > /dev/null
 SCRIPTPATH=`pwd -P`
 popd > /dev/null
