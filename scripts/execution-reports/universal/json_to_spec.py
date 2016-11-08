@@ -41,6 +41,10 @@ def main():
         print '  -> ' + action + ';'
         print ''
 
+    print 'CONTROL AUTOMATON WitnessAutomaton'
+    print ''
+    print 'INITIAL STATE State0;'
+    print '' 
     for r in j:
         return_desc = "Return edge from"
         function_start_desc = "Function start dummy edge"
@@ -108,7 +112,9 @@ def main():
         ##     # indent -= 1
         last = r
     print "STATE USEFIRST State" + str(id) + ' :'
-    print '  TRUE -> STOP'
+    print '  TRUE -> STOP;'
+    print ''
+    print 'END AUTOMATON'
 
 if __name__ == "__main__":
     # if len(sys.argv) > 1:
