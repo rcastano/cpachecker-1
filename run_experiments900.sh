@@ -34,7 +34,6 @@ cd cpachecker_files
 results_file=`ls ../temp_benchexec_files/generate*.txt`
 # Moving the files to the default results folder
 cp $results_file $SCRIPT_DIR/generation_phase_results.txt
-cat $results_file | python $SCRIPT_DIR/tables/completed_5percent.py --print_unfinished --instances_root_path $SCRIPT_DIR/my-programs/
 cd ../
 # Leaving temp_benchexec_files/ empty.
 mv ./temp_benchexec_files/* ./results/

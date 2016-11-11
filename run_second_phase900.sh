@@ -1,4 +1,5 @@
 #!/bin/bash
+ORIG_DIR=`pwd -P`
 RELPATH=`dirname $0`
 pushd $RELPATH > /dev/null
 SCRIPT_DIR=`pwd -P`
@@ -26,7 +27,8 @@ done
 
 results_file=$1
 # Moving the files to the default results folder
-cp $results_file ./unified_results.txt
+cp $ORIG_DIR/$results_file ./unified_results.txt
+cat ./unified_results.txt | python $SCRIPT_DIR/tables/completed_5percent.py --print_unfinished --instances_root_path $SCRIPT_DIR/my-programs/ 
 
 # Generate all components
 cd cpachecker_files
