@@ -36,7 +36,7 @@ do
     cex_id=$(pwd | sed 's@.*cex\([^/]*\).*@\1@')
     # echo $cex_id
     # echo cex___$(echo $cex_id)___$(basename $instance)
-    ln -s $instance $technique___cex___$(echo $cex_id)___$(basename $instance)
+    ln -s $instance $(echo $technique)___cex___$(echo $cex_id)___$(basename $instance)
     popd > /dev/null
 done
 
