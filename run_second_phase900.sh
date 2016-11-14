@@ -16,7 +16,8 @@ for file in $(find my-programs -type f -name \*assumption_automaton\*)
 do
   dest_dir=$dir_backup/$(dirname $file)/
   mkdir -p $dest_dir
-  mv $file $dest_dir
+  # not removing the files, since the second phase uses these files.
+  cp $file $dest_dir
 done
 for file in $(find my-programs -type f -name \*generate\*.set)
 do
