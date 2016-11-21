@@ -18,9 +18,6 @@ then
     fi
 fi
 
-INSTANCES_DIR=$1
-UNIVERSAL_BENCH_DIR=$2
-
 instances=$(find $INSTANCES_DIR/ -type f -name \*.c)
 for name in $(ls $UNIVERSAL_BENCH_DIR/ | grep "\.c");
 do
@@ -34,9 +31,10 @@ do
     instance=$(ls ../../*.c)
     # pwd
     cex_id=$(pwd | sed 's@.*cex\([^/]*\).*@\1@')
+    technique_combination=$(basename $(dirname `pwd`) | sed 's/.*-\([^-]*-from-[^-]*\).*/\1/')
     # echo $cex_id
     # echo cex___$(echo $cex_id)___$(basename $instance)
-    ln -s $instance $(echo $technique)___cex___$(echo $cex_id)___$(basename $instance)
+    ln -s $instance ${technique_combination}___cex___${cex_id}___$(basename $instance)
     popd > /dev/null
 done
 
