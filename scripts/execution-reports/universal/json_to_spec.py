@@ -3,23 +3,23 @@ import json
 import sys
 # import time
 
-def main():
+import argparse
+
+def main(args):
     try:
         j = json.load(sys.stdin)
     except Exception, e:
         print "Error parsing counterexample JSON"
         raise e
-    ignore_relevant_methods = False
-    if len(sys.argv) == 2:
-        with open(sys.argv[1]) as f:
+    ignore_relevant_methods = not args.relevant_methods
+    if not ignore_relevant_methods:
+        with open(args.relevant_methods) as f:
             try:
                 # j = json.load(sys.stdin)
                 relevant_methods = json.load(f)
             except Exception, e:
                 print "Error parsing relevant methods JSON"
                 raise e
-    else:
-        ignore_relevant_methods = True
     # print l
     indent = 0
     id = 0
@@ -112,7 +112,12 @@ def main():
         ##     # indent -= 1
         last = r
     print "STATE USEFIRST State" + str(id) + ' :'
-    print '  TRUE -> STOP;'
+    if args.safe_witness:
+        # Transition never used, but in any case automaton would remain in
+        # the same state.
+        print '  FALSE -> GOTO State' + std(id) + ';'
+    else:
+        print '  TRUE -> STOP;'
     print ''
     print 'END AUTOMATON'
 
@@ -123,6 +128,16 @@ if __name__ == "__main__":
     #     print "where each element in the list contains a statement in the"
     #     print "field 'desc'." 
     #     sys.exit(1)
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--relevant_methods",
+        help="File containing a JSON encoded list of method names (strings).")
+    parser.add_argument(
+        "--safe_witness",
+        help="Create specification for a safe witness (should check all possible extensions)",
+        action="store_true")
+    
+    args = parser.parse_args()
+    main(args)
 
 
