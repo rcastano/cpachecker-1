@@ -42,7 +42,6 @@ if __name__ == "__main__":
         "--safe_witnesses",
         help="Create specifications for safe witnesses (should check all possible extensions).",
         action="store_true")
-    )
 
     args = parser.parse_args()
     if (not args.bench_dir) or not args.dest_dir:
