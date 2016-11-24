@@ -5,24 +5,36 @@ import os
 import re
 import subprocess
 import sys
+import errno
 
 def default_sigpipe():
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
-def main(args):
+def process_counterexamples(folder, dest_folder, safe_witnesses):
+    script_path = os.path.dirname(os.path.realpath(__file__))
     all_cex = os.listdir(folder + '/')
+    pattern = r'.*Counterexample.([^.]*).html'
+    all_cex = [cex for cex in all_cex if re.match(pattern, cex)]
     for cex in all_cex:
-        pattern = r'.*Counterexample.([^.]*).html'
+
         number = re.sub(pattern, r'\1', cex)
-        os.mkdir(args.dest_folder + '/cex' + number)
+        cex = folder + '/' + cex
+        cex_spec_folder = dest_folder + '/cex' + number + '/'
+        try:
+            os.makedirs(cex_spec_folder)
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                raise exc
+            pass
         output = subprocess.check_output([script_path + '/get_json_from_html.sh', cex])
         import json_to_spec
-        json_to_spec.process_counterexample(output, relevant_methods=None, args.safe_witnesses)
+        with open(cex_spec_folder + 'cex.spec', 'w') as f:
+            json_to_spec.process_counterexample(output, None, safe_witnesses, f)
 
+def main(args):
+    process_counterexamples(args.folder, args.dest_folder, args.safe_witnesses)
 
 if __name__ == "__main__":
-    global script_path = os.path.dirname(os.path.realpath(__file__))
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--folder",

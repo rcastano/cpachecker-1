@@ -13,14 +13,20 @@ def main(args):
     bench_dir = args.bench_dir
     dest_dir = args.dest_dir
     find_witnesses_script = script_path + "/find_witnesses.sh"
-    print find_witnesses_script
-    print bench_dir
     output = subprocess.check_output([find_witnesses_script, bench_dir],
             # To avoid "Broken pipe" errors.
             # https://stackoverflow.com/questions/37547232/broken-pipe-error-python-subprocess
             preexec_fn=default_sigpipe)
     witness_dirs = output.split()
     for directory in witness_dirs:
+        print directory
+        if args.safe_witnesses:
+            if not 'safe' in directory:
+                continue
+        else:
+            if not 'explored' in directory:
+                continue
+
         pattern = r'(.*)/([^/]*)'
         timestamp = re.sub(pattern, r'\2', directory)
         # paths as created by BenchExec with the current xml spec
@@ -28,15 +34,14 @@ def main(args):
         # We remove the timestamp by matching whatever comes after
         # the last "/" and before the end-of-line '$'.
         dir_no_timestamp = re.sub(pattern, r'\1', directory)
-        
-        all_cex_to_spec = script_path + "/all-cex-to-spec.sh"
+       
+        import all_cex_to_spec
         folder = '/'.join([bench_dir, directory])
         dest_folder = '/'.join([dest_dir, timestamp, dir_no_timestamp]) + "/"
-        subprocess_args = [all_cex_to_spec, folder, dest_folder]
-        if args.safe_witnesses:
-            subprocess_args.append("--safe_witness")
-        print subprocess_args
-        subprocess.check_call(subprocess_args)
+        all_cex_to_spec.process_counterexamples(
+                folder,
+                dest_folder,
+                args.safe_witnesses)
 
 if __name__ == "__main__":
 

@@ -5,15 +5,16 @@ import sys
 
 import argparse
 
-def main(args):
+def process_counterexample(raw_string, relevant_methods_filename, safe_witness, out):
     try:
-        j = json.load(sys.stdin)
+        j = json.loads(raw_string)
     except Exception, e:
         print "Error parsing counterexample JSON"
+        print raw_string
         raise e
-    ignore_relevant_methods = not args.relevant_methods
+    ignore_relevant_methods = not relevant_methods_filename
     if not ignore_relevant_methods:
-        with open(args.relevant_methods) as f:
+        with open(relevant_methods_filename) as f:
             try:
                 # j = json.load(sys.stdin)
                 relevant_methods = json.load(f)
@@ -29,22 +30,22 @@ def main(args):
     # while dummy == 0:
     #     time.sleep(0.2)
     def match_any_call(action=None):
-        print '  ( MATCH { $1($?); } || MATCH { $? = $1($?); } )'
-        print '    && CHECK(location, "functionName==$1")'
+        print >> out, '  ( MATCH { $1($?); } || MATCH { $? = $1($?); } )'
+        print >> out, '    && CHECK(location, "functionName==$1")'
         if action:
-            print '  -> ' + action + ';'
-            print ''
+            print >> out, '  -> ' + action + ';'
+            print >> out, ''
 
     def match_method_transition(m, action):
         match_any_call()
-        print '    && CHECK(location, "functionName==' + m + '")'
-        print '  -> ' + action + ';'
-        print ''
+        print >> out, '    && CHECK(location, "functionName==' + m + '")'
+        print >> out, '  -> ' + action + ';'
+        print >> out, ''
 
-    print 'CONTROL AUTOMATON WitnessAutomaton'
-    print ''
-    print 'INITIAL STATE State0;'
-    print '' 
+    print >> out, 'CONTROL AUTOMATON WitnessAutomaton'
+    print >> out, ''
+    print >> out, 'INITIAL STATE State0;'
+    print >> out, '' 
     for r in j:
         return_desc = "Return edge from"
         function_start_desc = "Function start dummy edge"
@@ -82,7 +83,7 @@ def main(args):
 
             stack.append(func_name)
             if ignore_relevant_methods:
-                print "STATE USEFIRST State" + str(id) + ' :'
+                print >> out, "STATE USEFIRST State" + str(id) + ' :'
                 match_method_transition(
                     func_name, "GOTO State" + str(id + 1))
 
@@ -90,7 +91,7 @@ def main(args):
                 id += 1
             # We don't want to restrict calls to internal methods
             elif func_name in relevant_methods:
-                print "STATE USEFIRST State" + str(id) + ' :'
+                print >> out, "STATE USEFIRST State" + str(id) + ' :'
                 match_method_transition(
                     func_name, "GOTO State" + str(id + 1))
 
@@ -111,15 +112,22 @@ def main(args):
         ##     id += 1
         ##     # indent -= 1
         last = r
-    print "STATE USEFIRST State" + str(id) + ' :'
-    if args.safe_witness:
+    print >> out, "STATE USEFIRST State" + str(id) + ' :'
+    if safe_witness:
         # Transition never used, but in any case automaton would remain in
         # the same state.
-        print '  FALSE -> GOTO State' + std(id) + ';'
+        print >> out, '  FALSE -> GOTO State' + str(id) + ';'
     else:
-        print '  TRUE -> STOP;'
-    print ''
-    print 'END AUTOMATON'
+        print >> out, '  TRUE -> STOP;'
+    print >> out, ''
+    print >> out, 'END AUTOMATON'
+
+def main(args):
+    with open('data.txt', 'r') as myfile:
+        raw_string=myfile.read()
+    process_counterexample(
+            raw_string, args.relevant_methods, args.safe_witness, sys.stdout)
+
 
 if __name__ == "__main__":
     # if len(sys.argv) > 1:
