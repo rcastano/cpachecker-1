@@ -82,6 +82,7 @@ import org.sosy_lab.cpachecker.core.reachedset.AggregatedReachedSets;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
 import org.sosy_lab.cpachecker.exceptions.CPAException;
 import org.sosy_lab.cpachecker.exceptions.ParserException;
+import org.sosy_lab.cpachecker.util.CFAUtils;
 import org.sosy_lab.cpachecker.util.CPAs;
 import org.sosy_lab.cpachecker.util.LoopStructure;
 import org.sosy_lab.cpachecker.util.LoopStructure.Loop;
@@ -304,6 +305,8 @@ public class CPAchecker {
 
         } else {
           cfa = parse(programDenotation, stats);
+          CFAUtils.outputAllCFAEdgeLineNumbers(cfa, "line_numbers.txt", logger);
+          System.out.println("here");
           GlobalInfo.getInstance().storeCFA(cfa);
           shutdownNotifier.shutdownIfNecessary();
 
