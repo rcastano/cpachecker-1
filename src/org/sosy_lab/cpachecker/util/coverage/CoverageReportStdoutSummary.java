@@ -23,9 +23,13 @@
  */
 package org.sosy_lab.cpachecker.util.coverage;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.Writer;
+import java.util.HashSet;
 import java.util.Map;
-
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
 import org.sosy_lab.common.configuration.Option;
@@ -46,7 +50,7 @@ class CoverageReportStdoutSummary implements CoverageWriter {
 
   @Override
   public void write(Map<String, FileCoverageInformation> pCoverage, PrintStream pStdOut) {
-
+    HashSet<Integer> allLines = new HashSet<>();
     if (!enabled) {
       return;
     }
@@ -67,6 +71,7 @@ class CoverageReportStdoutSummary implements CoverageWriter {
       numVisitedConditions =+ info.visitedAssumes.size();
 
       numTotalLines =+ info.allLines.size();
+      allLines.addAll(info.allLines);
 
       for (Integer line : info.allLines) {
         if (info.getVisitedLine(line) > 0) {
@@ -75,6 +80,16 @@ class CoverageReportStdoutSummary implements CoverageWriter {
       }
     }
 
+    try (Writer writer =
+           new BufferedWriter(
+               new OutputStreamWriter(
+                   new FileOutputStream("line_numbers.txt"), "utf-8"))) {
+      for (Integer l : allLines) {
+        writer.write(l.toString() + String.format("%n"));
+      }
+    } catch (Exception e) {
+      System.err.println("Failed to output line number for coverage.");
+    }
     pStdOut.println("Code Coverage");
     pStdOut.println("-----------------------------");
 
