@@ -30,7 +30,7 @@ def find_property(filename, prop_name):
             values_assigned.append(m.group('prop'))
     return values_assigned
 
-def main(args):
+def extract_all_options(args):
     program_names = find_property(
         args.used_config_file, 'analysis.programNames')
     if len(program_names) == 0:
@@ -52,6 +52,17 @@ def main(args):
     coverage_filename = \
         os.path.dirname(args.used_config_file) + '/coverage.info'
     lines_to_cover = Set()
+    return program_names[0], assumption_automaton_file, coverage_filename
+
+def main(args):
+    if args.used_config_file:
+        (instance_filename, assumption_automaton_file, coverage_filename) = \
+            extract_all_options(args)
+    else:
+        instance_filename = args.instance_filename
+        assumption_automaton_file = args.assumtion_automaton_file
+        coverage_filename = args.coverage_filename
+
     with open(coverage_filename) as f:
         for l in f:
             m = re.match(r'^DA:(?P<line_number>[^,]*),.*', l)
@@ -119,15 +130,39 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
             break
     return all_lines_covered, lines_to_cover
 
+def is_legal_config(args):
+    if (args.used_config_file and
+        not args.coverage_file and
+        not args.assumption_automaton_file and
+        not args.instance_filename):
+        return True
+    if (not args.used_config_file and
+        args.coverage_file and
+        args.assumption_automaton_file and
+        args.instance_filename):
+        return true
+    return False
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--used_config_file",
-        help="some_path/UsedConfiguration.properties\nFile containing the configuration options for a previous CPAchecker run.")
+        help="some_path/UsedConfiguration.properties\nFile containing the configuration options for a previous CPAchecker run.\nThe files containing the verification instance, coverage information and the Assumption Automaton from the previous run can be extracted from the configuration file.")
     
+    parser.add_argument(
+        "--coverage_file",
+        help="some_path/coverage.info\nFile containing coverage information for a previous CPAchecker run, used only to gather all 'coverable' lines (i.e. not comments, empty lines, etc.).")
+
+    parser.add_argument(
+        "--assumption_automaton_file",
+        help="some_path/coverage.info\nFile containing an assumption automaton.")
+
+    parser.add_argument(
+        "--instance_filename",
+        help="Instance filename.")
+
     args = parser.parse_args()
-    if not args.used_config_file:
+    if not is_legal_config(args):
         parser.print_help()
     else:
         main(args)
