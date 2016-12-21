@@ -1,0 +1,77 @@
+OBSERVER AUTOMATON AssumptionAutomaton
+
+INITIAL STATE ARG0;
+
+STATE __TRUE :
+    TRUE -> ASSUME {true} GOTO __TRUE;
+
+STATE __FALSE :
+    TRUE -> ASSUME {false} GOTO __FALSE;
+
+STATE USEFIRST ARG0 :
+    MATCH "" -> ASSUME {true} GOTO ARG1;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1 :
+    MATCH "void assert(int cond)" -> GOTO ARG1M0;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M0 :
+    MATCH "int __VERIFIER_nondet_int();" -> GOTO ARG1M1;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M1 :
+    MATCH "int main()" -> GOTO ARG1M2;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M2 :
+    MATCH "" -> GOTO ARG1M3;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M3 :
+    MATCH "int x = __VERIFIER_nondet_int();" -> GOTO ARG1M4;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M4 :
+    MATCH "int x = __VERIFIER_nondet_int();" -> GOTO ARG1M5;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M5 :
+    MATCH "int z = 1;" -> ASSUME {true} GOTO ARG2;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG2 :
+    MATCH "[(x * x) >= 0]" -> ASSUME {true} GOTO __FALSE;
+    MATCH "[!((x * x) >= 0)]" -> ASSUME {true} GOTO ARG4;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG4 :
+    MATCH "z = 2;" -> ASSUME {true} GOTO ARG5;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG5 :
+    MATCH "assert(0);" -> ASSUME {true} GOTO ARG6;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG6 :
+    MATCH "" -> ASSUME {true} GOTO ARG7;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG7 :
+    MATCH "[cond == 0]" -> ASSUME {true} GOTO ARG8;
+    MATCH "[!(cond == 0)]" -> ASSUME {true} GOTO ARG9;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG8 :
+    MATCH "ERROR: goto ERROR;" -> ASSUME {true} GOTO __FALSE;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG9 :
+    MATCH "" -> ASSUME {true} GOTO ARG10;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG10 :
+    MATCH "" -> ASSUME {true} GOTO __FALSE;
+    TRUE -> GOTO __TRUE;
+
+END AUTOMATON
