@@ -24,18 +24,13 @@ def find_property(filename, prop_name):
     with open(filename) as f:
         values_assigned = []
         for line in f:
-            m = re.match(r'.*' + prop_name + r' = (?P=prop.*', line)
+            m = re.match(r'.*' + prop_name + r' = (?P<prop>.*)$', line)
             if not m:
                 continue
             values_assigned.append(m.group('prop'))
     return values_assigned
 
 def main(args):
-    lines_to_cover = Set()
-    with open(args.line_to_cover) as f:
-        for l in f:
-            lines_to_cover.add(int(l))
-
     program_names = find_property(
         args.used_config_file, 'analysis.programNames')
     if len(program_names) == 0:
@@ -46,9 +41,23 @@ def main(args):
         sys.exit(1)
     assumption_automaton_file = find_property(
         args.used_config_file, 'assumptions.automatonFile')
-    if len(assumption_automaton_file) != 1:
+    if len(assumption_automaton_file) > 1:
         print "Error parsing Assumption Automaton file."
         sys.exit(1)
+    if len(assumption_automaton_file) < 1:
+        assumption_automaton_file = 'AssumptionAutomaton.txt'
+
+    assumption_automaton_file = \
+        os.path.dirname(args.used_config_file) + '/' + assumption_automaton_file
+    coverage_filename = \
+        os.path.dirname(args.used_config_file) + '/coverage.info'
+    lines_to_cover = Set()
+    with open(coverage_filename) as f:
+        for l in f:
+            m = re.match(r'^DA:(?P<line_number>[^,]*),.*', l)
+            if m:
+                line_number = int(m.group('line_number'))
+                lines_to_cover.add(line_number)
 
     (lines_covered, lines_not_covered) = compute_coverage(
         assumption_automaton_file, lines_to_cover, program_names[0], False)
@@ -116,12 +125,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--used_config_file",
         help="some_path/UsedConfiguration.properties\nFile containing the configuration options for a previous CPAchecker run.")
-    parser.add_argument(
-        "--lines_to_cover",
-        help="Path to text file containing all lines that we need to cover.")
     
     args = parser.parse_args()
-    if not args.used_config_file or not args.lines_to_cover:
+    if not args.used_config_file:
         parser.print_help()
     else:
         main(args)

@@ -76,7 +76,7 @@ def find_property(filename, prop_name):
     with open(filename) as f:
         values_assigned = []
         for line in f:
-            m = re.match(r'.*' + prop_name + r' = (?P=prop.*', line)
+            m = re.match(r'.*' + prop_name + r' = (?P<prop>.*)$', line)
             if not m:
                 continue
             values_assigned.append(m.group('prop'))
