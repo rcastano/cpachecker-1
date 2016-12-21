@@ -51,7 +51,6 @@ def extract_all_options(args):
         os.path.dirname(args.used_config_file) + '/' + assumption_automaton_file
     coverage_filename = \
         os.path.dirname(args.used_config_file) + '/coverage.info'
-    lines_to_cover = Set()
     return program_names[0], assumption_automaton_file, coverage_filename
 
 def main(args):
@@ -60,9 +59,10 @@ def main(args):
             extract_all_options(args)
     else:
         instance_filename = args.instance_filename
-        assumption_automaton_file = args.assumtion_automaton_file
+        assumption_automaton_file = args.assumption_automaton_file
         coverage_filename = args.coverage_file
 
+    lines_to_cover = Set()
     with open(coverage_filename) as f:
         for l in f:
             m = re.match(r'^DA:(?P<line_number>[^,]*),.*', l)
@@ -71,7 +71,7 @@ def main(args):
                 lines_to_cover.add(line_number)
 
     (lines_covered, lines_not_covered) = compute_coverage(
-        assumption_automaton_file, lines_to_cover, program_names[0], False)
+        assumption_automaton_file, lines_to_cover, instance_filename, False)
     print "The following lines were covered:"
     for l in lines_covered:
         print l
@@ -112,8 +112,9 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
              instance_filename])
         with open(os.devnull, 'w') as devnull:
             output = subprocess.check_output(
-                command,
-                stderr = devnull)
+                command)#,
+                #stderr = devnull)
+            print output
         lines_covered = get_lines_from_cex.process_counterexamples(
             instance_filename,
             temp_folder)
@@ -140,7 +141,7 @@ def is_legal_config(args):
         args.coverage_file and
         args.assumption_automaton_file and
         args.instance_filename):
-        return true
+        return True
     return False
 
 if __name__ == "__main__":
