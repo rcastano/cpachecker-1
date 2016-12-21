@@ -15,11 +15,9 @@ class TestCoverLinesSpecGeneration(unittest.TestCase):
 INITIAL STATE State0;
 
 STATE USEFIRST State0:
-  (
-  CHECK("line==1") ||
-  CHECK("line==3") ||
-  CHECK("line==5") ||
-  FALSE) -> GOTO WaitForExit;
+  CHECK("line==1") -> GOTO WaitForExit;
+  CHECK("line==3") -> GOTO WaitForExit;
+  CHECK("line==5") -> GOTO WaitForExit;
 
 STATE USEFIRST WaitForExit:
   MATCH EXIT -> ERROR("Found covering test case");
