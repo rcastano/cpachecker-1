@@ -51,7 +51,7 @@ def main(args):
         sys.exit(1)
 
     (lines_covered, lines_not_covered) = compute_coverage(
-        assumption_automaton_file, lines_to_cover, program_names[0])
+        assumption_automaton_file, lines_to_cover, program_names[0], False)
     print "The following lines were covered:"
     for l in lines_covered:
         print l
@@ -60,7 +60,7 @@ def main(args):
     for l in lines_not_covered:
         print l
 
-def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filename, temp_folder=None):
+def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, temp_folder=None):
     if not temp_folder:
         temp_folder = _script_path() + '/temp_folder_loop/'
     lines_to_cover = lines_to_cover.copy()
@@ -82,14 +82,17 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
         specs.append(assumption_automaton_file)
         specs.append(lines_spec_filename)
         specs.append(avoid_unexplored_spec_filename)
+        command = (
+            [cpachecker_root + '/scripts/cpa.sh',
+             '-valueAnalysis',
+             '-outputpath', temp_folder,
+             '-setprop', 'specification=' + ','.join(specs),
+             '-setprop',
+                'analysis.stopAfterError='+(str(stop_after_error).lower()),
+             instance_filename])
         with open(os.devnull, 'w') as devnull:
             output = subprocess.check_output(
-                [cpachecker_root + '/scripts/cpa.sh',
-                 '-valueAnalysis',
-                 '-outputpath', temp_folder,
-                 '-setprop', 'specification=' +
-                    ','.join(specs),
-                 instance_filename],
+                command,
                 stderr = devnull)
         lines_covered = get_lines_from_cex.process_counterexamples(
             instance_filename,
