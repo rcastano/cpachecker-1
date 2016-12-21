@@ -4,6 +4,17 @@ import argparse
 #def default_sigpipe():
 #    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
+def avoid_unexplored_spec(f):
+    print >> f, 'CONTROL AUTOMATON AvoidUnexplored'
+    print >> f, ''
+    print >> f, 'INITIAL STATE Init;'
+    print >> f, ''
+    print >> f, 'STATE USEFIRST Init :'
+    print >> f, '  CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") -> STOP;'
+    print >> f, '  TRUE -> GOTO Init;'
+    print >> f, ''
+    print >> f, 'END AUTOMATON'
+
 def gen_spec(f, lines_to_cover):
     assert len(lines_to_cover) > 0
     print >> f, 'CONTROL AUTOMATON CoverageAutomaton'
@@ -37,7 +48,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--lines_to_cover",
-        help="Directory where benchmark intermediate files are stored. (Specific directory structure expected)"
+        help="Path to text file containing all liens that we need to cover."
     )
 
     args = parser.parse_args()

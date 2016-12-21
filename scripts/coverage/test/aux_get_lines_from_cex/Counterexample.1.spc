@@ -1,0 +1,34 @@
+CONTROL AUTOMATON ErrorPath1
+
+INITIAL STATE ARG0;
+
+STATE USEFIRST ARG0 :
+    MATCH "" -> GOTO ARG1;
+    TRUE -> STOP;
+
+STATE USEFIRST ARG1 :
+    MATCH "void f(int x, int y)" -> GOTO ARG2_1_1;
+STATE USEFIRST ARG2_0_1 :
+    MATCH "void f(int x, int y)" -> GOTO ARG2_1_1;
+STATE USEFIRST ARG2_1_1 :
+    MATCH "int main()" -> GOTO ARG2_2_1;
+STATE USEFIRST ARG2_2_1 :
+    MATCH "" -> GOTO ARG2;
+    TRUE -> STOP;
+
+STATE USEFIRST ARG2 :
+    MATCH "f(4,\n            5);" -> GOTO ARG3;
+    TRUE -> STOP;
+
+STATE USEFIRST ARG3 :
+    MATCH "" -> GOTO ARG4;
+    TRUE -> STOP;
+
+STATE USEFIRST ARG4 :
+    MATCH "ERROR:\n    return ;" -> ERROR;
+    TRUE -> STOP;
+
+STATE USEFIRST ARG6 :
+    TRUE -> STOP;
+
+END AUTOMATON

@@ -28,8 +28,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.TreeSet;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
 import org.sosy_lab.common.configuration.Option;
@@ -50,7 +50,7 @@ class CoverageReportStdoutSummary implements CoverageWriter {
 
   @Override
   public void write(Map<String, FileCoverageInformation> pCoverage, PrintStream pStdOut) {
-    HashSet<Integer> allLines = new HashSet<>();
+    TreeSet<Integer> allLines = new TreeSet<>();
     if (!enabled) {
       return;
     }
