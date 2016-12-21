@@ -61,7 +61,7 @@ def main(args):
     else:
         instance_filename = args.instance_filename
         assumption_automaton_file = args.assumtion_automaton_file
-        coverage_filename = args.coverage_filename
+        coverage_filename = args.coverage_file
 
     with open(coverage_filename) as f:
         for l in f:
