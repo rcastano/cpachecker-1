@@ -22,8 +22,8 @@ def gen_spec(f, lines_to_cover):
     print >> f, 'INITIAL STATE State0;'
     print >> f, ''
     print >> f, 'STATE USEFIRST State0:'
-    for l in lines_to_cover:
-        print >> f, '  CHECK("line==' + str(l) + '") -> GOTO WaitForExit;'
+
+    print >> f, '  COVERS_LINE -> GOTO WaitForExit;'
 
     print >> f, ''
     print >> f, 'STATE USEFIRST WaitForExit:'

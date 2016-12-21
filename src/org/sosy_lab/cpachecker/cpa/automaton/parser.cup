@@ -163,7 +163,7 @@ terminal EXCLAMATION, AND, OR, ARROW, SEMICOLON, COMMA, COLON, OPEN_BRACKETS,
     ERROR, STOP, EXIT, ENTRY, BREAK, ASSERT, ASSUME, MATCH, LABEL, CHECK, EVAL,
     MODIFY, DO, PRINT, GOTO, IDENTIFIER, INTEGER_LITERAL, NEQ, EQ, EQEQ, PLUS,
     MINUS, TRUE, FALSE, STRING_LITERAL, CURLYEXPR, SQUAREEXPR, USEALL, USEFIRST,
-    TARGET, IS_TARGET_STATE ;
+    TARGET, IS_TARGET_STATE, COVERS_LINE ;
 non terminal List<Automaton> initial ;  
 non terminal Automaton Specification ;
 non terminal Automaton Automaton ;
@@ -344,6 +344,8 @@ Bool      ::= TRUE  {: RESULT = AutomatonBoolExpr.TRUE; :}
               {: RESULT = new AutomatonBoolExpr.ALLCPAQuery(query.toString()); :}
             | CHECK OPEN_BRACKETS IS_TARGET_STATE CLOSE_BRACKETS
               {: RESULT = AutomatonBoolExpr.CheckAllCpasForTargetState.INSTANCE; :}
+            | COVERS_LINE
+              {: RESULT = new AutomatonBoolExpr.CheckCoversLine(); :}
             ;
             
 Expression          ::= Int:i {: RESULT = i; :}

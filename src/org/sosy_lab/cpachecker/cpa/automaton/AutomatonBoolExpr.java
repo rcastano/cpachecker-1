@@ -24,9 +24,12 @@
 package org.sosy_lab.cpachecker.cpa.automaton;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Predicates.notNull;
+import static com.google.common.collect.FluentIterable.from;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import java.util.Collections;
@@ -63,6 +66,7 @@ import org.sosy_lab.cpachecker.cfa.model.c.CLabelNode;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractQueryableState;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonASTComparator.ASTMatcher;
+import org.sosy_lab.cpachecker.cpa.location.LocationState;
 import org.sosy_lab.cpachecker.exceptions.CPATransferException;
 import org.sosy_lab.cpachecker.exceptions.InvalidQueryException;
 import org.sosy_lab.cpachecker.exceptions.UnrecognizedCFAEdgeException;
@@ -72,6 +76,7 @@ import org.sosy_lab.cpachecker.util.CFATraversal.CFAVisitor;
 import org.sosy_lab.cpachecker.util.CFATraversal.TraversalProcess;
 import org.sosy_lab.cpachecker.util.CFAUtils;
 import org.sosy_lab.cpachecker.util.automaton.AutomatonGraphmlCommon;
+import org.sosy_lab.cpachecker.util.globalinfo.GlobalInfo;
 
 /**
  * Implements a boolean expression that evaluates and returns a <code>MaybeBoolean</code> value when <code>eval()</code> is called.
@@ -717,6 +722,43 @@ interface AutomatonBoolExpr extends AutomatonExpression {
 
   }
 
+  /**
+   * Sends a query string to all available AbstractStates.
+   * Returns TRUE if one Element corresponds to a location of interest (line to cover);
+   * Returns FALSE otherwise.
+   */
+  public static class CheckCoversLine implements AutomatonBoolExpr {
+
+    public CheckCoversLine() {
+    }
+
+    @Override
+    public ResultValue<Boolean> eval(AutomatonExpressionArguments pArgs) throws CPATransferException {
+      if (pArgs.getAbstractStates().isEmpty()) {
+        return new ResultValue<>("No CPA elements available", "AutomatonBoolExpr.ALLCPAQuery");
+      }
+      FluentIterable<LocationState> locations =
+          from(pArgs.getAbstractStates())
+            .transform(AbstractStates.toState(org.sosy_lab.cpachecker.cpa.location.LocationState.class))
+            .filter(notNull());
+//      System.out.println("# location states:");
+//      System.out.println(locations.size());
+//      for (AbstractState ae : pArgs.getAbstractStates()) {
+//        System.out.println(ae.getClass());
+//        if (ae instanceof LocationState) {
+//          System.out.println("Found location");
+//        }
+//      }
+      for (LocationState n : locations) {
+        for (CFAEdge edge : CFAUtils.enteringEdges(n.getLocationNode())) {
+          if (GlobalInfo.getInstance().isLineToCover(edge.getLineNumber())) {
+            return CONST_TRUE;
+          }
+        }
+      }
+      return CONST_FALSE;
+    }
+  }
   /**
    * Sends a query string to all available AbstractStates.
    * Returns TRUE if one Element returned TRUE;

@@ -24,6 +24,8 @@
 package org.sosy_lab.cpachecker.util.globalinfo;
 
 import com.google.common.base.Preconditions;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.cpachecker.cfa.CFA;
@@ -32,6 +34,7 @@ import org.sosy_lab.cpachecker.cpa.apron.ApronCPA;
 import org.sosy_lab.cpachecker.cpa.assumptions.storage.AssumptionStorageCPA;
 import org.sosy_lab.cpachecker.cpa.automaton.ControlAutomatonCPA;
 import org.sosy_lab.cpachecker.cpa.predicate.PredicateCPA;
+import org.sosy_lab.cpachecker.exceptions.CPATransferException;
 import org.sosy_lab.cpachecker.util.ApronManager;
 import org.sosy_lab.cpachecker.util.CPAs;
 import org.sosy_lab.cpachecker.util.predicates.AbstractionManager;
@@ -48,9 +51,12 @@ public class GlobalInfo {
   private AbstractionManager absManager;
   private ApronManager apronManager;
   private LogManager apronLogger;
+  private Collection<Integer> linesToCover;
+  private boolean addedLineToCover;
 
   private GlobalInfo() {
-
+    linesToCover = new HashSet<>();
+    addedLineToCover = false;
   }
 
   public static synchronized GlobalInfo getInstance() {
@@ -58,6 +64,18 @@ public class GlobalInfo {
       instance = new GlobalInfo();
     }
     return instance;
+  }
+
+  public synchronized boolean addLineToCover(int line) {
+    addedLineToCover = true;
+    return linesToCover.add(line);
+  }
+
+  public synchronized boolean isLineToCover(int line) throws CPATransferException {
+    if (!addedLineToCover) {
+      throw new CPATransferException("Lines of code to be covered never added.");
+    }
+    return linesToCover.contains(line);
   }
 
   public synchronized void storeCFA(CFA cfa) {

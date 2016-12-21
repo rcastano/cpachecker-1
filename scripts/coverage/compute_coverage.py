@@ -93,6 +93,11 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
         with open(avoid_unexplored_spec_filename, 'w') as f:
             generate_coverage_spec.avoid_unexplored_spec(f)
 
+        lines_filename = temp_folder + '/lines_to_cover.txt'
+        with open(lines_filename, 'w') as f:
+            for l in lines_to_cover:
+                print >> f, l
+
         lines_spec_filename = temp_folder + '/spec.spc'
         with open(lines_spec_filename, 'w') as f:
             generate_coverage_spec.gen_spec(f, lines_to_cover)
@@ -109,12 +114,19 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
              '-setprop', 'specification=' + ','.join(specs),
              '-setprop',
                 'analysis.stopAfterError='+(str(stop_after_error).lower()),
+             '-setprop',
+                'linesToCoverFile='+lines_filename,
              instance_filename])
+        # for c in command[:-1]:
+        #     print c + " \\"
+        # print command[-1]
+        # raw_input("Press Enter to continue...") 
         with open(os.devnull, 'w') as devnull:
             output = subprocess.check_output(
-                command)#,
-                #stderr = devnull)
-            print output
+                command,
+                stderr = devnull)
+            # print output
+            # print command
         lines_covered = get_lines_from_cex.process_counterexamples(
             instance_filename,
             temp_folder)

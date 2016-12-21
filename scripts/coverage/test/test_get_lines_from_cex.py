@@ -12,6 +12,22 @@ import get_lines_from_cex
 class TestGetLines(unittest.TestCase):
     temp_folder = script_path + '/aux_get_lines_from_cex/temp_folder/'
 
+    def setUp(self):
+        import shutil
+        try:
+            shutil.rmtree(self.temp_folder)
+        except:
+            # Directory might not exist, ignore
+            pass
+
+    def tearDown(self):
+        import shutil
+        try:
+            shutil.rmtree(self.temp_folder)
+        except:
+            # Directory might not exist
+            pass
+
 class TestGetLinesInIsolation(TestGetLines):
     def test(self):
         res = get_lines_from_cex.get_lines_from_cex(

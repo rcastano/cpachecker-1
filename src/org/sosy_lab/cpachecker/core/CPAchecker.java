@@ -40,6 +40,7 @@ import com.google.common.io.Resources;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -196,6 +197,17 @@ public class CPAchecker {
 
   @Option(
     secure = true,
+    name = "linesToCoverFile",
+    description =
+        "file containing the lines to cover."
+            + "\n(see config/specification/ for examples)"
+  )
+  @FileOption(FileOption.Type.OPTIONAL_INPUT_FILE)
+  private List<Path> linesToCoverFile = ImmutableList.of();
+
+
+  @Option(
+    secure = true,
     name = "backwardSpecification",
     description =
         "comma-separated list of files with specifications that should be used "
@@ -305,6 +317,18 @@ public class CPAchecker {
         } else {
           cfa = parse(programDenotation, stats);
           GlobalInfo.getInstance().storeCFA(cfa);
+          if (linesToCoverFile.size() > 0) {
+            if (linesToCoverFile.size() > 1) {
+              logger.log(Level.INFO, "Provide only a single file containing lines of code to cover.");
+            } else {
+              String linesToCoverText = MoreFiles.toString(linesToCoverFile.get(0), Charset.defaultCharset());
+              linesToCoverText = linesToCoverText.replaceAll("\n", " ");
+              for (String line_number : linesToCoverText.split(" ")) {
+                GlobalInfo.getInstance().addLineToCover(Integer.valueOf(line_number));
+              }
+            }
+          }
+
           shutdownNotifier.shutdownIfNecessary();
 
           ConfigurableProgramAnalysis cpa;

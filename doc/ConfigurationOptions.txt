@@ -2416,6 +2416,10 @@ limits.time.cpu.thread = -1ns
 # for infinite)
 limits.time.wall = -1ns
 
+# file containing the lines to cover.
+# (see config/specification/ for examples)
+linesToCoverFile = []
+
 # By changing this option one can adjust the way how live variables are
 # created. Function-wise means that each function is handled separately,
 # global means that the whole cfa is used for the computation.

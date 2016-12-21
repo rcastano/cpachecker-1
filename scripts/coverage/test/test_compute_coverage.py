@@ -11,13 +11,23 @@ import compute_coverage
 
 class TestCoverage(unittest.TestCase):
     temp_folder = script_path + '/aux_get_lines_from_cex/temp_folder/'
-#    def setUp(self):
+    def setUp(self):
+        import shutil
+        try:
+            shutil.rmtree(self.temp_folder)
+        except:
+            # Directory might not exist
+            pass
 #        self.temp_folder = script_path + '/aux_get_lines_from_cex/temp_folder/'
 #        os.makedirs(self.temp_folder)
 #
-#    def tearDown(self):
-#        import shutil
-#        shutil.rmtree(self.temp_folder)
+    def tearDown(self):
+        import shutil
+        try:
+            shutil.rmtree(self.temp_folder)
+        except:
+            # Directory might not exist
+            pass
 
 class TestCoverageSomeReachableStoppingAfterError(TestCoverage):
     stop_after_error = True
@@ -45,6 +55,7 @@ class TestCoverageUnreachable(TestCoverage):
             script_path + '/aux_get_lines_from_cex/aa_only_infeasible.txt',
             lines_to_cover,
             script_path + '/aux_get_lines_from_cex/aa_only_infeasible.c',
+            False,
             self.temp_folder
         )
         self.assertEqual(lines_covered, Set())
