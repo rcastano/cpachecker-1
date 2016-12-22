@@ -8,8 +8,6 @@ import sys
 import errno
 import shutil
 
-from sets import Set
-
 def default_sigpipe():
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
@@ -44,7 +42,7 @@ def get_lines_from_cex(instance_filename, cex_filename, temp_folder=None):
             ],
             stdout = devnull,
             stderr = devnull)
-    lines_covered = Set()
+    lines_covered = set()
     with open(temp_folder + '/coverage.info') as f:
 
         for line in f:
@@ -66,10 +64,10 @@ def process_counterexamples(instance_filename, folder, temp_folder=None):
     all_cex = os.listdir(folder + '/')
     pattern = r'.*Counterexample.([^.]*).spc'
     all_cex = [cex for cex in all_cex if re.match(pattern, cex)]
-    lines_covered = Set()
+    lines_covered = set()
     for cex in all_cex:
         cex = folder + '/' + cex
-        lines_covered.union_update(get_lines_from_cex(instance_filename, cex, temp_folder))
+        lines_covered.update(get_lines_from_cex(instance_filename, cex, temp_folder))
     return lines_covered
 
 def find_property(filename, prop_name):

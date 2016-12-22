@@ -9,8 +9,6 @@ import sys
 import errno
 import os.path
 
-from sets import Set
-
 import get_lines_from_cex
 import generate_coverage_spec
 
@@ -53,6 +51,23 @@ def extract_all_options(args):
         os.path.dirname(args.used_config_file) + '/coverage.info'
     return program_names[0], assumption_automaton_file, coverage_filename
 
+def report_coverage(lines_covered, lines_not_covered):
+    if (lines_covered.intersection(lines_not_covered)):
+        print "Warning! Intersection between covered and not covered."
+    print "Code Coverage:"
+    total = len(lines_covered) + len(lines_not_covered)
+    print "Total lines to cover: " + str(total)
+    print "Total lines covered: " + str(len(lines_covered))
+    print "Ratio covered/total: " + str(float(len(lines_covered))/float(total))
+    print ""
+    # print "The following lines were covered:"
+    # for l in lines_covered:
+    #     print l
+    # print ""
+    # print "The following lines were *not* covered:"
+    # for l in lines_not_covered:
+    #     print l
+
 def main(args):
     if args.used_config_file:
         (instance_filename, assumption_automaton_file, coverage_filename) = \
@@ -62,7 +77,7 @@ def main(args):
         assumption_automaton_file = args.assumption_automaton_file
         coverage_filename = args.coverage_file
 
-    lines_to_cover = Set()
+    lines_to_cover = set()
     with open(coverage_filename) as f:
         for l in f:
             m = re.match(r'^DA:(?P<line_number>[^,]*),.*', l)
@@ -72,21 +87,23 @@ def main(args):
 
     (lines_covered, lines_not_covered) = compute_coverage(
         assumption_automaton_file, lines_to_cover, instance_filename, False)
-    print "The following lines were covered:"
-    for l in lines_covered:
-        print l
-    print ""
-    print "The following lines were *not* covered:"
-    for l in lines_not_covered:
-        print l
+    report_coverage(lines_covered, lines_not_covered)
 
 def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, temp_folder=None):
+    print "Computing coverage"
     if not temp_folder:
         temp_folder = _script_path() + '/temp_folder_loop/'
     lines_to_cover = lines_to_cover.copy()
-    all_lines_covered = Set()
+    all_lines_covered = set()
 
+    import time
+    start_time = time.time()
+    time_limit_in_secs = 900.0
     while lines_to_cover:
+        sys.stdout.flush()
+        current_time = time.time()
+        if current_time - start_time > time_limit_in_secs:
+            print "Execution time exceeded " + str(time_limit_in_secs) + "s"
         os.makedirs(temp_folder)
 
         avoid_unexplored_spec_filename = temp_folder + '/avoid_unexplored.spc'
@@ -131,10 +148,20 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
             instance_filename,
             temp_folder)
         shutil.rmtree(temp_folder)
-        all_lines_covered.union_update(lines_covered)
+        all_lines_covered.update(lines_covered)
         lines_to_cover.difference_update(lines_covered)
 
         saturated_coverage = True
+
+        
+        elapsed_time = time.time() - start_time
+        print "Elapsed time: " + str(elapsed_time) + "s"
+        report_coverage(all_lines_covered, lines_to_cover)
+        # print "lines_covered"
+        # print lines_covered
+        # print "lines_to_cover"
+        # print lines_to_cover
+
         for line in output.split('\n'):
             if re.match('^Verification result: FALSE.*', line):
                 saturated_coverage = False
