@@ -87,7 +87,6 @@ def main(args):
 
     (lines_covered, lines_not_covered) = compute_coverage(
         assumption_automaton_file, lines_to_cover, instance_filename, False)
-    report_coverage(lines_covered, lines_not_covered)
 
 def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, temp_folder=None):
     print "Computing coverage"
@@ -141,7 +140,7 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
         with open(os.devnull, 'w') as devnull:
             output = subprocess.check_output(
                 command,
-                stderr = devnull)
+                stderr = subprocess.STDOUT)
             # print output
             # print command
         lines_covered = get_lines_from_cex.process_counterexamples(
@@ -168,6 +167,7 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
                 break
         if saturated_coverage:
             break
+    print output
     return all_lines_covered, lines_to_cover
 
 def is_legal_config(args):
