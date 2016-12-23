@@ -29,17 +29,18 @@ def get_lines_from_cex(instance_filename, cex_filename, temp_folder=None):
     os.makedirs(temp_folder)
 
     cpachecker_root = _script_path() + '/../../'
-    with open(os.devnull, 'w') as devnull:
-        subprocess.check_call(
-            [cpachecker_root + '/scripts/cpa.sh',
+    command = [cpachecker_root + '/scripts/cpa.sh',
              '-predicateAnalysis',
              '-setprop', 'specification=' + cex_filename,
              '-outputpath', temp_folder,
-             instance_filename#,
+             instance_filename]
+    with open(os.devnull, 'w') as devnull:
+        subprocess.check_call(
+            command,
+            #,
             # To avoid "Broken pipe" errors.
             # https://stackoverflow.com/questions/37547232/broken-pipe-error-python-subprocess
              # preexec_fn=default_sigpipe
-            ],
             stdout = devnull,
             stderr = devnull)
     lines_covered = set()
@@ -100,6 +101,9 @@ if __name__ == "__main__":
         help="Directory containing Counterexample.*.html files and UsedConfiguration.properties file.")
     
     args = parser.parse_args()
-    main(args)
+    if not args.folder:
+        parser.print_help()
+    else:
+        main(args)
 
 

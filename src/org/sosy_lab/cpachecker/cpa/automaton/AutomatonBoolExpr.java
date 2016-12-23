@@ -751,7 +751,7 @@ interface AutomatonBoolExpr extends AutomatonExpression {
 //      }
       for (LocationState n : locations) {
         for (CFAEdge edge : CFAUtils.enteringEdges(n.getLocationNode())) {
-          if (GlobalInfo.getInstance().isLineToCover(edge.getLineNumber())) {
+          if (GlobalInfo.getInstance().isLineToCover(pArgs.getCfaEdge().getLineNumber())) {
             return CONST_TRUE;
           }
         }
