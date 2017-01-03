@@ -146,12 +146,8 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
         lines_covered = get_lines_from_cex.process_counterexamples(
             instance_filename,
             temp_folder)
+        # raw_input("Press Enter to continue...")
         shutil.rmtree(temp_folder)
-        all_lines_covered.update(lines_covered)
-        lines_to_cover.difference_update(lines_covered)
-
-        saturated_coverage = True
-
         
         elapsed_time = time.time() - start_time
         print "Elapsed time: " + str(elapsed_time) + "s"
@@ -161,10 +157,14 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
         # print "lines_to_cover"
         # print lines_to_cover
 
+        saturated_coverage = True
         for line in output.split('\n'):
             if re.match('^Verification result: FALSE.*', line):
                 saturated_coverage = False
                 break
+        all_lines_covered.update(lines_covered)
+        assert saturated_coverage or lines_to_cover.intersection(lines_covered)
+        lines_to_cover.difference_update(lines_covered)
         if saturated_coverage:
             break
     print output

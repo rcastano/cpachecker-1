@@ -23,6 +23,7 @@
  */
 package org.sosy_lab.cpachecker.cpa.arg.counterexamples;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Joiner;
@@ -30,10 +31,13 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import org.sosy_lab.common.Appender;
@@ -48,6 +52,9 @@ import org.sosy_lab.common.io.MoreFiles;
 import org.sosy_lab.common.io.PathTemplate;
 import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.cpachecker.cfa.CFA;
+import org.sosy_lab.cpachecker.cfa.ast.AFunctionDeclaration;
+import org.sosy_lab.cpachecker.cfa.ast.FileLocation;
+import org.sosy_lab.cpachecker.cfa.model.ADeclarationEdge;
 import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
 import org.sosy_lab.cpachecker.core.Specification;
 import org.sosy_lab.cpachecker.core.counterexample.CounterexampleInfo;
@@ -102,6 +109,11 @@ public class CEXExporter {
       description="export counterexample as automaton")
   @FileOption(FileOption.Type.OUTPUT_FILE)
   private PathTemplate errorPathAutomatonFile = PathTemplate.ofFormatString("Counterexample.%d.spc");
+
+  @Option(secure=true, name="coverage",
+      description="export counterexample coverage information ")
+  @FileOption(FileOption.Type.OUTPUT_FILE)
+  PathTemplate coverageTemplate = PathTemplate.ofFormatString("Counterexample.%d.coverage-info");
 
   @Option(secure=true, name="exportWitness",
       description="export counterexample as witness/graphml file")
@@ -219,6 +231,37 @@ public class CEXExporter {
     }
   }
 
+   public void addVisitedLine(Map<Integer,Integer> visitedLines, int pLine) {
+     checkArgument(pLine > 0);
+     if (visitedLines.containsKey(pLine)) {
+       visitedLines.put(pLine, visitedLines.get(pLine) + 1);
+     } else {
+       visitedLines.put(pLine, 1);
+     }
+   }
+
+   // Copied from org.sosy_lab.cpachecker.util.coverage.CoverageReport.handleCoveredEdge(CFAEdge, Map<String, FileCoverageInformation>)
+   private void handleCoveredEdge(
+      final CFAEdge pEdge, Map<Integer,Integer> visitedLines) {
+
+    FileLocation loc = pEdge.getFileLocation();
+    if (loc.getStartingLineNumber() == 0) {
+      return;
+    }
+    if (pEdge instanceof ADeclarationEdge
+        && (((ADeclarationEdge)pEdge).getDeclaration() instanceof AFunctionDeclaration)) {
+      return;
+    }
+
+    // Not necessary, not tracking assumes.
+//    if (pEdge instanceof AssumeEdge) {
+//      collector.addVisitedAssume((AssumeEdge) pEdge);
+//    }
+
+    //Do not extract lines from edge - there are not origin lines
+    addVisitedLine(visitedLines, loc.getStartingLineInOrigin());
+  }
+
   private void exportCounterexample0(final ARGState lastState,
                                     final CounterexampleInfo counterexample) {
 
@@ -227,6 +270,22 @@ public class CEXExporter {
         new HashSet<>(targetPath.getStatePairs()));
     final ARGState rootState = targetPath.getFirstState();
     final int uniqueId = counterexample.getUniqueId();
+
+
+    HashMap<Integer, Integer> visitedLines = new HashMap<>();
+
+    for (CFAEdge edge : targetPath.getFullPath()) {
+      handleCoveredEdge(edge, visitedLines);
+    }
+    String LINEDATA = "DA:";
+    try (Writer w = MoreFiles.openOutputFile(coverageTemplate.getPath(counterexample.getUniqueId()), Charset.defaultCharset())) {
+      for (Integer line : visitedLines.keySet()) {
+        w.append(LINEDATA + line + "," + visitedLines.get(line) + "\n");
+      }
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
     writeErrorPathFile(errorPathFile, uniqueId, counterexample);
 

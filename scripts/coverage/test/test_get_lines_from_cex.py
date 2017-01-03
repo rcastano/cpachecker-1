@@ -29,8 +29,7 @@ class TestGetLines(unittest.TestCase):
 class TestGetLinesInIsolation(TestGetLines):
     def test(self):
         res = get_lines_from_cex.get_lines_from_cex(
-            script_path + '/aux_get_lines_from_cex/lines_in_cex.c',
-            script_path + '/aux_get_lines_from_cex/Counterexample.1.spc',
+            script_path + '/aux_get_lines_from_cex/Counterexample.1.coverage-info',
             self.temp_folder
         )
         self.assertEqual(set([2,7]), res)
