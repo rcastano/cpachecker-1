@@ -23,16 +23,16 @@
  */
 package org.sosy_lab.cpachecker.cpa.automaton;
 
-import com.google.common.collect.Maps;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.regex.Matcher;
+
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
+
+import com.google.common.collect.Maps;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
     justification = "consistent Unix-style line endings")
@@ -83,35 +83,6 @@ public class Automaton {
 
   public int getNumberOfStates() {
     return states.size();
-  }
-
-  /**
-   * Prints the contents of a specification file representing this automaton to the PrintStream.
-   * @param pOut the appendable to write to
-   */
-  public void writeSpecFile(Appendable pOut) throws IOException {
-    pOut.append("CONTROL AUTOMATON " + name + "\n");
-    pOut.append("INITIAL STATE " + initState.getName() + ";\n");
-
-
-    for (AutomatonInternalState s : states) {
-
-      pOut.append("STATE ");
-      if (s.isNonDetState()) {
-        pOut.append("USEALL ");
-      } else {
-        pOut.append("USEFIRST ");
-      }
-      pOut.append(s.getName() + ":\n");
-
-      for (AutomatonTransition t : s.getTransitions()) {
-        pOut.append(t.toSpecString() + "\n");
-      }
-      pOut.append("\n");
-    }
-
-
-    pOut.append("END AUTOMATON\n");
   }
 
   /**
@@ -177,98 +148,4 @@ public class Automaton {
         }
       }
     }
-
-
-
-  /**
-   * Propagates {@link AutomatonInternalState#couldReachTrue} backwards from __TRUE states.
-   * Therefore, only states that cannot reach __TRUE will have
-   * {@link AutomatonInternalState#couldReachTrue} set to false.
-   */
-  public void propagateTrueStates() {
-    while (true) {
-      boolean propagated = false;
-      for (AutomatonInternalState s : states) {
-        if (!s.couldReachTrue) {
-          if (s.getName().equals("__TRUE")) {
-            propagated = true;
-            s.couldReachTrue = true;
-          }
-          for (AutomatonTransition t : s.getTransitions()) {
-            if (t.getFollowState().couldReachTrue) {
-              propagated = true;
-              s.couldReachTrue = true;
-            }
-          }
-        }
-      }
-      if (!propagated) {
-        break;
-      }
-    }
-  }
-
-  /**
-   * Removes states with {@link AutomatonInternalState#couldReachTrue} set to false.
-   * {@link Automaton#propagateTrueStates()} should be called beforehand.
-   */
-  public void pruneDisconnectedFromTrue() {
-    // I don't want to remove all states that cannot reach true because
-    // these help prune the search space. However, I want to collapse them.
-    // I need to find those states that cannot reach true but are
-    // immediate successors of states that can reach true.
-    // I'll store these states in "states_to_be_kept".
-    HashSet<AutomatonInternalState> states_to_be_kept = new HashSet<>();
-    states_to_be_kept.add(AutomatonInternalState.BOTTOM);
-    states_to_be_kept.add(AutomatonInternalState.BREAK);
-    states_to_be_kept.add(AutomatonInternalState.ERROR);
-
-    AutomatonInternalState false_state = null;
-
-    for (AutomatonInternalState s : states) {
-      if (s.getName().equals("__FALSE")) {
-        false_state = s;
-      }
-      if (!s.couldReachTrue) {
-        continue;
-      }
-      for (AutomatonTransition t : s.getTransitions()) {
-        if (!t.getFollowState().couldReachTrue) {
-          states_to_be_kept.add(t.getFollowState());
-        }
-      }
-    }
-
-    ListIterator<AutomatonInternalState> state_it = states.listIterator();
-    while (state_it.hasNext()) {
-      final AutomatonInternalState state = state_it.next();
-      if (state.couldReachTrue) {
-        ListIterator<AutomatonTransition> transition_it = state.getTransitions().listIterator();
-        while (transition_it.hasNext()) {
-          final AutomatonTransition transition = transition_it.next();
-          final AutomatonInternalState succ = transition.getFollowState();
-          if (!succ.couldReachTrue && !states_to_be_kept.contains(succ)) {
-            transition_it.remove();
-          }
-        }
-      } else {
-        if (!states_to_be_kept.contains(state)) {
-          state_it.remove();
-        } else {
-          state.getTransitions().clear();
-          AutomatonBoolExpr pTrigger = AutomatonBoolExpr.TRUE;
-          List<AutomatonBoolExpr> pAssertions = new ArrayList<>();
-          List<AutomatonAction> pActions = new ArrayList<>();
-          AutomatonTransition t =
-              new AutomatonTransition(
-                  pTrigger,
-                  pAssertions,
-                  pActions,
-                  false_state);
-          state.getTransitions().add(t);
-        }
-      }
-    }
-  }
-
 }

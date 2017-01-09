@@ -26,6 +26,7 @@ package org.sosy_lab.cpachecker.cpa.automaton;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
 import org.sosy_lab.common.UniqueIdGenerator;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonExpression.StringExpression;
 
@@ -72,9 +73,6 @@ public class AutomatonInternalState {
    * determines if all transitions of the state are considered or only the first that matches
    */
   private final boolean mAllTransitions;
-
-  boolean couldReachTrue = false;
-  boolean couldReachFalse = false;
 
   public AutomatonInternalState(String pName, List<AutomatonTransition> pTransitions, boolean pIsTarget, boolean pAllTransitions) {
     this.name = pName;
