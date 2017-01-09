@@ -278,6 +278,28 @@ class AutomatonTransition {
     return (String)violatedPropertyDescription.eval(pArgs).getValue();
   }
 
+  public String toSpecString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(trigger);
+    sb.append(" -> ");
+    if (!assertion.equals(AutomatonBoolExpr.TRUE)) {
+      sb.append("ASSERT ");
+      sb.append(assertion);
+    }
+    if (!assumptions.isEmpty()) {
+      sb.append(" ASSUME ");
+      sb.append(assumptions);
+    }
+    if (!actions.isEmpty()) {
+      Joiner.on(' ').appendTo(sb, actions);
+      sb.append(" ");
+    }
+    sb.append("GOTO ");
+    sb.append(followState);
+    sb.append(";");
+    return sb.toString();
+  }
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
