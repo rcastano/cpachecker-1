@@ -195,7 +195,7 @@ public class Automaton {
             s.couldReachTrue = true;
           }
           for (AutomatonTransition t : s.getTransitions()) {
-            if (t.getFollowState().couldReachTrue) {
+            if (t.getFollowState().couldReachTrue && !t.getTrigger().equals(AutomatonBoolExpr.TRUE)) {
               propagated = true;
               s.couldReachTrue = true;
             }
