@@ -623,6 +623,9 @@ counterexample.export.compressWitness = true
 # export counterexample core as text file
 counterexample.export.core = "Counterexample.%d.core.txt"
 
+# export counterexample coverage information 
+counterexample.export.coverage = "Counterexample.%d.coverage-info"
+
 # export counterexample to file, if one is found
 counterexample.export.enabled = true
 

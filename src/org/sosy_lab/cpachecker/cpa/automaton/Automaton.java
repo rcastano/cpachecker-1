@@ -97,12 +97,10 @@ public class Automaton {
     for (AutomatonInternalState s : states) {
 
       pOut.append("STATE ");
-      if (s.isNonDetState()) {
-        pOut.append("USEALL ");
-      } else {
+      if (!s.isNonDetState()) {
         pOut.append("USEFIRST ");
       }
-      pOut.append(s.getName() + ":\n");
+      pOut.append(s.getName() + " :\n");
 
       for (AutomatonTransition t : s.getTransitions()) {
         pOut.append(t.toSpecString() + "\n");
@@ -222,12 +220,13 @@ public class Automaton {
     states_to_be_kept.add(AutomatonInternalState.BOTTOM);
     states_to_be_kept.add(AutomatonInternalState.BREAK);
     states_to_be_kept.add(AutomatonInternalState.ERROR);
+    states_to_be_kept.add(initState);
 
-    AutomatonInternalState false_state = null;
+    AutomatonInternalState falseState = null;
 
     for (AutomatonInternalState s : states) {
       if (s.getName().equals("__FALSE")) {
-        false_state = s;
+        falseState = s;
       }
       if (!s.couldReachTrue) {
         continue;
@@ -238,6 +237,8 @@ public class Automaton {
         }
       }
     }
+
+    states_to_be_kept.add(falseState);
 
     ListIterator<AutomatonInternalState> state_it = states.listIterator();
     while (state_it.hasNext()) {
@@ -264,7 +265,7 @@ public class Automaton {
                   pTrigger,
                   pAssertions,
                   pActions,
-                  false_state);
+                  falseState);
           state.getTransitions().add(t);
         }
       }
