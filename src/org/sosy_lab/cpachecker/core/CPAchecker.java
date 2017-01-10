@@ -355,6 +355,7 @@ public class CPAchecker {
 
           for (Automaton automaton : specification.getSpecificationAutomata()) {
             if (collapseStatesNotReachingTrue.contains(automaton.getName())) {
+              logger.log(Level.INFO, "Pruning specification: " + automaton.getName());
               automaton.propagateTrueStates();
               automaton.pruneDisconnectedFromTrue();
             }
