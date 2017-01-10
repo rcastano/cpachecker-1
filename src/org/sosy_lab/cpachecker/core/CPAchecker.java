@@ -44,6 +44,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -81,6 +82,7 @@ import org.sosy_lab.cpachecker.core.interfaces.StatisticsProvider;
 import org.sosy_lab.cpachecker.core.interfaces.Targetable;
 import org.sosy_lab.cpachecker.core.reachedset.AggregatedReachedSets;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
+import org.sosy_lab.cpachecker.cpa.automaton.Automaton;
 import org.sosy_lab.cpachecker.exceptions.CPAException;
 import org.sosy_lab.cpachecker.exceptions.ParserException;
 import org.sosy_lab.cpachecker.util.CPAs;
@@ -200,10 +202,19 @@ public class CPAchecker {
     name = "linesToCoverFile",
     description =
         "file containing the lines to cover."
-            + "\n(see config/specification/ for examples)"
   )
   @FileOption(FileOption.Type.OPTIONAL_INPUT_FILE)
   private List<Path> linesToCoverFile = ImmutableList.of();
+
+  @Option(
+      secure = true,
+      name = "collapseAutomaton",
+      description =
+          "Comma-separated list of names of automata that should be collapsed."
+              + "\nThe automata in the list will have the states that do not"
+              + "\nreach __TRUE collapsed into a single state."
+  )
+  private List<String> collapseStatesNotReachingTrue = new ArrayList<>();
 
 
   @Option(
@@ -340,6 +351,14 @@ public class CPAchecker {
             cpa = factory.createCPA(cfa, specification);
           } finally {
             stats.cpaCreationTime.stop();
+          }
+
+          List<String> collapseStatesNotReachingTrue = new ArrayList<>();
+          for (Automaton automaton : specification.getSpecificationAutomata()) {
+            if (collapseStatesNotReachingTrue.contains(automaton.getName())) {
+              automaton.propagateTrueStates();
+              automaton.pruneDisconnectedFromTrue();
+            }
           }
 
           if (cpa instanceof StatisticsProvider) {
