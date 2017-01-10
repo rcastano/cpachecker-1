@@ -554,6 +554,11 @@ cinvariants.prefix = no default value
 # Attempt to simplify the invariant before exporting [may be very expensive].
 cinvariants.simplify = false
 
+# Comma-separated list of names of automata that should be collapsed.
+# The automata in the list will have the states that do not
+# reach __TRUE collapsed into a single state.
+collapseAutomaton = new ArrayList<>()
+
 # Dump the complete configuration to a file.
 configuration.dumpFile = "UsedConfiguration.properties"
 
@@ -2420,7 +2425,6 @@ limits.time.cpu.thread = -1ns
 limits.time.wall = -1ns
 
 # file containing the lines to cover.
-# (see config/specification/ for examples)
 linesToCoverFile = []
 
 # By changing this option one can adjust the way how live variables are

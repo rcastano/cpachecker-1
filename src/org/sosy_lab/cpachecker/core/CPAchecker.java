@@ -353,7 +353,6 @@ public class CPAchecker {
             stats.cpaCreationTime.stop();
           }
 
-          List<String> collapseStatesNotReachingTrue = new ArrayList<>();
           for (Automaton automaton : specification.getSpecificationAutomata()) {
             if (collapseStatesNotReachingTrue.contains(automaton.getName())) {
               automaton.propagateTrueStates();
