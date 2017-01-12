@@ -89,7 +89,7 @@
   <rundefinition name="produce-witnesses-safe-predicate-from-predicate">
     <option name="-config">../test-configs/predicateAnalysis.properties</option>
     <option name="-setprop">analysis.stopAfterError=false</option>
-    <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton,../test-configs/my-specification/detect-safe-calls.spc</option>
+    <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton,../test-configs/my-specification/detect-safe-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
   </rundefinition>
@@ -105,7 +105,7 @@
   <rundefinition name="produce-witnesses-safe-explicit-from-predicate">
     <option name="-config">../test-configs/explicitAnalysis.properties</option>
     <option name="-setprop">analysis.stopAfterError=false</option>
-    <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton,../test-configs/my-specification/detect-safe-calls.spc</option>
+    <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton,../test-configs/my-specification/detect-safe-calls.spc</option>
     <option name="-outputpath">benchexec-outputs/${inputfile_name}/${rundefinition_name}/${benchmark_date}/</option>
     <option name="-skipRecursion"/>
   </rundefinition>
