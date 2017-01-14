@@ -315,6 +315,7 @@ public class ARGStatistics implements Statistics {
           } else {
             cex = CounterexampleInfo.feasibleImprecise(path);
           }
+	  s.addCounterexampleInformation(cex);
         }
       }
       if (cex != null) {
