@@ -9,7 +9,10 @@ CONTROL AUTOMATON ControlAutomatonTest
 
 INITIAL STATE Init;
 
-STATE USEALL Init :
-  CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") -> ERROR("Outside assumption automaton.");
+STATE USEFIRST Init :
+  CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") -> GOTO E;
+
+STATE USEFIRST E :
+ TRUE -> ERROR("Outside assumption automaton.");
 
 END AUTOMATON
