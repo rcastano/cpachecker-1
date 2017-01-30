@@ -107,7 +107,8 @@ def main(args):
     else:
         time_limit=args.time_limit
         techniques = ["explicit", "predicate"]
-        witness_types = ["unexplored", "explored", "safe"]
+        # witness_types = ["unexplored", "explored", "safe"]
+        witness_types = ["unexplored", "safe"]
 
         def benchmark_name(derived_technique, base_technique, witness_type,
                 time_limit):
@@ -201,6 +202,7 @@ def main(args):
                         for w_t in witness_types:
                             der = benchmark_name(t, t_f, w_t, time_limit)
                             base = base_benchmark_name(t_f, time_limit)
+                            print benchs[der][instance]
                             if float(benchs[der][instance][column_indexes["cpu time"]]) > bound * float(benchs[base][instance][column_indexes["cpu time"]]):
                                 # Instance did not finish within alloted time
                                 continue
@@ -329,7 +331,8 @@ def main(args):
             print ("Instances finished within " + str(bound*100) + "%" )
             print "Verification\t e \t|\t p\t|\t e\t|\t p"
             print ("ER" +   "\t\t p \t|\t p\t|\t e\t|\t e")
-            for component in ["unexplored", "explored", "safe"]:
+            # for component in ["unexplored", "explored", "safe"]:
+            for component in ["unexplored", "safe"]:
                 sys.stdout.write(component + "\t")
                 if (component == "safe"):
                     sys.stdout.write("\t")
@@ -521,25 +524,25 @@ def main(args):
 
         plt.clf()
         matplotlib.rcParams.update({'font.size': 22})
-        plt.figure(figsize=(10, 5))
+        plt.figure(figsize=(10, 10))
         plt.ylabel('% of instances')
         plt.xlabel('% of 900s (verification time)')
 
         c = "ee"
-        l = "Verification: explicit \n ER: explicit"
+        l = "EE"
         plt.plot(x, y[c], '-*', label=l)
         c = "ep"
-        l = "Verification: explicit \n ER: predicate"
+        l = "EP"
         plt.plot(x, y[c], '-^', label=l)
         c = "pe"
-        l = "Verification: predicate \n ER: explicit"
+        l = "PE"
         plt.plot(x, y[c], '-o', label=l)
         c = "pp"
-        l = "Verification: predicate \n ER: predicate"
+        l = "PP"
         plt.plot(x, y[c], '-v', label=l)
 
-        plt.legend(loc='lower right', prop={'size':17})
-        plt.axis([0.0,100.0, 30, 105])
+        plt.legend(loc='right', prop={'size':17})
+        plt.axis([0.0,100.0, 0, 95])
         plt.tight_layout()
         plt.show()
         plt.savefig('one-or-more-other-than-explored.eps', format='eps')
