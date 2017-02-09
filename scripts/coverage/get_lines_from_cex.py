@@ -26,6 +26,11 @@ def get_lines_from_cex(cex_filename, temp_folder=None):
     if not temp_folder:
         temp_folder = _script_path() + '/temp_folder/'
 
+    try:
+        shutil.rmtree(temp_folder)
+    except:
+        print "Warning! Temporary folder for get_lines_from_cex already existed." 
+        pass
     os.makedirs(temp_folder)
 
     lines_covered = set()

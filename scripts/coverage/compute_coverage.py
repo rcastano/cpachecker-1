@@ -103,6 +103,12 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
         current_time = time.time()
         if current_time - start_time > time_limit_in_secs:
             print "Execution time exceeded " + str(time_limit_in_secs) + "s"
+            break
+        try:
+            shutil.rmtree(temp_folder)
+            print "Warning! Temporary folder already existed."
+        except:
+            pass
         os.makedirs(temp_folder)
 
         avoid_unexplored_spec_filename = temp_folder + '/avoid_unexplored.spc'
@@ -123,26 +129,37 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
         specs.append(assumption_automaton_file)
         specs.append(lines_spec_filename)
         specs.append(avoid_unexplored_spec_filename)
+        conf = '-sv-comp16'
+        if conf == '-sv-comp16':
+            stop_after_error = True
         command = (
             [cpachecker_root + '/scripts/cpa.sh',
-             '-valueAnalysis',
+             conf,
              '-outputpath', temp_folder,
              '-setprop', 'specification=' + ','.join(specs),
              '-setprop',
                 'analysis.stopAfterError='+(str(stop_after_error).lower()),
              '-setprop',
                 'linesToCoverFile='+lines_filename,
+             # Necessary for sv-comp16
+             '-setprop',
+                'output.disable=false',
+             # '-setprop',
+             #    'collapseAutomaton=AssumptionAutomaton',
              instance_filename])
         # for c in command[:-1]:
         #     print c + " \\"
         # print command[-1]
         # raw_input("Press Enter to continue...") 
         with open(os.devnull, 'w') as devnull:
+            print "Executing:"
+            print command
             output = subprocess.check_output(
                 command,
                 stderr = subprocess.STDOUT)
-            # print output
-            # print command
+            print output
+            print "Executed:"
+            print command
         lines_covered = get_lines_from_cex.process_counterexamples(
             instance_filename,
             temp_folder)
@@ -167,7 +184,6 @@ def compute_coverage(assumption_automaton_file, lines_to_cover, instance_filenam
         lines_to_cover.difference_update(lines_covered)
         if saturated_coverage:
             break
-    print output
     return all_lines_covered, lines_to_cover
 
 def is_legal_config(args):
