@@ -24,6 +24,7 @@ def gather_report_specs(
     safe_specs = \
         fix_counterexample_specs(
             safe_dir, 'safe', outputpath, prune_with_assumption_automaton)
+    frontier_specs = []
     if not prune_with_assumption_automaton:
         frontier_specs = \
             fix_counterexample_specs(
@@ -40,13 +41,13 @@ def fix_counterexample_specs(
         return outputpath + '/' + prefix + cex
     for cex in all_cex:
         with open(folder + '/' + cex) as f_in:
-            with open(new_spec_filename(outputpath, prefix, cex)) as f_out:
+            with open(new_spec_filename(outputpath, prefix, cex), 'w') as f_out:
                 for l in f_in:
                     if 'ERROR' in l:
-                        print >> f_out, 'GOTO LookingForReturn;'
-                    elif 'END AUTOMATON':
+                        print >> f_out, l.replace('ERROR', 'GOTO LookingForReturn')
+                    elif 'END AUTOMATON' in l:
                         print >> f_out, 'STATE USEFIRST LookingForReturn :'
-                        print >> f_out, '  MATCH EXIT -> ERROR("Found covering test case")'
+                        print >> f_out, '  MATCH EXIT -> ERROR("Found covering test case");'
                     else:
                         print >> f_out, l
                 print >> f_out, 'END AUTOMATON' 
@@ -72,22 +73,30 @@ def main(args):
                 line_number = int(m.group('line_number'))
                 lines_to_cover.add(line_number)
 
-    fixed_specs_folder = 'fixed_specs/'
-    prune_with_assumption_automaton = True
+    fixed_specs_folder = _script_path() + '/fixed_specs/'
+    try:
+        shutil.rmtree(fixed_specs_folder)
+        print "Warning! Temporary folder already existed."
+    except:
+        pass
+    os.makedirs(fixed_specs_folder)
+    prune_with_assumption_automaton = not bool(args.frontier_traces_dir)
     (safe_specs, frontier_specs) = gather_report_specs(
             args.safe_traces_dir, args.frontier_traces_dir, fixed_specs_folder, prune_with_assumption_automaton)
 
-    (lines_covered_safe, lines_not_covered_safe) = compute_coverage(
-        safe_specs, only_cover_prefix=False, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, False)
+    only_cover_prefix = False
+    (lines_covered_safe, lines_not_covered_safe) = collect_coverage(
+        safe_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, False)
     (lines_covered, lines_not_covered) = (lines_covered_safe, lines_not_covered_safe)
     if not prune_with_assumption_automaton:
-        (lines_covered_frontier, lines_not_covered_frontier) = compute_coverage(
-            frontier_specs, only_cover_prefix=True, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, False)
+        only_cover_prefix = True
+        (lines_covered_frontier, lines_not_covered_frontier) = collect_coverage(
+            frontier_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, False)
         lines_covered.update(lines_covered_frontier)
         lines_not_covered.update(lines_not_covered_frontier)
 
 
-def compute_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, temp_folder=None):
+def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, temp_folder=None):
     print "Computing coverage"
     if not temp_folder:
         temp_folder = _script_path() + '/temp_folder_loop/'
@@ -121,8 +130,6 @@ def compute_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton
              '-setprop', 'specification=' + ','.join(specs),
              '-setprop',
                 'analysis.stopAfterError='+(str(stop_after_error).lower()),
-             '-setprop',
-                'linesToCoverFile='+lines_filename,
              # Necessary for sv-comp16
              '-setprop',
                 'output.disable=false',
@@ -141,11 +148,11 @@ def compute_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton
                 stderr = subprocess.STDOUT)
             print output
             print "Executed:"
-            print comman
+            print command
         lines_covered = get_lines_from_cex.process_counterexamples(
             instance_filename,
-            only_cover_prefix,
-            temp_folder)
+            temp_folder,
+            only_cover_prefix)
         # raw_input("Press Enter to continue...")
         shutil.rmtree(temp_folder)
         
@@ -159,10 +166,7 @@ def compute_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton
         ##         saturated_coverage = False
         ##         break
         all_lines_covered.update(lines_covered)
-        assert saturated_coverage or lines_to_cover.intersection(lines_covered)
         lines_to_cover.difference_update(lines_covered)
-        if saturated_coverage:
-            break
     return all_lines_covered, lines_to_cover
 
 if __name__ == "__main__":
@@ -179,7 +183,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if not compute_coverage.is_legal_config(args):
         parser.print_help()
-    elif (not args.safe_traces_dir) or not args.frontier_traces_dir:
+    elif not args.safe_traces_dir:
         parser.print_help()
     else:
         main(args)
