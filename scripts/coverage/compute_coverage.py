@@ -29,6 +29,7 @@ def find_property(filename, prop_name):
     return values_assigned
 
 def extract_all_options(args):
+    outputpath = os.path.dirname(args.used_config_file)
     program_names = find_property(
         args.used_config_file, 'analysis.programNames')
     if len(program_names) == 0:
@@ -45,10 +46,8 @@ def extract_all_options(args):
     if len(assumption_automaton_file) < 1:
         assumption_automaton_file = 'AssumptionAutomaton.txt'
 
-    assumption_automaton_file = \
-        os.path.dirname(args.used_config_file) + '/' + assumption_automaton_file
-    coverage_filename = \
-        os.path.dirname(args.used_config_file) + '/coverage.info'
+    assumption_automaton_file = outputpath + '/' + assumption_automaton_file
+    coverage_filename = outputpath + '/coverage.info'
     return program_names[0], assumption_automaton_file, coverage_filename
 
 def report_coverage(lines_covered, lines_not_covered):
@@ -199,7 +198,7 @@ def is_legal_config(args):
         return True
     return False
 
-if __name__ == "__main__":
+def coverage_args_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--used_config_file",
@@ -216,6 +215,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--instance_filename",
         help="Instance filename.")
+    return parser
+
+if __name__ == "__main__":
+    parser = coverage_args_parser()
 
     args = parser.parse_args()
     if not is_legal_config(args):

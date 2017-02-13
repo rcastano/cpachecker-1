@@ -115,6 +115,11 @@ public class CEXExporter {
   @FileOption(FileOption.Type.OUTPUT_FILE)
   PathTemplate coverageTemplate = PathTemplate.ofFormatString("Counterexample.%d.coverage-info");
 
+  @Option(secure=true, name="coverage-prefix",
+      description="export counterexample coverage information, considering only spec prefix as covered (up until reaching 'LookingForReturn' automaton state).")
+  @FileOption(FileOption.Type.OUTPUT_FILE)
+  PathTemplate coveragePrefixTemplate = PathTemplate.ofFormatString("Counterexample.%d.prefix.coverage-info");
+
   @Option(secure=true, name="exportWitness",
       description="export counterexample as witness/graphml file")
   private boolean exportWitness = true;
@@ -273,14 +278,30 @@ public class CEXExporter {
 
 
     HashMap<Integer, Integer> visitedLines = new HashMap<>();
+    HashMap<Integer, Integer> visitedLinesPrefix = new HashMap<>();
 
     for (CFAEdge edge : targetPath.getFullPath()) {
       handleCoveredEdge(edge, visitedLines);
+      // LookingForReturn state in any of the specification Automata acts as a flag.
     }
+    // Notice the ***true*** argument. This is different from the previous call.
+    for (CFAEdge edge : targetPath.getFullPath(true)) {
+      handleCoveredEdge(edge, visitedLinesPrefix);
+      // LookingForReturn state in any of the specification Automata acts as a flag.
+    }
+
     String LINEDATA = "DA:";
     try (Writer w = MoreFiles.openOutputFile(coverageTemplate.getPath(counterexample.getUniqueId()), Charset.defaultCharset())) {
       for (Integer line : visitedLines.keySet()) {
         w.append(LINEDATA + line + "," + visitedLines.get(line) + "\n");
+      }
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    try (Writer w = MoreFiles.openOutputFile(coveragePrefixTemplate.getPath(counterexample.getUniqueId()), Charset.defaultCharset())) {
+      for (Integer line : visitedLinesPrefix.keySet()) {
+        w.append(LINEDATA + line + "," + visitedLinesPrefix.get(line) + "\n");
       }
     } catch (IOException e) {
       // TODO Auto-generated catch block

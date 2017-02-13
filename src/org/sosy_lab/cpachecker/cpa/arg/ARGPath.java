@@ -33,24 +33,22 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
-import org.sosy_lab.common.Appenders.AbstractAppender;
-import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
-import org.sosy_lab.cpachecker.cfa.model.CFANode;
-import org.sosy_lab.cpachecker.util.AbstractStates;
-import org.sosy_lab.cpachecker.util.Pair;
-
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sosy_lab.common.Appenders.AbstractAppender;
+import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
+import org.sosy_lab.cpachecker.cfa.model.CFANode;
+import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
+import org.sosy_lab.cpachecker.cpa.automaton.AutomatonInternalState;
+import org.sosy_lab.cpachecker.util.AbstractStates;
+import org.sosy_lab.cpachecker.util.Pair;
 
 /**
  * ARGPath contains a non-empty path through the ARG
@@ -134,6 +132,21 @@ public class ARGPath extends AbstractAppender {
    * using bam) we return an empty list instead.
    */
   public List<CFAEdge> getFullPath() {
+    return getFullPath(false);
+  }
+
+  /**
+   * Returns the full path contained in this {@link ARGPath} up to a flagged {@link ARGState}. This means, edges
+   * which are null while using getInnerEdges or the pathIterator will be resolved
+   * and the complete path from the first {@link ARGState} to the last ARGState
+   * is created. This is done by filling up the wholes in the path.
+   * An {@link ARGState} is flagged when it is composed by at least one AutomatonInternalState
+   * with name 'LookingForReturn';
+   *
+   * If there is no path (null edges can not be filled up, may be happening when
+   * using bam) we return an empty list instead.
+   */
+  public List<CFAEdge> getFullPath(boolean untilFlag) {
     if (fullPath != null) {
       return fullPath;
     }
@@ -146,6 +159,19 @@ public class ARGPath extends AbstractAppender {
       CFAEdge curOutgoingEdge = it.getOutgoingEdge();
       it.advance();
       ARGState succ = it.getAbstractState();
+      if (untilFlag) {
+        boolean containsFlag = false;
+        for (AbstractState s : succ.getWrappedStates()) {
+          if (s instanceof AutomatonInternalState) {
+            if (((AutomatonInternalState) s).getName().equals("LookingForReturn")) {
+              containsFlag = true;
+            }
+          }
+        }
+        if (containsFlag) {
+          break;
+        }
+      }
 
       // assert prev.getEdgeToChild(succ) == curOutgoingEdge : "invalid ARGPath";
 

@@ -51,9 +51,11 @@ def get_lines_from_cex(cex_filename, temp_folder=None):
 def _script_path(): 
     return os.path.dirname(os.path.realpath(__file__))
 
-def process_counterexamples(instance_filename, folder, temp_folder=None):
+def process_counterexamples(instance_filename, folder, only_cover_prefix=False, temp_folder=None):
     all_cex = os.listdir(folder + '/')
     pattern = r'.*Counterexample.([^.]*).coverage-info'
+    if only_cover_prefix:
+        pattern = r'.*Counterexample.([^.]*).prefix.coverage-info'
     all_cex = [cex for cex in all_cex if re.match(pattern, cex)]
     lines_covered = set()
     for cex in all_cex:
