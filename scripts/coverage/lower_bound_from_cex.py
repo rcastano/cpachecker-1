@@ -28,8 +28,28 @@ def gather_report_specs(
     if not prune_with_assumption_automaton:
         frontier_specs = \
             fix_counterexample_specs(
-                frontier_dir, 'safe', outputpath, prune_with_assumption_automaton)
+                frontier_dir, 'frontier', outputpath, prune_with_assumption_automaton)
     return safe_specs, frontier_specs
+
+def fix_single_spec(f_in, f_out, prune_with_assumption_automaton):
+    end_automaton_repetitions = 0
+    for l in f_in:
+        if 'ERROR' in l:
+            f_out.write(l.replace('ERROR', 'GOTO LookingForReturn'))
+        elif 'END AUTOMATON' in l:
+            end_automaton_repetitions += 1
+            f_out.write('STATE USEFIRST LookingForReturn :\n')
+            f_out.write('  MATCH EXIT -> ERROR("Found covering test case");\n')
+        else:
+            f_out.write(l)
+    f_out.write('END AUTOMATON\n')
+
+    if prune_with_assumption_automaton:
+        generate_coverage_spec.avoid_unexplored_spec(f_out)
+
+    if end_automaton_repetitions != 1:
+        raise Exception("Found more than one automaton in a specification file.") 
+
 
 def fix_counterexample_specs(
         folder, prefix, outputpath, prune_with_assumption_automaton):
@@ -42,18 +62,7 @@ def fix_counterexample_specs(
     for cex in all_cex:
         with open(folder + '/' + cex) as f_in:
             with open(new_spec_filename(outputpath, prefix, cex), 'w') as f_out:
-                for l in f_in:
-                    if 'ERROR' in l:
-                        print >> f_out, l.replace('ERROR', 'GOTO LookingForReturn')
-                    elif 'END AUTOMATON' in l:
-                        print >> f_out, 'STATE USEFIRST LookingForReturn :'
-                        print >> f_out, '  MATCH EXIT -> ERROR("Found covering test case");'
-                    else:
-                        print >> f_out, l
-                print >> f_out, 'END AUTOMATON' 
-
-                if prune_with_assumption_automaton:
-                    generate_coverage_spec.avoid_unexplored_spec(f_out)
+                fix_single_spec(f_in, f_out, prune_with_assumption_automaton)
     return [new_spec_filename(outputpath, prefix, cex) for cex in all_cex]
 
 def main(args):
@@ -158,7 +167,6 @@ def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton
         
         elapsed_time = time.time() - start_time
         print "Elapsed time: " + str(elapsed_time) + "s"
-        compute_coverage.report_coverage(all_lines_covered, lines_to_cover)
 
         ## saturated_coverage = True
         ## for line in output.split('\n'):
@@ -167,6 +175,7 @@ def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton
         ##         break
         all_lines_covered.update(lines_covered)
         lines_to_cover.difference_update(lines_covered)
+        compute_coverage.report_coverage(all_lines_covered, lines_to_cover)
     return all_lines_covered, lines_to_cover
 
 if __name__ == "__main__":
