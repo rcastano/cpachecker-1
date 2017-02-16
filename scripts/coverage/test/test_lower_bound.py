@@ -152,7 +152,7 @@ class TestCollectCoverageFrontierTrace(TestLowerBound):
         assumption_automaton_file = None
         lines_to_cover = set([3,4,5,6,7,8,9,10,14,15,18])
         instance_filename = self.aux_root + '/test1.c'
-        stop_after_error = False
+        stop_after_error = True
         (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
             frontier_specs,
             only_cover_prefix,
@@ -161,7 +161,7 @@ class TestCollectCoverageFrontierTrace(TestLowerBound):
             lines_to_cover,
             instance_filename,
             stop_after_error,
-            self.temp_folder)
+            temp_folder=self.temp_folder)
         self.assertEqual(covered_lines, set([3]))
         self.assertEqual(not_covered_lines, set([4,5,6,7,8,9,10,14,15,18]))
 
@@ -174,7 +174,7 @@ class TestCollectCoverageSafeTrace(TestLowerBound):
         assumption_automaton_file = None
         lines_to_cover = set([3,4,5,6,7,8,9,10,14,15,18])
         instance_filename = self.aux_root + '/test1.c'
-        stop_after_error = False
+        stop_after_error = True
         (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
             frontier_specs,
             only_cover_prefix,
@@ -183,9 +183,37 @@ class TestCollectCoverageSafeTrace(TestLowerBound):
             lines_to_cover,
             instance_filename,
             stop_after_error,
-            self.temp_folder)
+            temp_folder=self.temp_folder)
         self.assertEqual(covered_lines, set([3,4,14,15,18]))
         self.assertEqual(not_covered_lines, set([5,6,7,8,9,10]))
+
+class TestCollectCoverageSafeTracePruningWithAutomaton(TestLowerBound):
+    def test(self):
+        fixed_frontier_dir = self.aux_root + '/fixed_safe_traces/'
+        frontier_specs = [fixed_frontier_dir + 'safeCounterexample.1.spc']
+        only_cover_prefix = False
+        prune_with_assumption_automaton = True
+        assumption_automaton_file = self.aux_root + '/assumption_automaton.txt'
+        lines_to_cover = set([3,4,5,6,7,8,9,10,14,15,18])
+        instance_filename = self.aux_root + '/test1.c'
+        stop_after_error = True
+        (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
+            frontier_specs,
+            only_cover_prefix,
+            prune_with_assumption_automaton,
+            assumption_automaton_file,
+            lines_to_cover,
+            instance_filename,
+            stop_after_error,
+            temp_folder=self.temp_folder)
+        self.assertEqual(covered_lines, set([3,4,14,15,18]))
+        self.assertEqual(not_covered_lines, set([5,6,7,8,9,10]))
+
+class TestLowerBoundIntegration(TestLowerBound):
+    def test(self):
+        # TODO(rcastano): implement
+        self.assertTrue(False, "Test not implemented yet")
+
 
 if __name__ == '__main__':
     unittest.main()
