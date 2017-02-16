@@ -7,7 +7,7 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 
 import lower_bound_from_cex
 
-class TestCoverage(unittest.TestCase):
+class TestLowerBound(unittest.TestCase):
     aux_root = script_path + '/aux_lower_bound/'
     temp_folder = aux_root + '/temp_folder/'
     def setUp(self):
@@ -24,7 +24,7 @@ class TestCoverage(unittest.TestCase):
         except:
             pass
 
-class TestFixSingleSpecSafeTrace(TestCoverage):
+class TestFixSingleSpecSafeTrace(TestLowerBound):
     expected_result = (
 """CONTROL AUTOMATON ErrorPath1
 
@@ -70,7 +70,7 @@ END AUTOMATON
                 prune_with_assumption_automaton)
         self.assertMultiLineEqual(f_out.getvalue(), self.expected_result)
 
-class TestFixSingleSpecSafeTraceWithAssumptionAutomaton(TestCoverage):
+class TestFixSingleSpecSafeTraceWithAssumptionAutomaton(TestLowerBound):
     expected_result = (
 """CONTROL AUTOMATON ErrorPath1
 
@@ -125,7 +125,7 @@ END AUTOMATON
                 prune_with_assumption_automaton)
         self.assertMultiLineEqual(f_out.getvalue(), self.expected_result)
 
-class TestFixCounterexampleSpecsSafeTrace(TestCoverage):
+class TestFixCounterexampleSpecsSafeTrace(TestLowerBound):
     def test(self):
         safe_dir = self.aux_root + '/safe_traces/'
         prune_with_assumption_automaton = False
@@ -143,7 +143,7 @@ class TestFixCounterexampleSpecsSafeTrace(TestCoverage):
         expected_path = [s for s in (self.temp_folder + 'safeCounterexample.1.spc').split('/') if s]
         self.assertEqual(safe_spec, expected_path)
 
-class TestCollectCoverageFrontierTrace(TestCoverage):
+class TestCollectCoverageFrontierTrace(TestLowerBound):
     def test(self):
         fixed_frontier_dir = self.aux_root + '/fixed_frontier_traces/'
         frontier_specs = [fixed_frontier_dir + 'frontierCounterexample.1.spc']
@@ -165,7 +165,7 @@ class TestCollectCoverageFrontierTrace(TestCoverage):
         self.assertEqual(covered_lines, set([3]))
         self.assertEqual(not_covered_lines, set([4,5,6,7,8,9,10,14,15,18]))
 
-class TestCollectCoverageSafeTrace(TestCoverage):
+class TestCollectCoverageSafeTrace(TestLowerBound):
     def test(self):
         fixed_frontier_dir = self.aux_root + '/fixed_safe_traces/'
         frontier_specs = [fixed_frontier_dir + 'safeCounterexample.1.spc']
