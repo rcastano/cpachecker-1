@@ -631,6 +631,10 @@ counterexample.export.core = "Counterexample.%d.core.txt"
 # export counterexample coverage information 
 counterexample.export.coverage = "Counterexample.%d.coverage-info"
 
+# export counterexample coverage information, considering only spec prefix as
+# covered (up until reaching 'LookingForReturn' automaton state).
+counterexample.export.coverage-prefix = "Counterexample.%d.prefix.coverage-info"
+
 # export counterexample to file, if one is found
 counterexample.export.enabled = true
 

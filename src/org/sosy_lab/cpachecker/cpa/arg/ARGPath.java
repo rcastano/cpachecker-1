@@ -45,8 +45,6 @@ import javax.annotation.concurrent.Immutable;
 import org.sosy_lab.common.Appenders.AbstractAppender;
 import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
-import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
-import org.sosy_lab.cpachecker.cpa.automaton.AutomatonInternalState;
 import org.sosy_lab.cpachecker.util.AbstractStates;
 import org.sosy_lab.cpachecker.util.Pair;
 
@@ -147,7 +145,7 @@ public class ARGPath extends AbstractAppender {
    * using bam) we return an empty list instead.
    */
   public List<CFAEdge> getFullPath(boolean untilFlag) {
-    if (fullPath != null) {
+    if (!untilFlag && fullPath != null) {
       return fullPath;
     }
 
@@ -160,15 +158,7 @@ public class ARGPath extends AbstractAppender {
       it.advance();
       ARGState succ = it.getAbstractState();
       if (untilFlag) {
-        boolean containsFlag = false;
-        for (AbstractState s : succ.getWrappedStates()) {
-          if (s instanceof AutomatonInternalState) {
-            if (((AutomatonInternalState) s).getName().equals("LookingForReturn")) {
-              containsFlag = true;
-            }
-          }
-        }
-        if (containsFlag) {
+        if (succ.toString().contains("LookingForReturn")) {
           break;
         }
       }
@@ -196,8 +186,9 @@ public class ARGPath extends AbstractAppender {
         fullPath.add(curOutgoingEdge);
       }
     }
-
-    this.fullPath = fullPath;
+    if (!untilFlag) {
+      this.fullPath = fullPath;
+    }
     return fullPath;
   }
 
