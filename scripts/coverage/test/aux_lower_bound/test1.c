@@ -1,5 +1,6 @@
+int __VERIFIER_nondet_int();
 int main() {
-    int x = 5;
+    int x = __VERIFIER_nondet_int();
     if (x*x > 3) {
         x = x + 1;
         x = x + 2;

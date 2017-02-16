@@ -146,21 +146,46 @@ class TestFixCounterexampleSpecsSafeTrace(TestCoverage):
 class TestCollectCoverageFrontierTrace(TestCoverage):
     def test(self):
         fixed_frontier_dir = self.aux_root + '/fixed_frontier_traces/'
-        all_cex = fixed_frontier_dir + 'frontierCounterexample.1.spc'
+        frontier_specs = [fixed_frontier_dir + 'frontierCounterexample.1.spc']
+        only_cover_prefix = True
         prune_with_assumption_automaton = False
-        try:
-            os.makedirs(self.temp_folder)
-        except:
-            raise
-        safe_specs = lower_bound_from_cex.fix_counterexample_specs(
-            safe_dir,
-            "safe",
-            self.temp_folder,
-            prune_with_assumption_automaton)
-        self.assertEqual(len(safe_specs), 1)
-        safe_spec = [s for s in safe_specs[0].split('/') if s]
-        expected_path = [s for s in (self.temp_folder + 'safeCounterexample.1.spc').split('/') if s]
-        self.assertEqual(safe_spec, expected_path)
+        assumption_automaton_file = None
+        lines_to_cover = set([3,4,5,6,7,8,9,10,14,15,18])
+        instance_filename = self.aux_root + '/test1.c'
+        stop_after_error = False
+        (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
+            frontier_specs,
+            only_cover_prefix,
+            prune_with_assumption_automaton,
+            assumption_automaton_file,
+            lines_to_cover,
+            instance_filename,
+            stop_after_error,
+            self.temp_folder)
+        self.assertEqual(covered_lines, set([3]))
+        self.assertEqual(not_covered_lines, set([4,5,6,7,8,9,10,14,15,18]))
+
+class TestCollectCoverageSafeTrace(TestCoverage):
+    def test(self):
+        fixed_frontier_dir = self.aux_root + '/fixed_safe_traces/'
+        frontier_specs = [fixed_frontier_dir + 'safeCounterexample.1.spc']
+        only_cover_prefix = False
+        prune_with_assumption_automaton = False
+        assumption_automaton_file = None
+        lines_to_cover = set([3,4,5,6,7,8,9,10,14,15,18])
+        instance_filename = self.aux_root + '/test1.c'
+        stop_after_error = False
+        (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
+            frontier_specs,
+            only_cover_prefix,
+            prune_with_assumption_automaton,
+            assumption_automaton_file,
+            lines_to_cover,
+            instance_filename,
+            stop_after_error,
+            self.temp_folder)
+        self.assertEqual(covered_lines, set([3,4,14,15,18]))
+        self.assertEqual(not_covered_lines, set([5,6,7,8,9,10]))
 
 if __name__ == '__main__':
     unittest.main()

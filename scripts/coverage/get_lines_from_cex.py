@@ -28,8 +28,8 @@ def get_lines_from_cex(cex_filename, temp_folder=None):
 
     try:
         shutil.rmtree(temp_folder)
+        print "Warning! Temporary folder for get_lines_from_cex already existed. Removed stale folder."
     except:
-        print "Warning! Temporary folder for get_lines_from_cex already existed." 
         pass
     os.makedirs(temp_folder)
 

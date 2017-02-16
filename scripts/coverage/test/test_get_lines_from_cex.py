@@ -39,7 +39,8 @@ class TestProcessCounterexamplesSingleCex(TestGetLines):
         res = get_lines_from_cex.process_counterexamples(
             script_path + '/aux_get_lines_from_cex/lines_in_cex.c',
             script_path + '/aux_get_lines_from_cex/',
-            self.temp_folder
+            only_cover_prefix=False,
+            temp_folder=self.temp_folder
         )
         self.assertEqual(set([2,7]), res)
 
@@ -48,7 +49,8 @@ class TestProcessCounterexamplesMultipleCex(TestGetLines):
         res = get_lines_from_cex.process_counterexamples(
             script_path + '/aux_get_lines_from_cex/multiple_cex/multiple_cex.c',
             script_path + '/aux_get_lines_from_cex/multiple_cex',
-            self.temp_folder
+            only_cover_prefix=False,
+            temp_folder=self.temp_folder
         )
         self.assertEqual(set([10,11,12,16,17,18,20,21]), res)
 
