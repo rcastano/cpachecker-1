@@ -209,10 +209,37 @@ class TestCollectCoverageSafeTracePruningWithAutomaton(TestLowerBound):
         self.assertEqual(covered_lines, set([3,4,14,15,18]))
         self.assertEqual(not_covered_lines, set([5,6,7,8,9,10]))
 
+from contextlib import contextmanager
+@contextmanager
+def captured_output():
+    new_out, new_err = StringIO.StringIO(), StringIO.StringIO()
+    old_out, old_err = sys.stdout, sys.stderr
+    try:
+        sys.stdout, sys.stderr = new_out, new_err
+        yield sys.stdout, sys.stderr
+    finally:
+        sys.stdout, sys.stderr = old_out, old_err
+
 class TestLowerBoundIntegration(TestLowerBound):
+    class Object:
+        pass
+
     def test(self):
-        # TODO(rcastano): implement
-        self.assertTrue(False, "Test not implemented yet")
+        args = TestLowerBoundIntegration.Object()
+        args.coverage_file = self.aux_root + '/coverage.info'
+        args.assumption_automaton_file = self.aux_root + '/assumption_automaton.txt'
+        args.instance_filename = self.aux_root + '/test1.c'
+        args.safe_traces_dir = self.aux_root + '/safe_traces/'
+        args.used_config_file = None
+        args.frontier_traces_dir = None
+
+        with captured_output() as (out, err):
+            lower_bound_from_cex.main(args)
+        
+        output = out.getvalue().strip()
+        self.assertIn("Total lines to cover: 11", output)
+        self.assertIn("Total lines covered: 5", output)
+
 
 
 if __name__ == '__main__':
