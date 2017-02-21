@@ -21,14 +21,16 @@ def _script_path():
 
 def gather_report_specs(
         safe_dir, frontier_dir, outputpath, prune_with_assumption_automaton):
-    safe_specs = \
-        fix_counterexample_specs(
-            safe_dir, 'safe', outputpath, prune_with_assumption_automaton)
+    safe_specs = []
+    if safe_dir:
+        safe_specs = \
+            fix_counterexample_specs(
+                safe_dir, 'safe', outputpath, prune_with_assumption_automaton)
     frontier_specs = []
-    if not prune_with_assumption_automaton:
+    if frontier_dir:
         frontier_specs = \
             fix_counterexample_specs(
-                frontier_dir, 'frontier', outputpath, prune_with_assumption_automaton)
+                frontier_dir, 'frontier', outputpath, False)
     return safe_specs, frontier_specs
 
 def fix_single_spec(f_in, f_out, prune_with_assumption_automaton):
