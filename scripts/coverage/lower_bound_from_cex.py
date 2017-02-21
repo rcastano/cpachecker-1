@@ -105,12 +105,17 @@ def main(args):
             frontier_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, False)
         lines_covered.update(lines_covered_frontier)
         lines_not_covered.update(lines_not_covered_frontier)
+    try:
+        shutil.rmtree(fixed_specs_folder)
+    except:
+        print "Warning! Temporary folder already deleted."
+        pass
 
 
 def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, temp_folder=None):
     print "Computing coverage"
     if not temp_folder:
-        temp_folder = _script_path() + '/temp_folder_loop/'
+        temp_folder = _script_path() + '/temp_folder_collect_coverage/'
     lines_to_cover = lines_to_cover.copy()
     all_lines_covered = set()
 
