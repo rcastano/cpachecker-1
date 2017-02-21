@@ -37,7 +37,7 @@ def fix_single_spec(f_in, f_out, prune_with_assumption_automaton):
     end_automaton_repetitions = 0
     for l in f_in:
         if '-> ERROR' in l:
-            f_out.write(l.replace('ERROR', 'GOTO LookingForReturn'))
+            f_out.write(l.replace('-> ERROR', '-> GOTO LookingForReturn'))
         elif 'END AUTOMATON' in l:
             end_automaton_repetitions += 1
             f_out.write('STATE USEFIRST LookingForReturn :\n')
