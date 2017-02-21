@@ -91,7 +91,7 @@ def main(args):
     except:
         pass
     os.makedirs(fixed_specs_folder)
-    prune_with_assumption_automaton = not bool(args.frontier_traces_dir)
+    prune_with_assumption_automaton = True
     (safe_specs, frontier_specs) = gather_report_specs(
             args.safe_traces_dir, args.frontier_traces_dir, fixed_specs_folder, prune_with_assumption_automaton)
 
@@ -99,7 +99,7 @@ def main(args):
     (lines_covered_safe, lines_not_covered_safe) = collect_coverage(
         safe_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, False)
     (lines_covered, lines_not_covered) = (lines_covered_safe, lines_not_covered_safe)
-    if not prune_with_assumption_automaton:
+    if args.frontier_traces_dir:
         only_cover_prefix = True
         (lines_covered_frontier, lines_not_covered_frontier) = collect_coverage(
             frontier_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, False)
