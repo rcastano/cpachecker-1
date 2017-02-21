@@ -99,12 +99,16 @@ def main(args):
     (lines_covered_safe, lines_not_covered_safe) = collect_coverage(
         safe_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, False)
     (lines_covered, lines_not_covered) = (lines_covered_safe, lines_not_covered_safe)
+
+    print "<Collected coverage> Total # of lines to cover: " + str(len(lines_to_cover))
+    print "<Collected coverage> Covered with safe traces alone: " + str(len(lines_covered_safe))
     if args.frontier_traces_dir:
         only_cover_prefix = True
         (lines_covered_frontier, lines_not_covered_frontier) = collect_coverage(
             frontier_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, False)
         lines_covered.update(lines_covered_frontier)
         lines_not_covered.update(lines_not_covered_frontier)
+    print "<Collected coverage> Covered with safe or frontier traces (prefix semantics): " + str(len(lines_covered))
     try:
         shutil.rmtree(fixed_specs_folder)
     except:
