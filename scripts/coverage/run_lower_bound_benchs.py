@@ -60,16 +60,18 @@ def process_file(base, file, instances_root_dir, output_dir):
 
     for s in safe_benchs:
         s_desc = s if s else 'None' 
+        verification_technique_s = get_verification_technique(s) if s else None
         if s:
-            verification_technique_s = get_verification_technique(s)
             s = find_single_subdir(dir_to_process, s)
 
         for f in frontier_benchs:
             f_desc = f if s else 'None'
-            verification_technique_f = get_verification_technique(f)
+            verification_technique_f = get_verification_technique(f) if f else None
+            if f:
+                f = find_single_subdir(dir_to_process, f)
             if not techniques_compatible(verification_technique_f, verification_technique_s):
                 continue
-            f = find_single_subdir(dir_to_process, f)
+
             args = EmptyObject()
             args.coverage_file = (s if s else f) + '/coverage.info'
             args.instance_filename = full_instance_pathname(instances_root_dir, file)
