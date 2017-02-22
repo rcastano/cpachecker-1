@@ -65,7 +65,7 @@ def process_file(base, file, instances_root_dir, output_dir):
             s = find_single_subdir(dir_to_process, s)
 
         for f in frontier_benchs:
-            f_desc = f if s else 'None'
+            f_desc = f if f else 'None'
             verification_technique_f = get_verification_technique(f) if f else None
             if f:
                 f = find_single_subdir(dir_to_process, f)
