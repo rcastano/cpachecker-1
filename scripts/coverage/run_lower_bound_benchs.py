@@ -56,7 +56,7 @@ def process_file(base, file, instances_root_dir, output_dir):
     def techniques_compatible(t1, t2):
         return ((t1 is None and not t2 is None) or
                 (not t1 is None and t2 is None) or
-                (t1 == t2))
+                (not t1 is None and t1 == t2))
 
     for s in safe_benchs:
         s_desc = s if s else 'None' 
