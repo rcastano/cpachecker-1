@@ -26,7 +26,7 @@ class EmptyObject():
 def full_instance_pathname(instances_root_dir, instance):
     for root, dirs, files in os.walk(instances_root_dir):
         if instance in files:
-            return os.path.abspath(os.path.join(root, instance)
+            return os.path.abspath(os.path.join(root, instance))
     raise Exception('Instance not found')
 
 def process_file(base, file, instances_root_dir, output_dir):

@@ -55,14 +55,14 @@ def fix_single_spec(f_in, f_out, prune_with_assumption_automaton):
 
 def fix_counterexample_specs(
         folder, prefix, outputpath, prune_with_assumption_automaton):
-    all_cex = os.listdir(folder + '/')
+    all_cex = os.listdir(folder)
     pattern = r'.*Counterexample.([^.]*).spc'
     all_cex = [cex for cex in all_cex if re.match(pattern, cex)]
 
     def new_spec_filename(outputpath, prefix, cex):
-        return outputpath + '/' + prefix + cex
+        return os.path.join(outputpath, prefix + cex)
     for cex in all_cex:
-        with open(folder + '/' + cex) as f_in:
+        with open(os.path.join(folder, cex)) as f_in:
             with open(new_spec_filename(outputpath, prefix, cex), 'w') as f_out:
                 fix_single_spec(f_in, f_out, prune_with_assumption_automaton)
     return [new_spec_filename(outputpath, prefix, cex) for cex in all_cex]
