@@ -1,3 +1,4 @@
+int __VERIFIER_nondet_int();
 
 void error() {
   ERROR:

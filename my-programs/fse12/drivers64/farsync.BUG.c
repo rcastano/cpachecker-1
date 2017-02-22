@@ -1,3 +1,4 @@
+int __VERIFIER_nondet_int();
 # 1 "mem_slave_tlm.1.cil.c+module_get_put-drivers-net-wan-farsync.ko-unsafe.cil.out.iunsafe.cil.out.i.pp.cil.c"
 # 1 "<eingebaut>"
 # 1 "<Kommandozeile>"
