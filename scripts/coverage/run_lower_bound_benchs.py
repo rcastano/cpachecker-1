@@ -8,6 +8,7 @@ import subprocess
 import sys
 import errno
 import os.path
+import time
 
 import lower_bound_from_cex
 
@@ -76,7 +77,11 @@ def process_file(base, file, output_dir):
             args.used_config_files = None
 
             with open(output_dir + '/' + file + '/' + s_desc + '___' + f_desc + '.run', 'w') as f_out:
+                start_time = time.time()
                 lower_bound_from_cex.main(args, f_out)
+                elapsed_time = time.time() - start_time
+                print >> f_out, 'Elapsed time: ' + str(elapsed_time) + 's'
+
 
 def main(args):
     all_files = os.listdir(args.benchexec_outputs)
