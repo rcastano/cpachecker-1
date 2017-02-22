@@ -86,7 +86,7 @@ def process_file(base, file, output_dir):
 def main(args):
     all_files = os.listdir(args.benchexec_outputs)
     for file in all_files:
-        process_file(args.benchexec_outputs, file)
+        process_file(args.benchexec_outputs, file, args.output_dir)
 
 
 
