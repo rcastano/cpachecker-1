@@ -9,6 +9,7 @@ import sys
 import errno
 import os.path
 import time
+import pprint
 
 import lower_bound_from_cex
 
@@ -40,6 +41,8 @@ def process_file(base, file, instances_root_dir, output_dir):
     safe_benchs.append(None)
     frontier_benchs = [b for b in benchs_ran if 'unexplored' in b]
     frontier_benchs.append(None)
+    tried = 0
+    failed = 0
     def find_single_subdir(base, bench):
         sub_dirs = os.listdir(os.path.join(base, bench))
         # Make sure only one sub-directory exists
@@ -80,21 +83,43 @@ def process_file(base, file, instances_root_dir, output_dir):
             args.safe_traces_dir = s
             args.frontier_traces_dir = f
             args.used_config_file = None
-
+            print "f: " + f_desc
+            print "s: " + s_desc
             with open(os.path.join(output_dir, file, s_desc + '___' + f_desc + '.run'), 'w') as f_out:
                 start_time = time.time()
-                lower_bound_from_cex.main(args, f_out)
+                try:
+                    tried += 1
+                    print >> f_out, 'python scripts/coverage/lower_bound_from_cex.py \\'
+                    for k, v in args.__dict__.iteritems():
+                        if v:
+                            print >> f_out, '--' + k + ' ' + str(v) + ' \\'
+                    # print >> f_out, args.__dict__
+                    lower_bound_from_cex.main(args, f_out)
+                    print >> f_out, "Execution finished."
+                except KeyboardInterrupt:
+                    failed += 1
+                    print >> f_out, "Execution failed."
+                    print "Ctrl-C pressed, aborting."
+                    sys.exit(1)
+                
+                except:
+                    failed += 1
+                    print >> f_out, "Execution failed."
                 elapsed_time = time.time() - start_time
                 print >> f_out, 'Elapsed time: ' + str(elapsed_time) + 's'
-
+    return tried, failed
 
 def main(args):
     all_files = os.listdir(args.benchexec_outputs)
+    total_tried = 0
+    total_failed = 0
+
     for file in all_files:
-        process_file(args.benchexec_outputs, file, args.instances_root_dir, args.output_dir)
-
-
-
+        tried, failed = process_file(args.benchexec_outputs, file, args.instances_root_dir, args.output_dir)
+        total_tried += tried
+        total_failed += failed
+    print "Tried: " + str(total_tried)
+    print "Failed: " + str(total_failed)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()    

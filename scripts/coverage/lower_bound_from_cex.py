@@ -104,6 +104,7 @@ def main(args, f_out=sys.stdout):
     print >> f_out, "<Collected coverage> Covered with safe traces alone: " + str(len(lines_covered_safe))
     if args.frontier_traces_dir:
         only_cover_prefix = True
+        prune_with_assumption_automaton = False
         (lines_covered_frontier, lines_not_covered_frontier) = collect_coverage(
             frontier_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, False)
         lines_covered.update(lines_covered_frontier)
@@ -140,12 +141,14 @@ def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton
         if prune_with_assumption_automaton:
             specs.append(assumption_automaton_file)
         specs.append(cex)
-        conf = '-sv-comp16'
-        if conf == '-sv-comp16':
-            stop_after_error = True
+        # conf = 'config/custom_explicitAnalysis.properties'
+        conf = 'config/predicateAnalysis.properties'
+        stop_after_error = True
+        # if conf == 'config/sv-comp16.properties':
+        #     stop_after_error = True
         command = (
             [cpachecker_root + '/scripts/cpa.sh',
-             conf,
+             '-config' , conf,
              '-outputpath', temp_folder,
              '-setprop', 'specification=' + ','.join(specs),
              '-setprop',
@@ -203,7 +206,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if not compute_coverage.is_legal_config(args):
         parser.print_help()
-    elif not args.safe_traces_dir:
+    elif not (args.safe_traces_dir or args.frontier_traces_dir):
         parser.print_help()
     else:
         main(args)
