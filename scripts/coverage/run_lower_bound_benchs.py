@@ -92,8 +92,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = compute_coverage.coverage_args_parser()
-    
+    parser = argparse.ArgumentParser()    
     parser.add_argument(
             "--benchexec_outputs",
             help="Directory containing output of BenchExec for previous execution report generation results.")
