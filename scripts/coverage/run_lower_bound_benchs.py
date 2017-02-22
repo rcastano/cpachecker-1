@@ -77,7 +77,7 @@ def process_file(base, file, instances_root_dir, output_dir):
             args.assumption_automaton_file = args.instance_filename + '.' + technique + '.assumption_automaton'
             args.safe_traces_dir = s
             args.frontier_traces_dir = f
-            args.used_config_files = None
+            args.used_config_file = None
 
             with open(os.path.join(output_dir, file, s_desc + '___' + f_desc + '.run'), 'w') as f_out:
                 start_time = time.time()
