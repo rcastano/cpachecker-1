@@ -1,0 +1,95 @@
+OBSERVER AUTOMATON AssumptionAutomaton
+
+INITIAL STATE ARG0;
+
+STATE __TRUE :
+    TRUE -> ASSUME {true} GOTO __TRUE;
+
+STATE __FALSE :
+    TRUE -> ASSUME {false} GOTO __FALSE;
+
+STATE USEFIRST ARG0 :
+    MATCH "" -> ASSUME {true} GOTO ARG1;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1 :
+    MATCH "int __VERIFIER_nondet_int();" -> GOTO ARG1M0;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M0 :
+    MATCH "int main()" -> GOTO ARG1M1;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M1 :
+    MATCH "" -> GOTO ARG1M2;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M2 :
+    MATCH "int x = 1;" -> ASSUME {true} GOTO ARG3;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG3 :
+    MATCH "" -> ASSUME {true} GOTO ARG4;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG4 :
+    MATCH "1" -> ASSUME {true} GOTO ARG5;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG5 :
+    MATCH "LOOP_HEAD:\n        x = __VERIFIER_nondet_int();" -> ASSUME {true} GOTO ARG6;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG6 :
+    MATCH "x = __VERIFIER_nondet_int();" -> ASSUME {true} GOTO ARG7;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG7 :
+    MATCH "[!(x == 0)]" -> ASSUME {true} GOTO ARG9;
+    MATCH "[x == 0]" -> ASSUME {true} GOTO __TRUE;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG9 :
+    MATCH "[!(x == 1000000)]" -> ASSUME {true} GOTO ARG12;
+    MATCH "[x == 1000000]" -> ASSUME {true} GOTO __FALSE;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG12 :
+    MATCH "continue;" -> ASSUME {true} GOTO ARG14;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG14 :
+    MATCH "1" -> ASSUME {true} GOTO ARG15;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG15 :
+    MATCH "LOOP_HEAD:\n        x = __VERIFIER_nondet_int();" -> ASSUME {true} GOTO ARG16;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG16 :
+    MATCH "x = __VERIFIER_nondet_int();" -> ASSUME {true} GOTO ARG17;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG17 :
+    MATCH "[!(x == 0)]" -> ASSUME {true} GOTO ARG19;
+    MATCH "[x == 0]" -> ASSUME {true} GOTO __FALSE;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG19 :
+    MATCH "[!(x == 1000000)]" -> ASSUME {true} GOTO ARG22;
+    MATCH "[x == 1000000]" -> ASSUME {true} GOTO __FALSE;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG22 :
+    MATCH "continue;" -> ASSUME {true} GOTO ARG24;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG24 :
+    MATCH "1" -> ASSUME {true} GOTO ARG25;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG25 :
+    MATCH "LOOP_HEAD:\n        x = __VERIFIER_nondet_int();" -> ASSUME {true} GOTO __FALSE;
+    TRUE -> GOTO __TRUE;
+
+END AUTOMATON

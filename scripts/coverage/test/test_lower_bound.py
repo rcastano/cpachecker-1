@@ -309,5 +309,24 @@ class TestLowerBoundIntegrationFrontierAndSafe(TestLowerBoundIntegration):
         self.assertIn("Total lines to cover: 11", output)
         self.assertIn("Total lines covered: 5", output)
 
+class TestLowerBoundIntegrationLoops(TestLowerBoundIntegration):
+    def test(self):
+        args = TestLowerBoundIntegration.Object()
+        test_root = self.aux_root + '/loops'
+        args.coverage_file = test_root + '/coverage.info'
+        args.assumption_automaton_file = test_root + '/assumption_automaton.txt'
+        args.instance_filename = test_root + '/test1.c'
+        args.frontier_traces_dir = test_root + '/frontier_traces/'
+        args.used_config_file = None
+        args.safe_traces_dir = test_root + '/safe_traces/'
+
+        with captured_output() as (out, err):
+            lower_bound_from_cex.main(args, out)
+        
+        output = out.getvalue().strip()
+        self.assertIn("<Collected coverage> Total # of lines to cover: 11", output)
+        self.assertIn("<Collected coverage> Covered with safe traces alone: 8", output)
+        self.assertIn("<Collected coverage> Covered with safe or frontier traces (prefix semantics): 10", output)
+
 if __name__ == '__main__':
     unittest.main()

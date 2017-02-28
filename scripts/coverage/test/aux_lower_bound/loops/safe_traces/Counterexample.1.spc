@@ -1,0 +1,51 @@
+OBSERVER AUTOMATON ErrorPath1
+
+INITIAL STATE ARG0;
+
+STATE __TRUE :
+    TRUE -> ASSUME {true} GOTO __TRUE;
+
+STATE __FALSE :
+    TRUE -> ASSUME {false} GOTO __FALSE;
+
+STATE USEFIRST ARG0 :
+    MATCH "" -> ASSUME {true} GOTO ARG1;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1 :
+    MATCH "int __VERIFIER_nondet_int();" -> GOTO ARG1M0;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M0 :
+    MATCH "int main()" -> GOTO ARG1M1;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M1 :
+    MATCH "" -> GOTO ARG1M2;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG1M2 :
+    MATCH "int x = 1;" -> ASSUME {true} GOTO ARG2;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG2 :
+    MATCH "" -> ASSUME {true} GOTO ARG4;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG4 :
+    MATCH "1" -> ASSUME {true} GOTO ARG5;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG5 :
+    MATCH "LOOP_HEAD:\n        x = __VERIFIER_nondet_int();" -> ASSUME {true} GOTO ARG6;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG6 :
+    MATCH "x = __VERIFIER_nondet_int();" -> ASSUME {true} GOTO ARG7;
+    TRUE -> GOTO __TRUE;
+
+STATE USEFIRST ARG7 :
+    MATCH "[x == 0]" -> ERROR;
+    TRUE -> GOTO __TRUE;
+
+END AUTOMATON

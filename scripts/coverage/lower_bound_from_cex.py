@@ -142,7 +142,7 @@ def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton
             specs.append(assumption_automaton_file)
         specs.append(cex)
         # conf = 'config/custom_explicitAnalysis.properties'
-        conf = 'config/predicateAnalysis.properties'
+        conf = cpachecker_root + 'config/predicateAnalysis.properties'
         stop_after_error = True
         # if conf == 'config/sv-comp16.properties':
         #     stop_after_error = True
