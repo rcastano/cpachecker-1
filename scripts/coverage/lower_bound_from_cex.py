@@ -97,16 +97,18 @@ def main(args, f_out=sys.stdout):
 
     only_cover_prefix = False
     (lines_covered_safe, lines_not_covered_safe) = collect_coverage(
-        safe_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, False)
+        safe_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, time_limit_in_secs, False)
     (lines_covered, lines_not_covered) = (lines_covered_safe, lines_not_covered_safe)
 
+    time_limit_in_secs = 900.0
+    if args.time_limit_in_secs = float(args.time_limit_in_secs)
     print >> f_out, "<Collected coverage> Total # of lines to cover: " + str(len(lines_to_cover))
     print >> f_out, "<Collected coverage> Covered with safe traces alone: " + str(len(lines_covered_safe))
     if args.frontier_traces_dir:
         only_cover_prefix = True
         prune_with_assumption_automaton = False
         (lines_covered_frontier, lines_not_covered_frontier) = collect_coverage(
-            frontier_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, False)
+            frontier_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, time_limit_in_secs, False)
         lines_covered.update(lines_covered_frontier)
         lines_not_covered.update(lines_not_covered_frontier)
     print >> f_out, "<Collected coverage> Covered with safe or frontier traces (prefix semantics): " + str(len(lines_covered))
@@ -117,7 +119,7 @@ def main(args, f_out=sys.stdout):
         pass
 
 
-def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, temp_folder=None):
+def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, time_limit_in_secs, temp_folder=None):
     print "Computing coverage"
     if not temp_folder:
         temp_folder = _script_path() + '/temp_folder_collect_coverage/'
@@ -126,7 +128,6 @@ def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton
 
     import time
     start_time = time.time()
-    time_limit_in_secs = 900.0
     for cex in all_cex:
         try:
             shutil.rmtree(temp_folder)
@@ -202,6 +203,10 @@ if __name__ == "__main__":
     parser.add_argument(
             "--frontier_traces_dir",
             help="Directory containing frontier traces from an execution report.")
+
+    parser.add_argument(
+            "--time_limit_in_secs",
+            help="Time limit in seconds.")
 
     args = parser.parse_args()
     if not compute_coverage.is_legal_config(args):

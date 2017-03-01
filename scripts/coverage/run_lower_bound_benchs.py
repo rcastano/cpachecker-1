@@ -83,6 +83,7 @@ def process_file(base, file, instances_root_dir, output_dir):
             args.safe_traces_dir = s
             args.frontier_traces_dir = f
             args.used_config_file = None
+            args.time_limit_in_secs = 45.0
             print "f: " + f_desc
             print "s: " + s_desc
             with open(os.path.join(output_dir, file, s_desc + '___' + f_desc + '.run'), 'w') as f_out:
