@@ -95,13 +95,15 @@ def main(args, f_out=sys.stdout):
     (safe_specs, frontier_specs) = gather_report_specs(
             args.safe_traces_dir, args.frontier_traces_dir, fixed_specs_folder, prune_with_assumption_automaton)
 
+    time_limit_in_secs = 900.0
+    if args.time_limit_in_secs:
+        time_limit_in_secs = float(args.time_limit_in_secs)
+
     only_cover_prefix = False
     (lines_covered_safe, lines_not_covered_safe) = collect_coverage(
         safe_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, time_limit_in_secs, False)
     (lines_covered, lines_not_covered) = (lines_covered_safe, lines_not_covered_safe)
 
-    time_limit_in_secs = 900.0
-    if args.time_limit_in_secs = float(args.time_limit_in_secs)
     print >> f_out, "<Collected coverage> Total # of lines to cover: " + str(len(lines_to_cover))
     print >> f_out, "<Collected coverage> Covered with safe traces alone: " + str(len(lines_covered_safe))
     if args.frontier_traces_dir:
