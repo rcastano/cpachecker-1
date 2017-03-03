@@ -45,7 +45,7 @@ STATE USEFIRST ARG2_2_1 :
 STATE USEFIRST ARG2_3_1 :
     MATCH "int x = __VERIFIER_nondet_int();" -> GOTO ARG2_4_1;
 STATE USEFIRST ARG2_4_1 :
-    MATCH "int x = __VERIFIER_nondet_int();" -> ASSUME {x == (1);} GOTO ARG2;
+    MATCH "int x = __VERIFIER_nondet_int();" ->  GOTO ARG2;
     TRUE -> STOP;
 
 STATE USEFIRST ARG2 :
@@ -91,7 +91,7 @@ STATE USEFIRST ARG2_2_1 :
 STATE USEFIRST ARG2_3_1 :
     MATCH "int x = __VERIFIER_nondet_int();" -> GOTO ARG2_4_1;
 STATE USEFIRST ARG2_4_1 :
-    MATCH "int x = __VERIFIER_nondet_int();" -> ASSUME {x == (1);} GOTO ARG2;
+    MATCH "int x = __VERIFIER_nondet_int();" ->  GOTO ARG2;
     TRUE -> STOP;
 
 STATE USEFIRST ARG2 :
@@ -152,6 +152,7 @@ class TestCollectCoverageFrontierTrace(TestLowerBound):
         assumption_automaton_file = None
         lines_to_cover = set([3,4,5,6,7,8,9,10,14,15,18])
         instance_filename = self.aux_root + '/test1.c'
+        time_limit_in_secs = None
         stop_after_error = True
         (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
             frontier_specs,
@@ -160,6 +161,7 @@ class TestCollectCoverageFrontierTrace(TestLowerBound):
             assumption_automaton_file,
             lines_to_cover,
             instance_filename,
+            time_limit_in_secs,
             stop_after_error,
             temp_folder=self.temp_folder)
         self.assertEqual(covered_lines, set([3]))
@@ -174,6 +176,7 @@ class TestCollectCoverageSafeTrace(TestLowerBound):
         assumption_automaton_file = None
         lines_to_cover = set([3,4,5,6,7,8,9,10,14,15,18])
         instance_filename = self.aux_root + '/test1.c'
+        time_limit_in_secs = None
         stop_after_error = True
         (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
             frontier_specs,
@@ -182,6 +185,7 @@ class TestCollectCoverageSafeTrace(TestLowerBound):
             assumption_automaton_file,
             lines_to_cover,
             instance_filename,
+            time_limit_in_secs,
             stop_after_error,
             temp_folder=self.temp_folder)
         self.assertEqual(covered_lines, set([3,4,14,15,18]))
@@ -196,6 +200,7 @@ class TestCollectCoverageSafeTracePruningWithAutomaton(TestLowerBound):
         assumption_automaton_file = self.aux_root + '/assumption_automaton.txt'
         lines_to_cover = set([3,4,5,6,7,8,9,10,14,15,18])
         instance_filename = self.aux_root + '/test1.c'
+        time_limit_in_secs = None
         stop_after_error = True
         (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
             frontier_specs,
@@ -204,6 +209,7 @@ class TestCollectCoverageSafeTracePruningWithAutomaton(TestLowerBound):
             assumption_automaton_file,
             lines_to_cover,
             instance_filename,
+            time_limit_in_secs,
             stop_after_error,
             temp_folder=self.temp_folder)
         self.assertEqual(covered_lines, set([3,4,14,15,18]))
@@ -233,6 +239,7 @@ class TestLowerBoundIntegrationOnlySafe(TestLowerBoundIntegration):
         args.safe_traces_dir = self.aux_root + '/safe_traces/'
         args.used_config_file = None
         args.frontier_traces_dir = None
+        args.time_limit_in_secs = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args)
@@ -250,6 +257,7 @@ class TestLowerBoundIntegrationSafeAndEmptyFrontier(TestLowerBoundIntegration):
         args.safe_traces_dir = self.aux_root + '/safe_traces/'
         args.used_config_file = None
         args.frontier_traces_dir = self.aux_root + '/empty_dir/'
+        args.time_limit_in_secs = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args)
@@ -267,6 +275,7 @@ class TestLowerBoundIntegrationOnlyFrontier(TestLowerBoundIntegration):
         args.frontier_traces_dir = self.aux_root + '/frontier_traces/'
         args.used_config_file = None
         args.safe_traces_dir = None
+        args.time_limit_in_secs = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args)
@@ -284,6 +293,7 @@ class TestLowerBoundIntegrationFrontierAndEmptySafe(TestLowerBoundIntegration):
         args.frontier_traces_dir = self.aux_root + '/frontier_traces/'
         args.used_config_file = None
         args.safe_traces_dir = self.aux_root + '/empty_dir/'
+        args.time_limit_in_secs = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args)
@@ -301,6 +311,7 @@ class TestLowerBoundIntegrationFrontierAndSafe(TestLowerBoundIntegration):
         args.frontier_traces_dir = self.aux_root + '/frontier_traces/'
         args.used_config_file = None
         args.safe_traces_dir = self.aux_root + '/safe_traces/'
+        args.time_limit_in_secs = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args)
@@ -319,6 +330,7 @@ class TestLowerBoundIntegrationLoops(TestLowerBoundIntegration):
         args.frontier_traces_dir = test_root + '/frontier_traces/'
         args.used_config_file = None
         args.safe_traces_dir = test_root + '/safe_traces/'
+        args.time_limit_in_secs = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args, out)

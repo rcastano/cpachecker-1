@@ -42,6 +42,8 @@ def fix_single_spec(f_in, f_out, prune_with_assumption_automaton):
             end_automaton_repetitions += 1
             f_out.write('STATE USEFIRST LookingForReturn :\n')
             f_out.write('  MATCH EXIT -> ERROR("Found covering test case");\n')
+        elif 'ASSUME {' in l:
+            f_out.write(re.sub(r'ASSUME {[^}]*}', '', l))
         else:
             f_out.write(l)
     f_out.write('END AUTOMATON\n')
