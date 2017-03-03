@@ -154,6 +154,7 @@ class TestCollectCoverageFrontierTrace(TestLowerBound):
         instance_filename = self.aux_root + '/test1.c'
         time_limit_in_secs = None
         stop_after_error = True
+        cex_limit = None
         (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
             frontier_specs,
             only_cover_prefix,
@@ -161,8 +162,9 @@ class TestCollectCoverageFrontierTrace(TestLowerBound):
             assumption_automaton_file,
             lines_to_cover,
             instance_filename,
-            time_limit_in_secs,
-            stop_after_error,
+            stop_after_error=stop_after_error,
+            time_limit_in_secs=time_limit_in_secs,
+            cex_limit=cex_limit,
             temp_folder=self.temp_folder)
         self.assertEqual(covered_lines, set([3]))
         self.assertEqual(not_covered_lines, set([4,5,6,7,8,9,10,14,15,18]))
@@ -178,6 +180,7 @@ class TestCollectCoverageSafeTrace(TestLowerBound):
         instance_filename = self.aux_root + '/test1.c'
         time_limit_in_secs = None
         stop_after_error = True
+        cex_limit = None
         (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
             frontier_specs,
             only_cover_prefix,
@@ -185,8 +188,9 @@ class TestCollectCoverageSafeTrace(TestLowerBound):
             assumption_automaton_file,
             lines_to_cover,
             instance_filename,
-            time_limit_in_secs,
-            stop_after_error,
+            stop_after_error=stop_after_error,
+            time_limit_in_secs=time_limit_in_secs,
+            cex_limit=cex_limit,
             temp_folder=self.temp_folder)
         self.assertEqual(covered_lines, set([3,4,14,15,18]))
         self.assertEqual(not_covered_lines, set([5,6,7,8,9,10]))
@@ -202,6 +206,7 @@ class TestCollectCoverageSafeTracePruningWithAutomaton(TestLowerBound):
         instance_filename = self.aux_root + '/test1.c'
         time_limit_in_secs = None
         stop_after_error = True
+        cex_limit = None
         (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
             frontier_specs,
             only_cover_prefix,
@@ -209,8 +214,9 @@ class TestCollectCoverageSafeTracePruningWithAutomaton(TestLowerBound):
             assumption_automaton_file,
             lines_to_cover,
             instance_filename,
-            time_limit_in_secs,
-            stop_after_error,
+            stop_after_error=stop_after_error,
+            time_limit_in_secs=time_limit_in_secs,
+            cex_limit=cex_limit,
             temp_folder=self.temp_folder)
         self.assertEqual(covered_lines, set([3,4,14,15,18]))
         self.assertEqual(not_covered_lines, set([5,6,7,8,9,10]))
@@ -240,6 +246,7 @@ class TestLowerBoundIntegrationOnlySafe(TestLowerBoundIntegration):
         args.used_config_file = None
         args.frontier_traces_dir = None
         args.time_limit_in_secs = None
+        args.cex_limit = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args)
@@ -258,6 +265,7 @@ class TestLowerBoundIntegrationSafeAndEmptyFrontier(TestLowerBoundIntegration):
         args.used_config_file = None
         args.frontier_traces_dir = self.aux_root + '/empty_dir/'
         args.time_limit_in_secs = None
+        args.cex_limit = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args)
@@ -276,6 +284,7 @@ class TestLowerBoundIntegrationOnlyFrontier(TestLowerBoundIntegration):
         args.used_config_file = None
         args.safe_traces_dir = None
         args.time_limit_in_secs = None
+        args.cex_limit = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args)
@@ -294,6 +303,7 @@ class TestLowerBoundIntegrationFrontierAndEmptySafe(TestLowerBoundIntegration):
         args.used_config_file = None
         args.safe_traces_dir = self.aux_root + '/empty_dir/'
         args.time_limit_in_secs = None
+        args.cex_limit = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args)
@@ -312,6 +322,7 @@ class TestLowerBoundIntegrationFrontierAndSafe(TestLowerBoundIntegration):
         args.used_config_file = None
         args.safe_traces_dir = self.aux_root + '/safe_traces/'
         args.time_limit_in_secs = None
+        args.cex_limit = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args)
@@ -331,6 +342,7 @@ class TestLowerBoundIntegrationLoops(TestLowerBoundIntegration):
         args.used_config_file = None
         args.safe_traces_dir = test_root + '/safe_traces/'
         args.time_limit_in_secs = None
+        args.cex_limit = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args, out)

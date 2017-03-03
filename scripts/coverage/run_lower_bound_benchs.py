@@ -30,7 +30,7 @@ def full_instance_pathname(instances_root_dir, instance):
             return os.path.abspath(os.path.join(root, instance))
     raise Exception('Instance not found')
 
-def process_file(base, file, instances_root_dir, output_dir):
+def process_file(base, file, instances_root_dir, output_dir, cex_limit):
     try:
         os.makedirs(os.path.join(output_dir, file))
     except:
@@ -84,6 +84,7 @@ def process_file(base, file, instances_root_dir, output_dir):
             args.frontier_traces_dir = f
             args.used_config_file = None
             args.time_limit_in_secs = 45.0
+            args.cex_limit = cex_limit
             print "f: " + f_desc
             print "s: " + s_desc
             with open(os.path.join(output_dir, file, s_desc + '___' + f_desc + '.run'), 'w') as f_out:
@@ -116,7 +117,7 @@ def main(args):
     total_failed = 0
 
     for file in all_files:
-        tried, failed = process_file(args.benchexec_outputs, file, args.instances_root_dir, args.output_dir)
+        tried, failed = process_file(args.benchexec_outputs, file, args.instances_root_dir, args.output_dir, args.cex_limit)
         total_tried += tried
         total_failed += failed
     print "Tried: " + str(total_tried)
@@ -133,6 +134,9 @@ if __name__ == "__main__":
     parser.add_argument(
             "--instances_root_dir",
             help="Root directory for instances.")
+    parser.add_argument(
+            "--cex_limit",
+            help="Maximum number of traces to be used to under approximate covergage for each instance.")
 
     args = parser.parse_args()
     if not (args.benchexec_outputs and args.output_dir and args.instances_root_dir):

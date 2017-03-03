@@ -100,10 +100,11 @@ def main(args, f_out=sys.stdout):
     time_limit_in_secs = 900.0
     if args.time_limit_in_secs:
         time_limit_in_secs = float(args.time_limit_in_secs)
-
+    stop_after_error = True
     only_cover_prefix = False
+    cex_limit = int(args.cex_limit) if args.cex_limit else None
     (lines_covered_safe, lines_not_covered_safe) = collect_coverage(
-        safe_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, time_limit_in_secs, False)
+        safe_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, time_limit_in_secs, cex_limit=cex_limit, temp_folder=False)
     (lines_covered, lines_not_covered) = (lines_covered_safe, lines_not_covered_safe)
 
     print >> f_out, "<Collected coverage> Total # of lines to cover: " + str(len(lines_to_cover))
@@ -112,7 +113,7 @@ def main(args, f_out=sys.stdout):
         only_cover_prefix = True
         prune_with_assumption_automaton = False
         (lines_covered_frontier, lines_not_covered_frontier) = collect_coverage(
-            frontier_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, time_limit_in_secs, False)
+            frontier_specs, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, time_limit_in_secs, cex_limit=cex_limit, temp_folder=False)
         lines_covered.update(lines_covered_frontier)
         lines_not_covered.update(lines_not_covered_frontier)
     print >> f_out, "<Collected coverage> Covered with safe or frontier traces (prefix semantics): " + str(len(lines_covered))
@@ -123,12 +124,24 @@ def main(args, f_out=sys.stdout):
         pass
 
 
-def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, time_limit_in_secs, temp_folder=None):
+def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, time_limit_in_secs, cex_limit, temp_folder=None):
     print "Computing coverage"
     if not temp_folder:
         temp_folder = _script_path() + '/temp_folder_collect_coverage/'
     lines_to_cover = lines_to_cover.copy()
     all_lines_covered = set()
+    def cex_generator(all_cex, cex_limit):
+        if not cex_limit:
+            for cex in all_cex:
+                yield cex
+        else:
+            # used_cex = set()
+            for cex in all_cex:
+                cex_limit -= 1
+                yield cex
+                if not cex_limit:
+                    break
+    all_cex = cex_generator(all_cex, cex_limit)
 
     import time
     start_time = time.time()
