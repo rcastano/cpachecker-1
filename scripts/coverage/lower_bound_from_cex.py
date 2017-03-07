@@ -150,10 +150,16 @@ def main(args, f_out=sys.stdout):
     except:
         print "Warning! Temporary folder already deleted."
         pass
+    print "args.covered_lines_file: " + args.covered_lines_file
     if args.covered_lines_file:
-        with open(args.covered_lines_file) as f:
-            for l in covered_lines:
-                print >> f, l
+        try:
+            print "creating file: " + args.covered_lines_file
+            sys.stdout.flush()
+            with open(args.covered_lines_file, 'w') as f:
+                for l in lines_covered:
+                    print >> f, l
+        except:
+            print "failed"
 
 
 def print_command(command, f_out):
@@ -211,6 +217,8 @@ def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton
              # Necessary for sv-comp16
              '-setprop',
                 'output.disable=false',
+             '-setprop',
+                'limits.time.cpu=' + str(int(time_limit_in_secs)) + 's',
              # '-setprop',
              #    'collapseAutomaton=AssumptionAutomaton',
              instance_filename])

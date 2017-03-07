@@ -44,7 +44,7 @@ def process_file(base, file, instances_root_dir, output_dir, cex_limit):
     def find_single_subdir(base, bench):
         sub_dirs = os.listdir(os.path.join(base, bench))
         # Make sure only one sub-directory exists
-        assert len(sub_dirs) == 1
+        assert len(sub_dirs) == 1, str(sub_dirs)
         full_path = os.path.join(base, bench, sub_dirs[0])
         return full_path
     
@@ -59,7 +59,8 @@ def process_file(base, file, instances_root_dir, output_dir, cex_limit):
                 (not t1 is None and t2 is None) or
                 (not t1 is None and t1 == t2))
 
-    def process_witnesses(output_dir, instances_root_dir, file, technique, cex_limit, safe_dir, frontier_dir):
+    def process_witnesses(output_dir, instances_root_dir, file, technique,
+            desc, cex_limit, safe_dir, frontier_dir):
         s = safe_dir
         f = frontier_dir
         args = EmptyObject()
@@ -71,16 +72,24 @@ def process_file(base, file, instances_root_dir, output_dir, cex_limit):
         args.used_config_file = None
         args.time_limit_in_secs = 45.0
         args.cex_limit = cex_limit
-        base_filename = os.path.join(output_dir, file, technique, (str(s) if s else str(f)) + '.covered_lines'
+        base_dir = os.path.join(output_dir, file, technique)
+        base_filename = os.path.join(base_dir, desc)
+        print "base_dir: " + base_dir
+        print "base_filename: " + base_filename
         args.covered_lines_file = base_filename + '.covered_lines'
         output_filename = base_filename + '.run'
+        print base_dir
+        try:
+            os.makedirs(os.path.join(base_dir, file))
+        except:
+            pass
         print "f: " + str(f)
         print "s: " + str(s)
         assert not (s and f)
         assert s or f
         tried = 0
         failed = 0
-        with open(output_filename), 'w') as f_out:
+        with open(output_filename, 'w') as f_out:
             start_time = time.time()
             try:
                 tried += 1
@@ -107,25 +116,29 @@ def process_file(base, file, instances_root_dir, output_dir, cex_limit):
 
 
     for s in safe_benchs:
+        s_desc = str(s)
         verification_technique_s = get_verification_technique(s) if s else None
         s = find_single_subdir(dir_to_process, s)
-        inc_tried, inc_failed = \ 
+        inc_tried, inc_failed = \
             process_witnesses(output_dir=output_dir,
                               instances_root_dir=instances_root_dir,
                               file=file,
                               technique=verification_technique_s,
+                              desc=s_desc,
                               cex_limit=cex_limit,
                               safe_dir=s,
                               frontier_dir=None)
 
     for f in frontier_benchs:
+        f_desc = str(f)
         verification_technique_f = get_verification_technique(f) if f else None
         f = find_single_subdir(dir_to_process, f)
-        inc_tried, inc_failed = \ 
+        inc_tried, inc_failed = \
             process_witnesses(output_dir=output_dir,
                               instances_root_dir=instances_root_dir,
                               file=file,
                               technique=verification_technique_s,
+                              desc=f_desc,
                               cex_limit=cex_limit,
                               safe_dir=None,
                               frontier_dir=f)
