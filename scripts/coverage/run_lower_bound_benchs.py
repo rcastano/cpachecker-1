@@ -109,6 +109,7 @@ def process_file(base, file, instances_root_dir, output_dir, cex_limit):
                     print >> f_out, "Execution failed."
                 elapsed_time = time.time() - start_time
                 print >> f_out, 'Elapsed time: ' + str(elapsed_time) + 's'
+                f_out.flush()
     return tried, failed
 
 def main(args):
