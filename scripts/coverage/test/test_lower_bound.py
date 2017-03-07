@@ -249,7 +249,7 @@ class TestLowerBoundIntegrationOnlySafe(TestLowerBoundIntegration):
         args.cex_limit = None
 
         with captured_output() as (out, err):
-            lower_bound_from_cex.main(args)
+            lower_bound_from_cex.main(args, out)
         
         output = out.getvalue().strip()
         self.assertIn("Total lines to cover: 11", output)
@@ -268,7 +268,7 @@ class TestLowerBoundIntegrationSafeAndEmptyFrontier(TestLowerBoundIntegration):
         args.cex_limit = None
 
         with captured_output() as (out, err):
-            lower_bound_from_cex.main(args)
+            lower_bound_from_cex.main(args, out)
         
         output = out.getvalue().strip()
         self.assertIn("Total lines to cover: 11", output)
@@ -287,7 +287,7 @@ class TestLowerBoundIntegrationOnlyFrontier(TestLowerBoundIntegration):
         args.cex_limit = None
 
         with captured_output() as (out, err):
-            lower_bound_from_cex.main(args)
+            lower_bound_from_cex.main(args, out)
         
         output = out.getvalue().strip()
         self.assertIn("Total lines to cover: 11", output)
@@ -306,7 +306,7 @@ class TestLowerBoundIntegrationFrontierAndEmptySafe(TestLowerBoundIntegration):
         args.cex_limit = None
 
         with captured_output() as (out, err):
-            lower_bound_from_cex.main(args)
+            lower_bound_from_cex.main(args, out)
         
         output = out.getvalue().strip()
         self.assertIn("Total lines to cover: 11", output)
@@ -325,7 +325,7 @@ class TestLowerBoundIntegrationFrontierAndSafe(TestLowerBoundIntegration):
         args.cex_limit = None
 
         with captured_output() as (out, err):
-            lower_bound_from_cex.main(args)
+            lower_bound_from_cex.main(args, out)
         
         output = out.getvalue().strip()
         self.assertIn("Total lines to cover: 11", output)
@@ -348,6 +348,28 @@ class TestLowerBoundIntegrationLoops(TestLowerBoundIntegration):
             lower_bound_from_cex.main(args, out)
         
         output = out.getvalue().strip()
+        self.assertIn("<Collected coverage> Total # of lines to cover: 11", output)
+        self.assertIn("<Collected coverage> Covered with safe traces alone: 8", output)
+        self.assertIn("<Collected coverage> Covered with safe or frontier traces (prefix semantics): 10", output)
+
+class TestLowerBoundIntegrationMissingCoverageFile(TestLowerBoundIntegration):
+    def test(self):
+        args = TestLowerBoundIntegration.Object()
+        test_root = self.aux_root + '/loops'
+        args.coverage_file = test_root + '/non_existent_file.info'
+        args.assumption_automaton_file = test_root + '/assumption_automaton.txt'
+        args.instance_filename = test_root + '/test1.c'
+        args.frontier_traces_dir = test_root + '/frontier_traces/'
+        args.used_config_file = None
+        args.safe_traces_dir = test_root + '/safe_traces/'
+        args.time_limit_in_secs = None
+        args.cex_limit = None
+
+        with captured_output() as (out, err):
+            lower_bound_from_cex.main(args, out)
+        
+        output = out.getvalue().strip()
+        self.assertIn("Getting coverage baseline:", output)
         self.assertIn("<Collected coverage> Total # of lines to cover: 11", output)
         self.assertIn("<Collected coverage> Covered with safe traces alone: 8", output)
         self.assertIn("<Collected coverage> Covered with safe or frontier traces (prefix semantics): 10", output)

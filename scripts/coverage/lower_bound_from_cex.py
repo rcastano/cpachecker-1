@@ -78,9 +78,41 @@ def main(args, f_out=sys.stdout):
         assumption_automaton_file = args.assumption_automaton_file
         coverage_filename = args.coverage_file
 
-    lines_to_cover = None
+    lines_to_cover = set()
     if os.path.exists(coverage_filename):
         lines_to_cover = compute_coverage.parse_coverage_file(coverage_filename)
+    else:
+        cpachecker_root = _script_path() + '/../../'
+        temp_folder = _script_path() + '/temp_folder_coverage_baseline/'
+        try:
+            shutils.rmtree(temp_folder)
+        except:
+            pass
+        try:
+            os.makedirs(temp_folder)
+        except:
+            pass
+        command = (
+            [cpachecker_root + '/scripts/cpa.sh',
+             '-detectRecursion', # Using this configuration because it seems lightweight
+             '-outputpath', temp_folder,
+             instance_filename])
+        with open(os.devnull, 'w') as devnull:
+            print >> f_out, "Getting coverage baseline:"
+            print_command(command, f_out)
+            output = subprocess.check_output(
+                command,
+                stderr = subprocess.STDOUT)
+            print >> f_out, output
+            print >> f_out, "Executed (to compute coverage baseline):"
+            print_command(command, sys.stdout)
+        if not os.path.exists(temp_folder + '/coverage.info'):
+            raise Exception("Coverage file did not exist. Failed creating a baseline for coverage.")
+        lines_to_cover = compute_coverage.parse_coverage_file(temp_folder + '/coverage.info')
+        try:
+            shutil.rmtree(temp_folder)
+        except:
+            raise Exception("Could not clean up temporary directory: " + temp_folder)
 
     fixed_specs_folder = _script_path() + '/fixed_specs/'
     try:
@@ -124,31 +156,12 @@ def print_command(command, f_out):
         print >> f_out, c + " \\"
     print >> f_out, command[-1]
 
-def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, p_lines_to_cover, instance_filename, stop_after_error, time_limit_in_secs, cex_limit, temp_folder=None):
+def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, time_limit_in_secs, cex_limit, temp_folder=None):
     print "Computing coverage"
     if not temp_folder:
         temp_folder = _script_path() + '/temp_folder_collect_coverage/'
-    lines_to_cover = set()
-    if p_lines_to_cover:
-        lines_to_cover.update(p_lines_to_cover)
-    else:
-        command = (
-            [cpachecker_root + '/scripts/cpa.sh',
-             '-detectRecursion', # Using this configuration because it seems lightweight
-             '-outputpath', temp_folder,
-             instance_filename])
-        with open(os.devnull, 'w') as devnull:
-            print "Getting coverage baseline:"
-            print command
-            output = subprocess.check_output(
-                command,
-                stderr = subprocess.STDOUT)
-            print output
-            print "Executed (to compute coverage baseline):"
-            print_command(command, sys.stdout)
-        if not os.path.exists(temp_folder + '/coverage.info'):
-            raise Exception("Coverage file did not exist. Failed creating a baseline for coverage.")
-        lines_to_cover = compute_coverage.parse_coverage_file(temp_folder + '/coverage.info')
+    cpachecker_root = _script_path() + '/../../'
+    lines_to_cover = lines_to_cover.copy()
 
     all_lines_covered = set()
     def cex_generator(all_cex, cex_limit):
@@ -174,7 +187,6 @@ def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton
             pass
         os.makedirs(temp_folder)
 
-        cpachecker_root = _script_path() + '/../../'
         specs = []
         if prune_with_assumption_automaton:
             specs.append(assumption_automaton_file)
@@ -240,6 +252,10 @@ if __name__ == "__main__":
     parser.add_argument(
             "--frontier_traces_dir",
             help="Directory containing frontier traces from an execution report.")
+
+    parser.add_argument(
+            "--cex_limit",
+            help="Maximum number of traces to be used to under approximate coverage for each instance.")
 
     parser.add_argument(
             "--time_limit_in_secs",
