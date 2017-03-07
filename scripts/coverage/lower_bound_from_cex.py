@@ -78,13 +78,9 @@ def main(args, f_out=sys.stdout):
         assumption_automaton_file = args.assumption_automaton_file
         coverage_filename = args.coverage_file
 
-    lines_to_cover = set()
-    with open(coverage_filename) as f:
-        for l in f:
-            m = re.match(r'^DA:(?P<line_number>[^,]*),.*', l)
-            if m:
-                line_number = int(m.group('line_number'))
-                lines_to_cover.add(line_number)
+    lines_to_cover = None
+    if os.path.exists(coverage_filename):
+        lines_to_cover = compute_coverage.parse_coverage_file(coverage_filename)
 
     fixed_specs_folder = _script_path() + '/fixed_specs/'
     try:
@@ -123,12 +119,37 @@ def main(args, f_out=sys.stdout):
         print "Warning! Temporary folder already deleted."
         pass
 
+def print_command(command, f_out):
+    for c in command[:-1]:
+        print >> f_out, c + " \\"
+    print >> f_out, command[-1]
 
-def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, stop_after_error, time_limit_in_secs, cex_limit, temp_folder=None):
+def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, p_lines_to_cover, instance_filename, stop_after_error, time_limit_in_secs, cex_limit, temp_folder=None):
     print "Computing coverage"
     if not temp_folder:
         temp_folder = _script_path() + '/temp_folder_collect_coverage/'
-    lines_to_cover = lines_to_cover.copy()
+    lines_to_cover = set()
+    if p_lines_to_cover:
+        lines_to_cover.update(p_lines_to_cover)
+    else:
+        command = (
+            [cpachecker_root + '/scripts/cpa.sh',
+             '-detectRecursion', # Using this configuration because it seems lightweight
+             '-outputpath', temp_folder,
+             instance_filename])
+        with open(os.devnull, 'w') as devnull:
+            print "Getting coverage baseline:"
+            print command
+            output = subprocess.check_output(
+                command,
+                stderr = subprocess.STDOUT)
+            print output
+            print "Executed (to compute coverage baseline):"
+            print_command(command, sys.stdout)
+        if not os.path.exists(temp_folder + '/coverage.info'):
+            raise Exception("Coverage file did not exist. Failed creating a baseline for coverage.")
+        lines_to_cover = compute_coverage.parse_coverage_file(temp_folder + '/coverage.info')
+
     all_lines_covered = set()
     def cex_generator(all_cex, cex_limit):
         if not cex_limit:
@@ -152,7 +173,6 @@ def collect_coverage(all_cex, only_cover_prefix, prune_with_assumption_automaton
         except:
             pass
         os.makedirs(temp_folder)
-
 
         cpachecker_root = _script_path() + '/../../'
         specs = []

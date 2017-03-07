@@ -67,6 +67,17 @@ def report_coverage(lines_covered, lines_not_covered):
     # for l in lines_not_covered:
     #     print l
 
+def parse_coverage_file(coverage_filename):
+    lines_to_cover = set()
+    with open(coverage_filename) as f:
+        for l in f:
+            m = re.match(r'^DA:(?P<line_number>[^,]*),.*', l)
+            if m:
+                line_number = int(m.group('line_number'))
+                lines_to_cover.add(line_number)
+    return lines_to_cover
+
+
 def main(args):
     if args.used_config_file:
         (instance_filename, assumption_automaton_file, coverage_filename) = \
@@ -76,13 +87,7 @@ def main(args):
         assumption_automaton_file = args.assumption_automaton_file
         coverage_filename = args.coverage_file
 
-    lines_to_cover = set()
-    with open(coverage_filename) as f:
-        for l in f:
-            m = re.match(r'^DA:(?P<line_number>[^,]*),.*', l)
-            if m:
-                line_number = int(m.group('line_number'))
-                lines_to_cover.add(line_number)
+    lines_to_cover = parse_coverage_file(coverage_filename)
 
     (lines_covered, lines_not_covered) = compute_coverage(
         assumption_automaton_file, lines_to_cover, instance_filename, False)
