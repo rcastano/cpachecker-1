@@ -150,6 +150,11 @@ def main(args, f_out=sys.stdout):
     except:
         print "Warning! Temporary folder already deleted."
         pass
+    if args.covered_lines_file:
+        with open(args.covered_lines_file) as f:
+            for l in covered_lines:
+                print >> f, l
+
 
 def print_command(command, f_out):
     for c in command[:-1]:
@@ -260,6 +265,10 @@ if __name__ == "__main__":
     parser.add_argument(
             "--time_limit_in_secs",
             help="Time limit in seconds.")
+
+    parser.add_argument(
+            "--covered_lines_file",
+            help="Output file: will contained all lines covered.")
 
     args = parser.parse_args()
     if not compute_coverage.is_legal_config(args):

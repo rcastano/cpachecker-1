@@ -247,6 +247,7 @@ class TestLowerBoundIntegrationOnlySafe(TestLowerBoundIntegration):
         args.frontier_traces_dir = None
         args.time_limit_in_secs = None
         args.cex_limit = None
+        args.covered_lines_file = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args, out)
@@ -266,6 +267,7 @@ class TestLowerBoundIntegrationSafeAndEmptyFrontier(TestLowerBoundIntegration):
         args.frontier_traces_dir = self.aux_root + '/empty_dir/'
         args.time_limit_in_secs = None
         args.cex_limit = None
+        args.covered_lines_file = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args, out)
@@ -285,6 +287,7 @@ class TestLowerBoundIntegrationOnlyFrontier(TestLowerBoundIntegration):
         args.safe_traces_dir = None
         args.time_limit_in_secs = None
         args.cex_limit = None
+        args.covered_lines_file = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args, out)
@@ -304,6 +307,7 @@ class TestLowerBoundIntegrationFrontierAndEmptySafe(TestLowerBoundIntegration):
         args.safe_traces_dir = self.aux_root + '/empty_dir/'
         args.time_limit_in_secs = None
         args.cex_limit = None
+        args.covered_lines_file = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args, out)
@@ -323,6 +327,7 @@ class TestLowerBoundIntegrationFrontierAndSafe(TestLowerBoundIntegration):
         args.safe_traces_dir = self.aux_root + '/safe_traces/'
         args.time_limit_in_secs = None
         args.cex_limit = None
+        args.covered_lines_file = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args, out)
@@ -343,6 +348,7 @@ class TestLowerBoundIntegrationLoops(TestLowerBoundIntegration):
         args.safe_traces_dir = test_root + '/safe_traces/'
         args.time_limit_in_secs = None
         args.cex_limit = None
+        args.covered_lines_file = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args, out)
@@ -364,6 +370,7 @@ class TestLowerBoundIntegrationMissingCoverageFile(TestLowerBoundIntegration):
         args.safe_traces_dir = test_root + '/safe_traces/'
         args.time_limit_in_secs = None
         args.cex_limit = None
+        args.covered_lines_file = None
 
         with captured_output() as (out, err):
             lower_bound_from_cex.main(args, out)
