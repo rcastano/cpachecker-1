@@ -249,6 +249,9 @@ analysis.traversal.useAutomatonInformation = false
 # This needs the CallstackCPA instance to have any effect.
 analysis.traversal.useCallstack = false
 
+# handle abstract states with higher potential coverage?
+analysis.traversal.useCoverage = false
+
 # handle more abstract states (with less information) first? (only for
 # ExplicitCPA)
 analysis.traversal.useExplicitInformation = false
@@ -558,6 +561,9 @@ cinvariants.simplify = false
 # The automata in the list will have the states that do not
 # reach __TRUE collapsed into a single state.
 collapseAutomaton = new ArrayList<>()
+
+# Prioritize nodes using coverage heuristic.
+computeCoverage = false
 
 # Dump the complete configuration to a file.
 configuration.dumpFile = "UsedConfiguration.properties"
@@ -2428,8 +2434,8 @@ limits.time.cpu.thread = -1ns
 # for infinite)
 limits.time.wall = -1ns
 
-# file containing the lines to cover.
-linesToCoverFile = []
+# path to text file containing the line numbers to be covered
+linesToCoverFile = no default value
 
 # By changing this option one can adjust the way how live variables are
 # created. Function-wise means that each function is handled separately,

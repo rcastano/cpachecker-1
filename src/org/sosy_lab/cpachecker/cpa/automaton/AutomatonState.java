@@ -391,6 +391,10 @@ public class AutomatonState implements AbstractQueryableState, Targetable, Seria
     return internalState;
   }
 
+  public int getCoverageScore() {
+    return internalState.getCoverageScore();
+  }
+
   public String getInternalStateName() {
     return internalState.getName();
   }

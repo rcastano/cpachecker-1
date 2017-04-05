@@ -72,6 +72,7 @@ public class AutomatonInternalState {
    * determines if all transitions of the state are considered or only the first that matches
    */
   private final boolean mAllTransitions;
+  private int coverageScore = -1;
 
   boolean couldReachTrue = false;
   boolean couldReachFalse = false;
@@ -139,5 +140,16 @@ public class AutomatonInternalState {
   @Override
   public String toString() {
     return this.name;
+  }
+
+  public int getCoverageScore() {
+    return coverageScore ;
+  }
+
+  public void setCoverageScore(int pCoverageScore) {
+    if (!(pCoverageScore >= 0)) {
+      throw new AssertionError(String.valueOf(pCoverageScore));
+    }
+    coverageScore = pCoverageScore;
   }
 }
