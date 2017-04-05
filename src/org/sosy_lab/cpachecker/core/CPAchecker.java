@@ -28,6 +28,7 @@ import static org.sosy_lab.common.ShutdownNotifier.interruptCurrentThreadOnShutd
 import static org.sosy_lab.cpachecker.util.AbstractStates.IS_TARGET_STATE;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.StandardSystemProperty;
 import com.google.common.base.Throwables;
@@ -37,15 +38,25 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import org.sosy_lab.common.AbstractMBean;
@@ -62,6 +73,7 @@ import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.cfa.CFACreator;
 import org.sosy_lab.cpachecker.cfa.Language;
+import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.cfa.model.FunctionEntryNode;
 import org.sosy_lab.cpachecker.cfa.model.FunctionExitNode;
@@ -80,7 +92,13 @@ import org.sosy_lab.cpachecker.core.interfaces.StatisticsProvider;
 import org.sosy_lab.cpachecker.core.interfaces.Targetable;
 import org.sosy_lab.cpachecker.core.reachedset.AggregatedReachedSets;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
+import org.sosy_lab.cpachecker.cpa.automaton.Automaton;
+import org.sosy_lab.cpachecker.cpa.automaton.AutomatonExpression.ResultValue;
+import org.sosy_lab.cpachecker.cpa.automaton.AutomatonInternalState;
+import org.sosy_lab.cpachecker.cpa.automaton.AutomatonTransition;
+import org.sosy_lab.cpachecker.cpa.automaton.OnlyCFAEdgeAutomatonExpressionArguments;
 import org.sosy_lab.cpachecker.exceptions.CPAException;
+import org.sosy_lab.cpachecker.exceptions.CPATransferException;
 import org.sosy_lab.cpachecker.exceptions.ParserException;
 import org.sosy_lab.cpachecker.util.CPAs;
 import org.sosy_lab.cpachecker.util.LoopStructure;
@@ -195,6 +213,23 @@ public class CPAchecker {
   private List<Path> specificationFiles = ImmutableList.of();
 
   @Option(
+      secure = true,
+      name = "computeCoverage",
+      description =
+          "Prioritize nodes using coverage heuristic."
+    )
+    private boolean computeCoverage = false;
+
+  @Option(
+    secure = true,
+    name = "linesToCoverFile",
+    description =
+        "path to text file containing the line numbers to be covered"
+  )
+  @FileOption(FileOption.Type.OPTIONAL_INPUT_FILE)
+  private Path linesToCoverFile = null;
+
+  @Option(
     secure = true,
     name = "backwardSpecification",
     description =
@@ -274,6 +309,150 @@ public class CPAchecker {
             pConfiguration, pLogManager, shutdownNotifier, new AggregatedReachedSets());
   }
 
+//Adapted from CFAReversePostorder
+ private static void assignSorting(final AutomatonInternalState start, CFANode startCfa, Set<Integer> lines_to_cover) throws CPATransferException {
+   // This is an iterative version of the original algorithm that is now in checkIds().
+   // We store the state of the function in two stacks:
+   // - the current node (variable "node" in checkIds())
+   // - the iterator over the current node's successors (this is state hidden in the for-each loop in checkIds())
+   // Together, these two items form a "stack frame".
+   int reversePostorderId = 0;
+   final Map<AutomatonInternalState,Set<Integer>> reachable_lines = new HashMap<>();
+
+   final Set<AutomatonInternalState> visited = new HashSet<>();
+   final Set<CFANode> visitedCFAFromSafe = new HashSet<>();
+
+   final Deque<AutomatonInternalState> nodeStack = new ArrayDeque<>();
+   final Deque<Iterator<AutomatonTransition>> iteratorStack = new LinkedList<>(); // ArrayDeque doesn't work here because we store nulls
+
+   final Deque<CFANode> cfaNodeStack = new ArrayDeque<>();
+   final Deque<List<CFAEdge>> cfaIteratorStack = new LinkedList<>(); // ArrayDeque doesn't work here because we store nulls
+
+   // Incoming edge to top of cfaNodeStack.
+   final Deque<Optional<CFAEdge>> cfaEdgeStack = new ArrayDeque<>();
+
+   nodeStack.push(start);
+   cfaNodeStack.push(startCfa);
+   iteratorStack.push(null);
+   cfaIteratorStack.push(null);
+
+   // No incoming edge for first node pushed.
+   // Deque's
+   cfaEdgeStack.push(Optional.absent());
+
+   while (!nodeStack.isEmpty()) {
+     assert nodeStack.size() == iteratorStack.size();
+     assert cfaNodeStack.size() == cfaIteratorStack.size();
+
+     final AutomatonInternalState node = nodeStack.peek();
+     final CFANode                cfaNode =  cfaNodeStack.peek();
+
+     final Optional<CFAEdge>      incomingCFAEdge = cfaEdgeStack.peek();
+
+     Iterator<AutomatonTransition> successors = iteratorStack.peek();
+     List<CFAEdge> cfaSuccessors = cfaIteratorStack.peek();
+
+     if (successors == null) {
+       assert cfaSuccessors == null;
+       // Entering this stack frame.
+       // This part of the code corresponds to the code in checkIds()
+       // before the for loop.
+
+       if (!visited.add(node)) {
+         // already handled, do nothing
+
+         // Do a simulated "return".
+         nodeStack.pop(); cfaNodeStack.pop(); cfaEdgeStack.pop();
+         iteratorStack.pop(); cfaIteratorStack.pop();
+         continue;
+       }
+
+       // enter the for loop
+
+       successors = node.getTransitions().iterator();
+       cfaSuccessors = new ArrayList<>();
+       for (int i = 0; i < cfaNode.getNumLeavingEdges(); ++i) {
+         cfaSuccessors.add(cfaNode.getLeavingEdge(i));
+       }
+       iteratorStack.pop(); cfaIteratorStack.pop();
+       iteratorStack.push(successors); cfaIteratorStack.push(cfaSuccessors);
+     }
+
+     if (successors.hasNext()) {
+       // "recursive call"
+       // This part of the code corresponds to the code in checkIds()
+       // during the loop.
+       AutomatonTransition successor = successors.next();
+       if (successor.getFollowState().getName().equals("__TRUE") ||
+           successor.getFollowState().getName().equals("__FALSE")) {
+         successor.getFollowState().setCoverageScore(0);
+       } else {
+         // match edge and node in CFA
+         CFANode matchedNode = null;
+         CFAEdge matchedEdge = null;
+         if (cfaSuccessors.size() == 1) {
+           matchedNode = cfaSuccessors.get(0).getSuccessor();
+           matchedEdge = cfaSuccessors.get(0);
+         } else {
+           List<CFAEdge> matching = new ArrayList<>();
+           for (CFAEdge e : cfaSuccessors) {
+             OnlyCFAEdgeAutomatonExpressionArguments pArgs = new org.sosy_lab.cpachecker.cpa.automaton.OnlyCFAEdgeAutomatonExpressionArguments(e);
+             ResultValue<Boolean> matched = successor.getTrigger().eval(pArgs);
+             if (matched.canNotEvaluate()) {
+               throw new UnsupportedOperationException();
+             }
+             if (matched.getValue().equals(Boolean.TRUE)) {
+               matching.add(e);
+             }
+           }
+           if (matching.size() != 1) {
+             StringBuilder br = new StringBuilder();
+             br.append(successor.toString() + '\n');
+             for (CFAEdge n : matching) {
+               br.append(n.toString() + '\n');
+             }
+             throw new UnsupportedOperationException(br.toString());
+           }
+           matchedNode = matching.get(0).getSuccessor();
+           matchedEdge = matching.get(0);
+         }
+
+         // Do a simulated "function call" by pushing something on the stacks,
+         // creating a new stack frame.
+         nodeStack.push(successor.getFollowState()); cfaNodeStack.push(matchedNode); cfaEdgeStack.push(Optional.of(matchedEdge));
+         iteratorStack.push(null); cfaIteratorStack.push(null);
+       }
+
+     } else {
+       // All children handled.
+       // This part of the code corresponds to the code in checkIds()
+       // after the loop.
+       int accumulated = 0;
+       for (AutomatonTransition t : node.getTransitions()) {
+         if (t.getFollowState().getCoverageScore() == -1) {
+           continue;
+         }
+         accumulated += t.getFollowState().getCoverageScore();
+       }
+       if (!node.getName().equals("__FALSE") &&
+           !node.getName().equals("__TRUE") &&
+           lines_to_cover.contains(incomingCFAEdge.get().getLineNumber())) {
+         accumulated += 1;
+       }
+
+       node.setCoverageScore(accumulated);
+
+       // Do a simulated "return".
+       nodeStack.pop(); cfaNodeStack.pop(); cfaEdgeStack.pop();
+       iteratorStack.pop(); cfaIteratorStack.pop();
+     }
+   }
+
+   // Disabled because the recursive algorithm throws StackOverflowError
+   // for large files.
+   //assert checkIds(start);
+ }
+
   public CPAcheckerResult run(String programDenotation) {
 
     logger.log(Level.INFO, "CPAchecker", getVersion(), "started");
@@ -316,6 +495,35 @@ public class CPAchecker {
             cpa = factory.createCPA(cfa, specification);
           } finally {
             stats.cpaCreationTime.stop();
+          }
+
+          if (computeCoverage) {
+            Automaton assumptionAutomaton = null;
+            for (Automaton a : specification.getSpecificationAutomata()) {
+              if (a.getName().contains("AssumptionAutomaton")) {
+                assumptionAutomaton = a;
+              }
+            }
+            if (assumptionAutomaton == null) {
+              throw new AssertionError();
+            }
+
+            if (linesToCoverFile == null) {
+              throw new AssertionError();
+            }
+            Set<Integer> lines_to_cover = new HashSet<>();
+            try (BufferedReader br = new BufferedReader(new FileReader(new File(linesToCoverFile.toUri())))) {
+              Iterator<String> line_it = br.lines().iterator();
+              while (line_it.hasNext()) {
+                String line = line_it.next();
+                if (line.equals("")) {
+                  continue;
+                }
+                lines_to_cover.add(new Integer(line));
+              }
+            }
+
+            assignSorting(assumptionAutomaton.getInitialState(), cfa.getMainFunction(), lines_to_cover);
           }
 
           if (cpa instanceof StatisticsProvider) {
@@ -384,7 +592,6 @@ public class CPAchecker {
         }
         throw e;
       }
-
     } catch (IOException e) {
       logger.logUserException(Level.SEVERE, e, "Could not read file");
 

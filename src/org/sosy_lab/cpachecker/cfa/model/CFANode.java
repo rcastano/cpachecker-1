@@ -26,11 +26,10 @@ package org.sosy_lab.cpachecker.cfa.model;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
-import org.sosy_lab.common.UniqueIdGenerator;
-import org.sosy_lab.cpachecker.cfa.ast.FileLocation;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.sosy_lab.common.UniqueIdGenerator;
+import org.sosy_lab.cpachecker.cfa.ast.FileLocation;
 
 public class CFANode implements Comparable<CFANode> {
 
@@ -52,7 +51,7 @@ public class CFANode implements Comparable<CFANode> {
   private FunctionSummaryEdge enteringSummaryEdge = null;
 
   // reverse postorder sort id, smaller if it appears later in sorting
-  private int reversePostorderId = 0;
+  private int reversePostorderId = -1;
 
   public CFANode(String pFunctionName) {
     assert !pFunctionName.isEmpty();

@@ -257,6 +257,9 @@ analysis.traversal.useAutomatonInformation = false
 # This needs the CallstackCPA instance to have any effect.
 analysis.traversal.useCallstack = false
 
+# handle abstract states with higher potential coverage?
+analysis.traversal.useCoverage = false
+
 # handle more abstract states (with less information) first? (only for
 # ExplicitCPA)
 analysis.traversal.useExplicitInformation = false
@@ -561,6 +564,9 @@ cinvariants.prefix = no default value
 
 # Attempt to simplify the invariant before exporting [may be very expensive].
 cinvariants.simplify = false
+
+# Prioritize nodes using coverage heuristic.
+computeCoverage = false
 
 # Dump the complete configuration to a file.
 configuration.dumpFile = "UsedConfiguration.properties"
@@ -2470,6 +2476,9 @@ limits.time.cpu::required = -1ns
 # Limit for wall time used by CPAchecker (use seconds or specify a unit; -1
 # for infinite)
 limits.time.wall = -1ns
+
+# path to text file containing the line numbers to be covered
+linesToCoverFile = no default value
 
 # By changing this option one can adjust the way how live variables are
 # created. Function-wise means that each function is handled separately,

@@ -224,3 +224,4 @@
 src/org/sosy_lab/cpachecker/util/predicates/precisionConverter/FormulaParser.java
 src/org/sosy_lab/cpachecker/util/predicates/precisionConverter/FormulaScanner.java
 src/org/sosy_lab/cpachecker/util/predicates/precisionConverter/FormulaSymbols.java
+/.apt_generated/
