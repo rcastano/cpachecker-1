@@ -44,7 +44,7 @@ public class CoveragePrioritizingWaitlist extends AbstractSortedWaitlist<Integer
     Integer sortKey = null;
     for (AutomatonState s : AbstractStates.asIterable(pState).filter(AutomatonState.class)) {
       if (s.getOwningAutomaton().getName().contains("AssumptionAutomaton")) {
-        s.getCoverageScore();
+        sortKey = s.getCoverageScore();
       }
     }
     return (sortKey != null) ? sortKey : 0;

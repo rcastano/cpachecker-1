@@ -28,7 +28,6 @@ import static org.sosy_lab.common.ShutdownNotifier.interruptCurrentThreadOnShutd
 import static org.sosy_lab.cpachecker.util.AbstractStates.IS_TARGET_STATE;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.StandardSystemProperty;
 import com.google.common.base.Throwables;
@@ -54,7 +53,6 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,6 +91,7 @@ import org.sosy_lab.cpachecker.core.interfaces.Targetable;
 import org.sosy_lab.cpachecker.core.reachedset.AggregatedReachedSets;
 import org.sosy_lab.cpachecker.core.reachedset.ReachedSet;
 import org.sosy_lab.cpachecker.cpa.automaton.Automaton;
+import org.sosy_lab.cpachecker.cpa.automaton.AutomatonBoolExpr;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonExpression.ResultValue;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonInternalState;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonTransition;
@@ -309,148 +308,91 @@ public class CPAchecker {
             pConfiguration, pLogManager, shutdownNotifier, new AggregatedReachedSets());
   }
 
-//Adapted from CFAReversePostorder
- private static void assignSorting(final AutomatonInternalState start, CFANode startCfa, Set<Integer> lines_to_cover) throws CPATransferException {
-   // This is an iterative version of the original algorithm that is now in checkIds().
-   // We store the state of the function in two stacks:
-   // - the current node (variable "node" in checkIds())
-   // - the iterator over the current node's successors (this is state hidden in the for-each loop in checkIds())
-   // Together, these two items form a "stack frame".
-   int reversePostorderId = 0;
-   final Map<AutomatonInternalState,Set<Integer>> reachable_lines = new HashMap<>();
-
-   final Set<AutomatonInternalState> visited = new HashSet<>();
-   final Set<CFANode> visitedCFAFromSafe = new HashSet<>();
-
+ private static void assignCoverageScore(final AutomatonInternalState start, CFANode startCfa, Set<Integer> linesToCover) throws CPATransferException {
    final Deque<AutomatonInternalState> nodeStack = new ArrayDeque<>();
-   final Deque<Iterator<AutomatonTransition>> iteratorStack = new LinkedList<>(); // ArrayDeque doesn't work here because we store nulls
 
-   final Deque<CFANode> cfaNodeStack = new ArrayDeque<>();
-   final Deque<List<CFAEdge>> cfaIteratorStack = new LinkedList<>(); // ArrayDeque doesn't work here because we store nulls
-
-   // Incoming edge to top of cfaNodeStack.
-   final Deque<Optional<CFAEdge>> cfaEdgeStack = new ArrayDeque<>();
+   final Map<AutomatonInternalState,Set<CFANode>> cfaNodesForState = new HashMap<>();
 
    nodeStack.push(start);
-   cfaNodeStack.push(startCfa);
-   iteratorStack.push(null);
-   cfaIteratorStack.push(null);
-
-   // No incoming edge for first node pushed.
-   // Deque's
-   cfaEdgeStack.push(Optional.absent());
-
+   cfaNodesForState.put(start, new HashSet<>());
+   cfaNodesForState.get(start).add(startCfa);
    while (!nodeStack.isEmpty()) {
-     assert nodeStack.size() == iteratorStack.size();
-     assert cfaNodeStack.size() == cfaIteratorStack.size();
+     final AutomatonInternalState node = nodeStack.poll();
+     if (!cfaNodesForState.containsKey(node)) {
+       cfaNodesForState.put(node, new HashSet<>());
+     }
+     final Set<CFANode>           cfaNodes =  cfaNodesForState.get(node);
 
-     final AutomatonInternalState node = nodeStack.peek();
-     final CFANode                cfaNode =  cfaNodeStack.peek();
 
-     final Optional<CFAEdge>      incomingCFAEdge = cfaEdgeStack.peek();
-
-     Iterator<AutomatonTransition> successors = iteratorStack.peek();
-     List<CFAEdge> cfaSuccessors = cfaIteratorStack.peek();
-
-     if (successors == null) {
-       assert cfaSuccessors == null;
-       // Entering this stack frame.
-       // This part of the code corresponds to the code in checkIds()
-       // before the for loop.
-
-       if (!visited.add(node)) {
-         // already handled, do nothing
-
-         // Do a simulated "return".
-         nodeStack.pop(); cfaNodeStack.pop(); cfaEdgeStack.pop();
-         iteratorStack.pop(); cfaIteratorStack.pop();
+     for (AutomatonTransition transition : node.getTransitions()) {
+       // TODO(rcastano): we're excluding the "TRUE -> GOTO __TRUE;" transition because most of the times
+       // the transition is not reachable and interferes with the heuristic score.
+       if (node.getTransitions().size() > 1 && transition.getTrigger().equals(AutomatonBoolExpr.TRUE)) {
          continue;
        }
-
-       // enter the for loop
-
-       successors = node.getTransitions().iterator();
-       cfaSuccessors = new ArrayList<>();
-       for (int i = 0; i < cfaNode.getNumLeavingEdges(); ++i) {
-         cfaSuccessors.add(cfaNode.getLeavingEdge(i));
-       }
-       iteratorStack.pop(); cfaIteratorStack.pop();
-       iteratorStack.push(successors); cfaIteratorStack.push(cfaSuccessors);
-     }
-
-     if (successors.hasNext()) {
-       // "recursive call"
-       // This part of the code corresponds to the code in checkIds()
-       // during the loop.
-       AutomatonTransition successor = successors.next();
-       if (successor.getFollowState().getName().equals("__TRUE") ||
-           successor.getFollowState().getName().equals("__FALSE")) {
-         successor.getFollowState().setCoverageScore(0);
-       } else {
-         // match edge and node in CFA
-         CFANode matchedNode = null;
-         CFAEdge matchedEdge = null;
-         if (cfaSuccessors.size() == 1) {
-           matchedNode = cfaSuccessors.get(0).getSuccessor();
-           matchedEdge = cfaSuccessors.get(0);
-         } else {
-           List<CFAEdge> matching = new ArrayList<>();
-           for (CFAEdge e : cfaSuccessors) {
-             OnlyCFAEdgeAutomatonExpressionArguments pArgs = new org.sosy_lab.cpachecker.cpa.automaton.OnlyCFAEdgeAutomatonExpressionArguments(e);
-             ResultValue<Boolean> matched = successor.getTrigger().eval(pArgs);
-             if (matched.canNotEvaluate()) {
-               throw new UnsupportedOperationException();
-             }
-             if (matched.getValue().equals(Boolean.TRUE)) {
-               matching.add(e);
-             }
+       List<CFAEdge> matching = new ArrayList<>();
+       for (CFANode cfaNode : cfaNodes) {
+         for (int i = 0; i < cfaNode.getNumLeavingEdges(); ++i) {
+           final CFAEdge e = cfaNode.getLeavingEdge(i);
+           OnlyCFAEdgeAutomatonExpressionArguments pArgs = new org.sosy_lab.cpachecker.cpa.automaton.OnlyCFAEdgeAutomatonExpressionArguments(e);
+           ResultValue<Boolean> matched = transition.getTrigger().eval(pArgs);
+           if (matched.canNotEvaluate()) {
+             throw new UnsupportedOperationException();
            }
-           if (matching.size() != 1) {
-             StringBuilder br = new StringBuilder();
-             br.append(successor.toString() + '\n');
-             for (CFAEdge n : matching) {
-               br.append(n.toString() + '\n');
-             }
-             throw new UnsupportedOperationException(br.toString());
+           if (matched.getValue().equals(Boolean.TRUE)) {
+             matching.add(e);
            }
-           matchedNode = matching.get(0).getSuccessor();
-           matchedEdge = matching.get(0);
          }
-
-         // Do a simulated "function call" by pushing something on the stacks,
-         // creating a new stack frame.
-         nodeStack.push(successor.getFollowState()); cfaNodeStack.push(matchedNode); cfaEdgeStack.push(Optional.of(matchedEdge));
-         iteratorStack.push(null); cfaIteratorStack.push(null);
        }
 
-     } else {
-       // All children handled.
-       // This part of the code corresponds to the code in checkIds()
-       // after the loop.
-       int accumulated = 0;
-       for (AutomatonTransition t : node.getTransitions()) {
-         if (t.getFollowState().getCoverageScore() == -1) {
-           continue;
+       for (CFAEdge e : matching) {
+         if (!cfaNodesForState.containsKey(transition.getFollowState())) {
+           cfaNodesForState.put(transition.getFollowState(), new HashSet<>());
          }
-         accumulated += t.getFollowState().getCoverageScore();
+         if (cfaNodesForState.get(transition.getFollowState()).add(e.getSuccessor())) {
+           nodeStack.push(transition.getFollowState());
+         }
        }
-       if (!node.getName().equals("__FALSE") &&
-           !node.getName().equals("__TRUE") &&
-           lines_to_cover.contains(incomingCFAEdge.get().getLineNumber())) {
-         accumulated += 1;
-       }
-
-       node.setCoverageScore(accumulated);
-
-       // Do a simulated "return".
-       nodeStack.pop(); cfaNodeStack.pop(); cfaEdgeStack.pop();
-       iteratorStack.pop(); cfaIteratorStack.pop();
      }
    }
 
-   // Disabled because the recursive algorithm throws StackOverflowError
-   // for large files.
-   //assert checkIds(start);
+   final Map<AutomatonInternalState,Set<Integer>> reachableLines = new HashMap<>();
+   for (AutomatonInternalState state : cfaNodesForState.keySet()) {
+     reachableLines.put(state, new HashSet<>());
+     for (CFANode n : cfaNodesForState.get(state)) {
+       for (int i = 0; i < n.getNumLeavingEdges(); ++i) {
+         CFAEdge edge = n.getLeavingEdge(i);
+         reachableLines.get(state).add(edge.getLineNumber());
+       }
+     }
+   }
+   boolean changed;
+   do {
+     changed = false;
+     for (AutomatonInternalState state : cfaNodesForState.keySet()) {
+       for (AutomatonTransition transition : state.getTransitions()) {
+         // TODO(rcastano): we're excluding the "TRUE -> GOTO __TRUE;" transition because most of the times
+         // the transition is not reachable and interferes with the heuristic score.
+         if (state.getTransitions().size() > 1 && transition.getTrigger().equals(AutomatonBoolExpr.TRUE)) {
+           continue;
+         }
+         if (reachableLines.get(state).addAll(reachableLines.get(transition.getFollowState()))) {
+           changed = true;
+         }
+       }
+     }
+   } while (changed);
+
+
+   for (AutomatonInternalState state : cfaNodesForState.keySet()) {
+     int relevantLines = 0;
+     for (Integer line : reachableLines.get(state)) {
+       if (linesToCover.contains(line)) {
+         ++relevantLines;
+       }
+     }
+     state.setCoverageScore(relevantLines);
+   }
  }
 
   public CPAcheckerResult run(String programDenotation) {
@@ -523,7 +465,7 @@ public class CPAchecker {
               }
             }
 
-            assignSorting(assumptionAutomaton.getInitialState(), cfa.getMainFunction(), lines_to_cover);
+            assignCoverageScore(assumptionAutomaton.getInitialState(), cfa.getMainFunction(), lines_to_cover);
           }
 
           if (cpa instanceof StatisticsProvider) {
