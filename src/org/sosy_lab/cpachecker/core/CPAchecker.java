@@ -38,13 +38,12 @@ import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
@@ -482,7 +481,7 @@ public class CPAchecker {
               throw new AssertionError();
             }
             Set<Integer> lines_to_cover = new HashSet<>();
-            try (BufferedReader br = new BufferedReader(new FileReader(new File(linesToCoverFile.toUri())))) {
+            try (BufferedReader br = Files.newBufferedReader(linesToCoverFile, StandardCharsets.UTF_8)) {
               Iterator<String> line_it = br.lines().iterator();
               while (line_it.hasNext()) {
                 String line = line_it.next();
