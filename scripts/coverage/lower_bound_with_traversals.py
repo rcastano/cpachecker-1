@@ -29,7 +29,7 @@ def main(args, f_out=sys.stdout):
         coverage_filename = args.coverage_file
 
     lines_to_cover = set()
-    if os.path.exists(coverage_filename):
+    if coverage_filename and os.path.exists(coverage_filename):
         lines_to_cover = compute_coverage.parse_coverage_file(coverage_filename)
     else:
         cpachecker_root = _script_path() + '/../../'
@@ -78,18 +78,14 @@ def main(args, f_out=sys.stdout):
         assumption_automaton_file=assumption_automaton_file,
         lines_to_cover=lines_to_cover,
         instance_filename=instance_filename,
+        traversal='coverage_traversal',
         stop_after_error=stop_after_error,
         time_limit_in_secs=time_limit_in_secs,
         cex_limit=cex_limit,
         temp_folder=None)
 
     print >> f_out, "<Collected coverage> Total # of lines to cover: " + str(len(lines_to_cover))
-    print >> f_out, "<Collected coverage> Covered: " + str(len(lines_covered_safe))
-    try:
-        shutil.rmtree(fixed_specs_folder)
-    except:
-        print "Warning! Temporary folder already deleted."
-        pass
+    print >> f_out, "<Collected coverage> Covered: " + str(len(lines_covered))
     if args.covered_lines_file:
         try:
             print "creating file: " + args.covered_lines_file
@@ -120,7 +116,7 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton, assumpt
         pass
     os.makedirs(shared_temp_folder)
     reach_exit_spec_file = shared_temp_folder + '/spec.spc'
-    with open(reach_exit_spec_file) as f:
+    with open(reach_exit_spec_file, 'w') as f:
         generate_coverage_spec.gen_spec(f, lines_to_cover)
 
     cpachecker_root = _script_path() + '/../../'
@@ -145,10 +141,10 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton, assumpt
 
         specs = []
         specs.append(reach_exit_spec_file)
-        specs.append(os.path.join(cpachecker_root, 'config','specification','default.spc') # TODO(rcastano): do we need this? Should we parse output?
+        specs.append(os.path.join(cpachecker_root,'config','specification','default.spc')) # TODO(rcastano): do we need this? Should we parse output?
         specs.append(assumption_automaton_file)
         # conf = 'config/custom_explicitAnalysis.properties'
-        conf = cpachecker_root + 'config/predicateAnalysis.properties'
+        conf = cpachecker_root + '/config/predicateAnalysis.properties'
         stop_after_error = True
         # if conf == 'config/sv-comp16.properties':
         #     stop_after_error = True
@@ -222,9 +218,12 @@ if __name__ == "__main__":
             help="Output file: will contained all lines covered.")
 
     args = parser.parse_args()
-    if not compute_coverage.is_legal_config(args):
-        parser.print_help()
-    elif not (args.safe_traces_dir or args.frontier_traces_dir):
+    if (not (args.used_config_file and
+             not args.assumption_automaton_file and
+             not args.instance_filename) and
+       not (not args.used_config_file and
+            args.assumption_automaton_file and
+            args.instance_filename)):
         parser.print_help()
     else:
         main(args)

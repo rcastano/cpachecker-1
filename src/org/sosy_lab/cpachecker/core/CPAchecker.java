@@ -488,7 +488,7 @@ public class CPAchecker {
                 if (line.equals("")) {
                   continue;
                 }
-                lines_to_cover.add(new Integer(line));
+                lines_to_cover.add(Integer.valueOf(line));
               }
             }
 
