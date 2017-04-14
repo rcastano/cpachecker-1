@@ -152,7 +152,7 @@ class TestCollectCoverageFrontierTrace(TestLowerBound):
         assumption_automaton_file = None
         lines_to_cover = set([3,4,5,6,7,8,9,10,14,15,18])
         instance_filename = self.aux_root + '/test1.c'
-        time_limit_in_secs = None
+        time_limit_in_secs = 900.0
         stop_after_error = True
         cex_limit = None
         (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
@@ -178,7 +178,7 @@ class TestCollectCoverageSafeTrace(TestLowerBound):
         assumption_automaton_file = None
         lines_to_cover = set([3,4,5,6,7,8,9,10,14,15,18])
         instance_filename = self.aux_root + '/test1.c'
-        time_limit_in_secs = None
+        time_limit_in_secs = 900.0
         stop_after_error = True
         cex_limit = None
         (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
@@ -204,7 +204,7 @@ class TestCollectCoverageSafeTracePruningWithAutomaton(TestLowerBound):
         assumption_automaton_file = self.aux_root + '/assumption_automaton.txt'
         lines_to_cover = set([3,4,5,6,7,8,9,10,14,15,18])
         instance_filename = self.aux_root + '/test1.c'
-        time_limit_in_secs = None
+        time_limit_in_secs = 900.0
         stop_after_error = True
         cex_limit = None
         (covered_lines, not_covered_lines) = lower_bound_from_cex.collect_coverage(
