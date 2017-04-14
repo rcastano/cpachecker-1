@@ -30,7 +30,7 @@ def full_instance_pathname(instances_root_dir, instance):
             return os.path.abspath(os.path.join(root, instance))
     raise Exception('Instance not found')
 
-def process_file(base, file, instances_root_dir, output_dir, cex_limit):
+def process_file(base, file, instances_root_dir, output_dir, cex_limit, config):
     try:
         os.makedirs(os.path.join(output_dir, file))
     except:
@@ -60,7 +60,7 @@ def process_file(base, file, instances_root_dir, output_dir, cex_limit):
                 (not t1 is None and t1 == t2))
 
     def process_witnesses(output_dir, instances_root_dir, file, technique,
-            desc, cex_limit):
+            config, desc, cex_limit):
         args = EmptyObject()
         args.coverage_file = None
         args.instance_filename = full_instance_pathname(instances_root_dir, file)
@@ -73,6 +73,7 @@ def process_file(base, file, instances_root_dir, output_dir, cex_limit):
         print "base_dir: " + base_dir
         print "base_filename: " + base_filename
         args.covered_lines_file = base_filename + '.covered_lines'
+        args.config = config
         output_filename = base_filename + '.run'
         print base_dir
         try:
@@ -116,6 +117,7 @@ def process_file(base, file, instances_root_dir, output_dir, cex_limit):
                               instances_root_dir=instances_root_dir,
                               file=file,
                               technique=verification_technique_s,
+                              config=config,
                               desc=s_desc,
                               cex_limit=cex_limit)
 
@@ -128,6 +130,7 @@ def process_file(base, file, instances_root_dir, output_dir, cex_limit):
                               instances_root_dir=instances_root_dir,
                               file=file,
                               technique=verification_technique_s,
+                              config=config,
                               desc=f_desc,
                               cex_limit=cex_limit)
         tried += inc_tried
@@ -141,7 +144,13 @@ def main(args):
     total_failed = 0
 
     for file in all_files:
-        tried, failed = process_file(args.benchexec_outputs, file, args.instances_root_dir, args.output_dir, args.cex_limit)
+        tried, failed = process_file(
+                base=args.benchexec_outputs,
+                file=file,
+                instances_root_dir=args.instances_root_dir,
+                output_dir=args.output_dir,
+                cex_limit=args.cex_limit,
+                config=args.config)
         total_tried += tried
         total_failed += failed
     print "Tried: " + str(total_tried)
@@ -161,6 +170,10 @@ if __name__ == "__main__":
     parser.add_argument(
             "--cex_limit",
             help="Maximum number of traces to be used to under approximate covergage for each instance.")
+    parser.add_argument(
+            "--config",
+            choices=['predicate','explicit'],
+            help="Verification technique to be used to compute coverage.")
 
     args = parser.parse_args()
     if not (args.benchexec_outputs and args.output_dir and args.instances_root_dir):

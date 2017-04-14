@@ -29,6 +29,7 @@ def main(args, f_out=sys.stdout):
         coverage_filename = args.coverage_file
 
     lines_to_cover = set()
+    config = args.config
     if coverage_filename and os.path.exists(coverage_filename):
         lines_to_cover = compute_coverage.parse_coverage_file(coverage_filename)
     else:
@@ -72,13 +73,14 @@ def main(args, f_out=sys.stdout):
     stop_after_error = True
     only_cover_prefix = False
     cex_limit = int(args.cex_limit) if args.cex_limit else None
-    (lines_covered, lines_not_covered) = collect_coverage(
+    (lines_covered, lines_not_covered, found_bug) = collect_coverage(
         only_cover_prefix=only_cover_prefix,
         prune_with_assumption_automaton=prune_with_assumption_automaton,
         assumption_automaton_file=assumption_automaton_file,
         lines_to_cover=lines_to_cover,
         instance_filename=instance_filename,
         traversal='coverage_traversal',
+        config=config,
         stop_after_error=stop_after_error,
         time_limit_in_secs=time_limit_in_secs,
         cex_limit=cex_limit,
@@ -86,6 +88,11 @@ def main(args, f_out=sys.stdout):
 
     print >> f_out, "<Collected coverage> Total # of lines to cover: " + str(len(lines_to_cover))
     print >> f_out, "<Collected coverage> Covered: " + str(len(lines_covered))
+    if found_bug:
+        print >> f_out, "<Collected coverage> found bug!!!"
+    else:
+    print >> f_out, "<Collected coverage> Bug not found."
+
     if args.covered_lines_file:
         try:
             print "creating file: " + args.covered_lines_file
@@ -102,7 +109,9 @@ def print_command(command, f_out):
         print >> f_out, c + " \\"
     print >> f_out, command[-1]
 
-def collect_coverage(only_cover_prefix, prune_with_assumption_automaton, assumption_automaton_file, lines_to_cover, instance_filename, traversal, stop_after_error, time_limit_in_secs, cex_limit, temp_folder=None):
+def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
+        assumption_automaton_file, lines_to_cover, instance_filename,
+        traversal, config, stop_after_error, time_limit_in_secs, cex_limit, temp_folder=None):
     print "Computing coverage"
     if not temp_folder:
         temp_folder = _script_path() + '/temp_folder_traverse_coverage/'
@@ -126,7 +135,8 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton, assumpt
 
     import time
     start_time = time.time()
-    while cex_limit:
+    bug_found = None
+    while cex_limit and not bug_found:
         cex_limit -= 1
         try:
             shutil.rmtree(temp_folder)
@@ -144,7 +154,13 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton, assumpt
         specs.append(os.path.join(cpachecker_root,'config','specification','default.spc')) # TODO(rcastano): do we need this? Should we parse output?
         specs.append(assumption_automaton_file)
         # conf = 'config/custom_explicitAnalysis.properties'
-        conf = cpachecker_root + '/config/predicateAnalysis.properties'
+        if config not in ['explicit', 'predicate']:
+            raise Exception('Invalid verification configuration.')
+        conf = cpachecker_root + (
+                '/config/predicateAnalysis.properties'
+                if config == 'predicate'
+                else
+                '/config/valueAnalysis.properties')
         stop_after_error = True
         # if conf == 'config/sv-comp16.properties':
         #     stop_after_error = True
@@ -172,7 +188,8 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton, assumpt
         # for c in command[:-1]:
         #     print c + " \\"
         # print command[-1]
-        # raw_input("Press Enter to continue...") 
+        # raw_input("Press Enter to continue...")
+        output = ''
         with open(os.devnull, 'w') as devnull:
             print "Executing:"
             print command
@@ -186,6 +203,8 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton, assumpt
             instance_filename,
             temp_folder,
             only_cover_prefix)
+        if len(lines_covered):
+            bug_found = not generate_coverage_spec.found_coverage_test_case(output)
         # raw_input("Press Enter to continue...")
         shutil.rmtree(temp_folder)
         
@@ -200,7 +219,7 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton, assumpt
         all_lines_covered.update(lines_covered)
         lines_to_cover.difference_update(lines_covered)
         compute_coverage.report_coverage(all_lines_covered, lines_to_cover)
-    return all_lines_covered, lines_to_cover
+    return all_lines_covered, lines_to_cover, bug_found
 
 if __name__ == "__main__":
     parser = compute_coverage.coverage_args_parser()
@@ -216,6 +235,11 @@ if __name__ == "__main__":
     parser.add_argument(
             "--covered_lines_file",
             help="Output file: will contained all lines covered.")
+
+    parser.add_argument(
+            "--config",
+            choices=['predicate','explicit'],
+            help="Verification technique to be used to compute coverage.")
 
     args = parser.parse_args()
     if (not (args.used_config_file and

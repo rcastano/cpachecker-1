@@ -15,6 +15,11 @@ def avoid_unexplored_spec(f):
     print >> f, ''
     print >> f, 'END AUTOMATON'
 
+coverage_test_case_message = 'Found covering test case'
+
+def found_coverage_test_case(output):
+    return coverage_test_case_message in output
+
 def gen_spec(f, lines_to_cover):
     assert len(lines_to_cover) > 0
     print >> f, 'CONTROL AUTOMATON CoverageAutomaton'
@@ -27,7 +32,7 @@ def gen_spec(f, lines_to_cover):
 
     print >> f, ''
     print >> f, 'STATE USEFIRST WaitForExit:'
-    print >> f, '  MATCH EXIT -> ERROR("Found covering test case");'
+    print >> f, '  MATCH EXIT -> ERROR("' + coverage_test_case_message + '");'
     print >> f, ''
     print >> f, 'END AUTOMATON'
 
