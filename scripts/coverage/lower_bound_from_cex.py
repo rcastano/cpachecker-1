@@ -150,8 +150,8 @@ def main(args, f_out=sys.stdout):
     except:
         print "Warning! Temporary folder already deleted."
         pass
-    print "args.covered_lines_file: " + args.covered_lines_file
     if args.covered_lines_file:
+        print "args.covered_lines_file: " + args.covered_lines_file
         try:
             print "creating file: " + args.covered_lines_file
             sys.stdout.flush()
