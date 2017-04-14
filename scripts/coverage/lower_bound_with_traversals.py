@@ -91,7 +91,7 @@ def main(args, f_out=sys.stdout):
     if found_bug:
         print >> f_out, "<Collected coverage> found bug!!!"
     else:
-    print >> f_out, "<Collected coverage> Bug not found."
+        print >> f_out, "<Collected coverage> Bug not found."
 
     if args.covered_lines_file:
         try:
