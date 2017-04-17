@@ -229,7 +229,7 @@ analysis.restartAfterUnknown = false
 analysis.restartAlgorithmWithARGReplay = false
 
 # stop after the first error has been found
-analysis.stopAfterError = true
+analysis.stopAfterError = 0
 
 # create summary call statement edges
 analysis.summaryEdges = false

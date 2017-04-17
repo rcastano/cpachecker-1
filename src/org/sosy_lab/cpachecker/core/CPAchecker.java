@@ -145,7 +145,7 @@ public class CPAchecker {
     name = "analysis.stopAfterError",
     description = "stop after the first error has been found"
   )
-  private boolean stopAfterError = true;
+  private int stopAfterError = 0;
 
   @Option(
     secure = true,
@@ -655,7 +655,7 @@ public class CPAchecker {
 
         // either run only once (if stopAfterError == true)
         // or until the waitlist is empty
-      } while (!stopAfterError && reached.hasWaitingState());
+      } while (stopAfterError-- > 0 && reached.hasWaitingState());
 
       logger.log(Level.INFO, "Stopping analysis ...");
       return status;

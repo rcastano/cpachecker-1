@@ -50,7 +50,7 @@ def extract_all_options(args):
     coverage_filename = outputpath + '/coverage.info'
     return program_names[0], assumption_automaton_file, coverage_filename
 
-def report_coverage(lines_covered, lines_not_covered):
+def report_coverage(lines_covered, lines_not_covered, found_bug=False):
     if (lines_covered.intersection(lines_not_covered)):
         print "Warning! Intersection between covered and not covered."
     print "Code Coverage:"
@@ -58,6 +58,10 @@ def report_coverage(lines_covered, lines_not_covered):
     print "Total lines to cover: " + str(total)
     print "Total lines covered: " + str(len(lines_covered))
     print "Ratio covered/total: " + str(float(len(lines_covered))/float(total))
+    if found_bug:
+        print '>>>>>> Found bug!!! <<<<<<'
+    else:
+        print 'Bug not found'
     print ""
     # print "The following lines were covered:"
     # for l in lines_covered:

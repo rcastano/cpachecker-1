@@ -60,13 +60,13 @@ def process_file(base, file, instances_root_dir, output_dir, cex_limit, config):
                 (not t1 is None and t1 == t2))
 
     def process_witnesses(output_dir, instances_root_dir, file, technique,
-            config, desc, cex_limit):
+            config, desc, cex_limit, time_limit_in_secs):
         args = EmptyObject()
         args.coverage_file = None
         args.instance_filename = full_instance_pathname(instances_root_dir, file)
         args.assumption_automaton_file = args.instance_filename + '.' + technique + '.assumption_automaton'
         args.used_config_file = None
-        args.time_limit_in_secs = 45.0
+        args.time_limit_in_secs = time_limit_in_secs
         args.cex_limit = cex_limit
         base_dir = os.path.join(output_dir, file, technique)
         base_filename = os.path.join(base_dir, desc)
@@ -82,6 +82,7 @@ def process_file(base, file, instances_root_dir, output_dir, cex_limit, config):
             pass
         tried = 0
         failed = 0
+        found_bug = False
         with open(output_filename, 'w') as f_out:
             start_time = time.time()
             try:
@@ -93,46 +94,59 @@ def process_file(base, file, instances_root_dir, output_dir, cex_limit, config):
                 # print >> f_out, args.__dict__
                 lower_bound_with_traversals.main(args, f_out)
                 print >> f_out, "Execution finished."
+            except lower_bound_with_traversals.FoundBugException:
+                found_bug = True
             except KeyboardInterrupt:
                 failed += 1
-                print >> f_out, "Execution failed."
+                print >> f_out, "Ctrl-C pressed, aborting."
                 print "Ctrl-C pressed, aborting."
                 sys.exit(1)
-            
-            except:
+            except Exception, e:
                 failed += 1
-                print >> f_out, "Execution failed."
+                print >> f_out, "Execution failed: " + str(e)
+                print "Execution failed: " + str(e)
+
             elapsed_time = time.time() - start_time
             print >> f_out, 'Elapsed time: ' + str(elapsed_time) + 's'
             f_out.flush()
-        return tried, failed
+        return tried, failed, found_bug
 
-
+    time_limit_in_secs = 900.0
+    if args.time_limit_in_secs:
+        time_limit_in_secs = float(args.time_limit_in_secs)
+    found_bug = False
     for s in safe_benchs:
+        if found_bug:
+            break
         s_desc = str(s)
         verification_technique_s = get_verification_technique(s) if s else None
         # s = find_single_subdir(dir_to_process, s)
-        inc_tried, inc_failed = \
+        inc_tried, inc_failed, found_bug = \
             process_witnesses(output_dir=output_dir,
                               instances_root_dir=instances_root_dir,
                               file=file,
                               technique=verification_technique_s,
                               config=config,
                               desc=s_desc,
-                              cex_limit=cex_limit)
+                              cex_limit=cex_limit,
+                              time_limit_in_secs=time_limit_in_secs)
+
 
     for f in frontier_benchs:
+        if found_bug:
+            break
         f_desc = str(f)
         verification_technique_f = get_verification_technique(f) if f else None
         # f = find_single_subdir(dir_to_process, f)
-        inc_tried, inc_failed = \
+        inc_tried, inc_failed, found_bug = \
             process_witnesses(output_dir=output_dir,
                               instances_root_dir=instances_root_dir,
                               file=file,
                               technique=verification_technique_s,
                               config=config,
                               desc=f_desc,
-                              cex_limit=cex_limit)
+                              cex_limit=cex_limit,
+                              time_limit_in_secs=time_limit_in_secs)
         tried += inc_tried
         failed += inc_failed
 
@@ -174,6 +188,9 @@ if __name__ == "__main__":
             "--config",
             choices=['predicate','explicit'],
             help="Verification technique to be used to compute coverage.")
+    parser.add_argument(
+            "--time_limit_in_secs",
+            help="Time limit in seconds.")
 
     args = parser.parse_args()
     if not (args.benchexec_outputs and args.output_dir and args.instances_root_dir):

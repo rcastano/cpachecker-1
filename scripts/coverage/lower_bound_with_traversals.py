@@ -13,6 +13,9 @@ import compute_coverage
 import get_lines_from_cex
 import generate_coverage_spec
 
+class FoundBugException(Exception):
+    pass
+
 def default_sigpipe():
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
@@ -70,7 +73,7 @@ def main(args, f_out=sys.stdout):
     time_limit_in_secs = 900.0
     if args.time_limit_in_secs:
         time_limit_in_secs = float(args.time_limit_in_secs)
-    stop_after_error = True
+    stop_after_error = False
     only_cover_prefix = False
     cex_limit = int(args.cex_limit) if args.cex_limit else None
     (lines_covered, lines_not_covered, found_bug) = collect_coverage(
@@ -89,7 +92,7 @@ def main(args, f_out=sys.stdout):
     print >> f_out, "<Collected coverage> Total # of lines to cover: " + str(len(lines_to_cover))
     print >> f_out, "<Collected coverage> Covered: " + str(len(lines_covered))
     if found_bug:
-        print >> f_out, "<Collected coverage> found bug!!!"
+        print >> f_out, "<Collected coverage> Found bug!!!"
     else:
         print >> f_out, "<Collected coverage> Bug not found."
 
@@ -102,6 +105,9 @@ def main(args, f_out=sys.stdout):
                     print >> f, l
         except:
             print "failed"
+
+    if found_bug:
+        raise FoundBugException()
 
 
 def print_command(command, f_out):
@@ -135,9 +141,10 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
 
     import time
     start_time = time.time()
-    bug_found = None
-    while cex_limit and not bug_found:
-        cex_limit -= 1
+    bug_found = False
+    # while cex_limit and not bug_found:
+    #    cex_limit -= 1
+    if True:
         try:
             shutil.rmtree(temp_folder)
             print "Warning! Temporary folder already existed."
@@ -154,14 +161,18 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
         specs.append(os.path.join(cpachecker_root,'config','specification','default.spc')) # TODO(rcastano): do we need this? Should we parse output?
         specs.append(assumption_automaton_file)
         # conf = 'config/custom_explicitAnalysis.properties'
-        if config not in ['explicit', 'predicate']:
+        if config not in ['explicit', 'predicate', 'explicit-old']:
             raise Exception('Invalid verification configuration.')
-        conf = cpachecker_root + (
-                '/config/predicateAnalysis.properties'
-                if config == 'predicate'
-                else
-                '/config/valueAnalysis.properties')
-        stop_after_error = True
+        config_string = ''
+        if config == 'predicate':
+            config_string = '/config/predicateAnalysis.properties'
+        elif config == 'explicit':
+            config_string = '/config/valueAnalysis.properties'
+        else:
+            config_string = '/config/valueAnalysis.properties'
+
+        conf = cpachecker_root + config_string
+
         # if conf == 'config/sv-comp16.properties':
         #     stop_after_error = True
         if traversal not in ['coverage_traversal','random']:
@@ -174,7 +185,7 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
              '-setprop', 'specification=' + ','.join(specs),
              '-setprop', traversal_conf,
              '-setprop',
-                'analysis.stopAfterError='+(str(stop_after_error).lower()),
+                'analysis.stopAfterError='+(str(cex_limit).lower()),
              # Necessary for sv-comp16
              '-setprop',
                 'output.disable=false',
@@ -218,7 +229,8 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
         ##         break
         all_lines_covered.update(lines_covered)
         lines_to_cover.difference_update(lines_covered)
-        compute_coverage.report_coverage(all_lines_covered, lines_to_cover)
+        compute_coverage.report_coverage(all_lines_covered, lines_to_cover,
+                bug_found)
     return all_lines_covered, lines_to_cover, bug_found
 
 if __name__ == "__main__":
