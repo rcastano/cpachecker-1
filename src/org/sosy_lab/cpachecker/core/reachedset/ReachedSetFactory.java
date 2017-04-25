@@ -40,6 +40,7 @@ import org.sosy_lab.cpachecker.core.waitlist.ThreadingSortedWaitlist;
 import org.sosy_lab.cpachecker.core.waitlist.Waitlist;
 import org.sosy_lab.cpachecker.core.waitlist.Waitlist.WaitlistFactory;
 import org.sosy_lab.cpachecker.cpa.automaton.AutomatonVariableWaitlist;
+import org.sosy_lab.cpachecker.util.globalinfo.GlobalInfo;
 
 @Options(prefix="analysis")
 public class ReachedSetFactory {
@@ -107,11 +108,22 @@ public class ReachedSetFactory {
       + "(maybe faster for some special analyses which use merge_sep and stop_sep")
   ReachedSetType reachedSet = ReachedSetType.PARTITIONED;
 
+  @Option(
+      secure=true,
+      name = "traversal.randomSeed",
+      description = "Seed used for random traversal.")
+  public Long seed = null;
+
   public ReachedSetFactory(Configuration config) throws InvalidConfigurationException {
     config.inject(this);
   }
 
   public ReachedSet create() {
+    if ((traversalMethod == Waitlist.TraversalMethod.RAND ||
+        traversalMethod == Waitlist.TraversalMethod.RANDOM_PATH) &&
+        seed != null) {
+      GlobalInfo.setSeed(seed);
+    }
     WaitlistFactory waitlistFactory = traversalMethod;
 
     if (useAutomatonInformation) {

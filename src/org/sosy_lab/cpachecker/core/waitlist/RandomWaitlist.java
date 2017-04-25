@@ -23,12 +23,10 @@
  */
 package org.sosy_lab.cpachecker.core.waitlist;
 
-import java.util.LinkedList;
-import java.util.Random;
-
-import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.LinkedList;
+import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
+import org.sosy_lab.cpachecker.util.globalinfo.GlobalInfo;
 
 /**
  * Waitlist implementation that considers states in a random order for pop().
@@ -37,7 +35,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 justification = "warnings is only because of casts introduced by generics")
 public class RandomWaitlist extends AbstractWaitlist<LinkedList<AbstractState>> {
 
-  private final Random rand = new Random();
+  private boolean usingSeed = false;
 
   protected RandomWaitlist() {
     super(new LinkedList<>());
@@ -45,7 +43,10 @@ public class RandomWaitlist extends AbstractWaitlist<LinkedList<AbstractState>> 
 
   @Override
   public AbstractState pop() {
-    int r = rand.nextInt(waitlist.size());
+    if (!usingSeed) {
+      throw new IllegalArgumentException("Not using fixed random seed");
+    }
+    int r = GlobalInfo.nextInt(waitlist.size());
     return waitlist.remove(r);
   }
 }

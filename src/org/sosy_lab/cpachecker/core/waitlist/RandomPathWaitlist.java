@@ -24,15 +24,12 @@
 package org.sosy_lab.cpachecker.core.waitlist;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
+import java.util.LinkedList;
+import javax.annotation.Nullable;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.util.AbstractStates;
-
-import java.util.LinkedList;
-import java.util.Random;
-
-import javax.annotation.Nullable;
+import org.sosy_lab.cpachecker.util.globalinfo.GlobalInfo;
 
 /**
  * Waitlist that implements DFS behavior with random selection of branching path.
@@ -45,7 +42,7 @@ import javax.annotation.Nullable;
     justification = "warnings is only because of casts introduced by generics")
 public class RandomPathWaitlist extends AbstractWaitlist<LinkedList<AbstractState>> {
 
-  private final Random rand = new Random();
+
   private int successorsOfParent;
   private @Nullable CFANode parent;
 
@@ -74,7 +71,7 @@ public class RandomPathWaitlist extends AbstractWaitlist<LinkedList<AbstractStat
       state = waitlist.getLast();
     } else {
       // successorsOnLevelCount >= 2
-      int r = rand.nextInt(successorsOfParent) + 1;
+      int r = GlobalInfo.nextInt(successorsOfParent) + 1;
       state = waitlist.get(waitlist.size() - r);
     }
     if (successorsOfParent > 0) {

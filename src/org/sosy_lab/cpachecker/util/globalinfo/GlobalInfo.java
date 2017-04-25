@@ -27,6 +27,7 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Random;
 import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.core.interfaces.ConfigurableProgramAnalysis;
@@ -43,6 +44,7 @@ import org.sosy_lab.cpachecker.util.predicates.smt.FormulaManagerView;
 
 public class GlobalInfo {
   private static GlobalInfo instance;
+  private static Random rand = null;
   private CFAInfo cfaInfo;
   private AutomatonInfo automatonInfo = new AutomatonInfo();
   private ConfigurableProgramAnalysis cpa;
@@ -145,6 +147,16 @@ public class GlobalInfo {
   public synchronized FormulaManagerView getAssumptionStorageFormulaManager() {
     Preconditions.checkState(assumptionFormulaManagerView != null);
     return assumptionFormulaManagerView;
+  }
+
+  public synchronized static void setSeed(long seed) {
+    rand = new Random(seed);
+  }
+  public synchronized static int nextInt(int bound) {
+    if (rand == null) {
+      throw new IllegalArgumentException();
+    }
+    return rand.nextInt(bound);
   }
 
 }

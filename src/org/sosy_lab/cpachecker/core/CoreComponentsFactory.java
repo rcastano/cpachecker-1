@@ -207,6 +207,9 @@ public class CoreComponentsFactory {
     }
 
     reachedSetFactory = new ReachedSetFactory(config);
+    if (reachedSetFactory.seed != null) {
+      logger.log(Level.INFO, "Random seed: " + String.valueOf(reachedSetFactory.seed));
+    }
     cpaFactory = new CPABuilder(config, logger, shutdownNotifier, reachedSetFactory);
 
     if (checkCounterexamplesWithBDDCPARestriction) {
