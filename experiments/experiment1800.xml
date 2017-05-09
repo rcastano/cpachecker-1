@@ -5,20 +5,20 @@
            memlimit="12000 MB">
   <option name="-heap">8000M</option>
 
-  <tasks name="original">
-    <includesfile>../my-programs/instances.set</includesfile>
+  <tasks name="unfinished_instances">
+    <includesfile>../my-programs/unfinished_instances.set</includesfile>
   </tasks>
 
-  <rundefinition name="generate-explicit-900">
-    <option name="-setprop">limits.time.cpu=900s</option>
-    <option name="-setprop">assumptions.automatonFile=../${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton</option>
+  <rundefinition name="generate-explicit-1800">
+    <option name="-setprop">limits.time.cpu=1800s</option>
+    <option name="-setprop">assumptions.automatonFile=../${sourcefile_path}/${sourcefile_name}.1800.explicit.assumption_automaton</option>
     <option name="-config">${sourcefile_path}/../../../test-configs/generate/explicitAnalysis-generate-cmc-condition.properties</option>
     <option name="-skipRecursion"/>
   </rundefinition>
 
-  <rundefinition name="generate-predicate-900">
-    <option name="-setprop">limits.time.cpu=900s</option>
-    <option name="-setprop">assumptions.automatonFile=../${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton</option>
+  <rundefinition name="generate-predicate-1800">
+    <option name="-setprop">limits.time.cpu=1800s</option>
+    <option name="-setprop">assumptions.automatonFile=../${sourcefile_path}/${sourcefile_name}.1800.predicate.assumption_automaton</option>
     <option name="-config">${sourcefile_path}/../../../test-configs/generate/predicateAnalysis-generate-cmc-condition.properties</option>
     <option name="-skipRecursion"/>
   </rundefinition>
