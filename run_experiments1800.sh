@@ -31,7 +31,7 @@ done
 # instance.c.predicate.1800.assumption_automaton files.
 cd cpachecker_files
 ./scripts/benchmark.py -o ../temp_benchexec_files/ --rundefinition generate-predicate-1800 --rundefinition generate-explicit-1800 --limitCores 1 ../experiments/experiment1800.xml
-results_file=`ls ../temp_benchexec_files/generate*.txt`
+results_file=`ls ../temp_benchexec_files/experiment1800*.txt`
 # Moving the files to the default results folder
 cp $results_file ../unified_results-1800.txt
 cd ../
