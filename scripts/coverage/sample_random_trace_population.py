@@ -40,11 +40,11 @@ def main(args, f_out=sys.stdout):
     total_lines_to_cover = lower_bound_with_traversals.get_lines_to_cover(
             instance_filename,
             sys.stdout)
-    def approximate_coverage(traces_dir, instance_filename, lines_to_cover, assumption_automaton_file):
+    cex_count = 10
+    def approximate_coverage(traces_dir, instance_filename, lines_to_cover, assumption_automaton_file, cex_count):
         all_spec_dirs = [d for d in os.listdir(traces_dir) if
                 os.path.isdir(os.path.join(traces_dir,d))]
         assert len(all_spec_dirs) > 0
-        cex_count = 10
         chosen_specs = []
         while len(chosen_specs) < cex_count:
             i = random.randrange(len(all_spec_dirs))
@@ -106,10 +106,11 @@ def main(args, f_out=sys.stdout):
     avg_lines_covered = 0.0
     for i in range(n_retries):
         all_lines_covered = approximate_coverage(
-                traces_dir,
-                instance_filename,
-                total_lines_to_cover.copy(),
-                assumption_automaton_file)
+                traces_dir=traces_dir,
+                instance_filename=instance_filename,
+                lines_to_cover=total_lines_to_cover.copy(),
+                assumption_automaton_file=assumption_automaton_file,
+                cex_count=cex_count)
         avg_lines_covered += float(len(all_lines_covered))
     avg_lines_covered = avg_lines_covered / float(n_retries)
     print('Traces used: ' + str(cex_count))
