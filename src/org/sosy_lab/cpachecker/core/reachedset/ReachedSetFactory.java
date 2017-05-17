@@ -116,14 +116,15 @@ public class ReachedSetFactory {
 
   public ReachedSetFactory(Configuration config) throws InvalidConfigurationException {
     config.inject(this);
-  }
-
-  public ReachedSet create() {
     if ((traversalMethod == Waitlist.TraversalMethod.RAND ||
         traversalMethod == Waitlist.TraversalMethod.RANDOM_PATH) &&
         seed != null) {
+	    System.out.println("seed: " + String.valueOf(seed));
       GlobalInfo.setSeed(seed);
     }
+  }
+
+  public ReachedSet create() {
     WaitlistFactory waitlistFactory = traversalMethod;
 
     if (useAutomatonInformation) {

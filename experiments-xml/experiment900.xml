@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.0//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.0.dtd">
+<benchmark tool="coverage_underapprox_with_traversal"
+           timelimit="900s"
+           hardtimelimit="1000s"
+           cpuCores="1"
+           memlimit="12000 MB">
+  <option name="-heap">8000M</option>
+
+  <tasks name="unfinished-explicit-900">
+	  <includesfile>../my-programs/unfinished_explicit_instances.set</includesfile>
+	  <option name="--assumption_automaton_suffix">.explicit.assumption_automaton</option>
+	  <option name="--coverage_suffix">.explicit.coverage.info</option>
+  </tasks>
+  <tasks name="unfinished-predicate-900">
+    <includesfile>../my-programs/unfinished_predicate_instances.set</includesfile>
+	  <option name="--assumption_automaton_suffix">.predicate.assumption_automaton</option>
+	  <option name="--coverage_suffix">.predicate.coverage.info</option>
+  </tasks>
+
+  <rundefinition name="coverage_explicit_coverage_heuristic_10_cex_45_secs">
+    <option name="--cex_limit">10</option>
+    <option name="--timelimit">45</option>
+    <option name="--config">explicit</option>
+    <option name="--traversal">coverage_traversal</option>
+  </rundefinition>
+
+  <rundefinition name="coverage_explicit_old_same_traversal_10_cex_45_secs">
+    <option name="--cex_limit">10</option>
+    <option name="--timelimit">45</option>
+    <option name="--config">explicit-old</option>
+  </rundefinition>
+
+  <rundefinition name="coverage_explicit_random_traversal_10_cex_45_secs">
+    <option name="--cex_limit">10</option>
+    <option name="--timelimit">45</option>
+    <option name="--config">explicit</option>
+    <option name="--traversal">random</option>
+  </rundefinition>
+
+  <columns>
+    <column title="total">time for CPAchecker</column>
+    <column title="reached">reached set</column>
+    <column title="memory">Heap memory usage</column>
+    <column title="total_lines">lines to cover</column>
+    <column title="covered_lines">Covered</column>
+    <column title="traces_found">Traces used</column>
+  </columns>
+</benchmark>

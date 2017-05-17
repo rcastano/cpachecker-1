@@ -43,9 +43,6 @@ public class RandomWaitlist extends AbstractWaitlist<LinkedList<AbstractState>> 
 
   @Override
   public AbstractState pop() {
-    if (!usingSeed) {
-      throw new IllegalArgumentException("Not using fixed random seed");
-    }
     int r = GlobalInfo.nextInt(waitlist.size());
     return waitlist.remove(r);
   }

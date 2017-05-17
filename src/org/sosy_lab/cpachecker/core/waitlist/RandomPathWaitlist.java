@@ -69,10 +69,12 @@ public class RandomPathWaitlist extends AbstractWaitlist<LinkedList<AbstractStat
     AbstractState state;
     if (waitlist.size() < 2 || successorsOfParent < 2) {
       state = waitlist.getLast();
+      waitlist.removeLast();
     } else {
       // successorsOnLevelCount >= 2
       int r = GlobalInfo.nextInt(successorsOfParent) + 1;
       state = waitlist.get(waitlist.size() - r);
+      waitlist.remove(state);
     }
     if (successorsOfParent > 0) {
       successorsOfParent--;
