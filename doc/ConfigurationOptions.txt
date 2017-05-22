@@ -241,6 +241,9 @@ analysis.traversal.byAutomatonVariable = no default value
 analysis.traversal.order = DFS
   enum:     [DFS, BFS, RAND, RANDOM_PATH]
 
+# Seed used for random traversal.
+analysis.traversal.randomSeed = no default value
+
 # handle abstract states with more automaton matches first? (only if
 # AutomatonCPA enabled)
 analysis.traversal.useAutomatonInformation = false

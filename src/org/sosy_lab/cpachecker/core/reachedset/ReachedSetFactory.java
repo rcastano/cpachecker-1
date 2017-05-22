@@ -98,6 +98,10 @@ public class ReachedSetFactory {
       description = "handle abstract states with higher potential coverage?")
   boolean useCoverage = false;
 
+  @Option(secure=true, name = "traversal.useCoverageFirst",
+      description = "Use coverage criterion then others?")
+  private boolean useCoverageFirst = true;
+
   @Option(secure=true, name = "reachedSet",
       description = "which reached set implementation to use?"
       + "\nNORMAL: just a simple set"
@@ -134,6 +138,9 @@ public class ReachedSetFactory {
     if (useReversePostorder) {
       waitlistFactory = ReversePostorderSortedWaitlist.factory(waitlistFactory);
     }
+    if (useCoverage && !useCoverageFirst) {
+      waitlistFactory = CoveragePrioritizingWaitlist.factory(waitlistFactory);
+    }
     if (usePostorder) {
       waitlistFactory = PostorderSortedWaitlist.factory(waitlistFactory);
     }
@@ -155,7 +162,7 @@ public class ReachedSetFactory {
     if (useNumberOfThreads) {
       waitlistFactory = ThreadingSortedWaitlist.factory(waitlistFactory);
     }
-    if (useCoverage) {
+    if (useCoverage && useCoverageFirst) {
       waitlistFactory = CoveragePrioritizingWaitlist.factory(waitlistFactory);
     }
 
