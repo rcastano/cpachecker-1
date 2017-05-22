@@ -55,7 +55,7 @@ def get_lines_to_cover(instance_filename, f_out):
         print_command(command, sys.stdout)
     if not os.path.exists(temp_folder + '/coverage.info'):
         raise Exception("Coverage file did not exist. Failed creating a baseline for coverage.")
-    lines_to_cover = compute_coverage.parse_coverage_file(temp_folder + '/coverage.info')
+    lines_to_cover, cpachecker_coverage = compute_coverage.parse_coverage_file(temp_folder + '/coverage.info')
     try:
         shutil.rmtree(temp_folder)
     except:
@@ -73,8 +73,10 @@ def main(args, f_out=sys.stdout):
 
     lines_to_cover = set()
     config = args.config
+    cpachecker_coverage = None
     if coverage_filename and os.path.exists(coverage_filename):
-        lines_to_cover = compute_coverage.parse_coverage_file(coverage_filename)
+        lines_to_cover, cpachecker_coverage = compute_coverage.parse_coverage_file(coverage_filename)
+        
     else:
         lines_to_cover = get_lines_to_cover(instance_filename, f_out)
 
@@ -98,14 +100,19 @@ def main(args, f_out=sys.stdout):
         timelimit=timelimit,
         cex_limit=cex_limit,
         heap_size=args.heap,
+        cpachecker_coverage=cpachecker_coverage,
         temp_folder=None)
 
     print >> f_out, "<Collected coverage> Total # of lines to cover: " + str(len(lines_to_cover))
     print >> f_out, "<Collected coverage> Covered: " + str(len(lines_covered))
     if found_bug:
         print >> f_out, "<Collected coverage> Found bug!!!"
+        print >> f_out, "<Collected coverage> Found bug: YES"
     else:
         print >> f_out, "<Collected coverage> Bug not found."
+        print >> f_out, "<Collected coverage> Found bug: -"
+    print >> f_out, ("<Collected coverage> Coverage CPAchecker: " + 
+            (str(len(cpachecker_coverage)) if cpachecker_coverage else '-'))
 
     if args.covered_lines_file:
         try:
@@ -128,7 +135,8 @@ def print_command(command, f_out):
 
 def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
         assumption_automaton_file, lines_to_cover, instance_filename,
-        traversal, config, stop_after_error, timelimit, cex_limit, heap_size, temp_folder=None):
+        traversal, config, stop_after_error, timelimit, cex_limit, heap_size,
+        cpachecker_coverage, temp_folder=None):
     print "Computing coverage"
     if not temp_folder:
         temp_folder = _script_path() + '/temp_folder_traverse_coverage/'
@@ -154,7 +162,9 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
     start_time = time.time()
     bug_found = False
     feasible_cex_count = 0
-    while cex_limit and not bug_found:
+    time_budget = int(timelimit)
+    timelimit = int(timelimit)
+    while cex_limit and not bug_found and timelimit > 45:
         cex_limit -= 1
         try:
             shutil.rmtree(temp_folder)
@@ -223,17 +233,16 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
              # '-setprop',
              #    'collapseAutomaton=AssumptionAutomaton',
              instance_filename])
-        
-        # print 'Command:'
-        # for c in command[:-1]:
-        #     print c + " \\"
-        # print command[-1]
-        # raw_input("Press Enter to continue...")
+       
+        def print_command(command):
+            for c in command[:-1]:
+                print c + " \\"
+            print command[-1]
 
         output = ''
         with open(os.devnull, 'w') as devnull:
             print "Executing:"
-            print command
+            print_command(command)
             output = subprocess.check_output(
                 command,
                 stderr = subprocess.STDOUT)
@@ -253,6 +262,8 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
         shutil.rmtree(temp_folder)
         
         elapsed_time = time.time() - start_time
+        timelimit = time_budget - elapsed_time
+
         print "Elapsed time: " + str(elapsed_time) + "s"
 
         ## saturated_coverage = True
@@ -263,7 +274,7 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
         all_lines_covered.update(lines_covered)
         lines_to_cover.difference_update(lines_covered)
         compute_coverage.report_coverage(all_lines_covered, lines_to_cover,
-                bug_found)
+                bug_found, cpachecker_coverage)
     print 'Traces used: ' + str(feasible_cex_count)
     return all_lines_covered, lines_to_cover, bug_found
 

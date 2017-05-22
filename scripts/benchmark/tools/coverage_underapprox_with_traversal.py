@@ -28,12 +28,13 @@ class Tool(benchexec.tools.template.BaseTool):
     def get_value_from_output(self, lines, identifier):
         # search for the text in output and get its value,
         # stop after the first line, that contains the searched text
+        result = None
         for line in lines:
             if identifier in line:
                 startPosition = line.find(':') + 1
                 endPosition = line.find('(', startPosition) # bracket maybe not found -> (-1)
                 if (endPosition == -1):
-                    return line[startPosition:].strip()
+                    result = line[startPosition:].strip()
                 else:
-                    return line[startPosition: endPosition].strip()
-        return None
+                    result = line[startPosition: endPosition].strip()
+        return result

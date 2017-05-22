@@ -18,22 +18,22 @@
 	  <option name="--coverage_suffix">.predicate.coverage.info</option>
   </tasks>
 
-  <rundefinition name="coverage_explicit_coverage_heuristic_10_cex_45_secs">
+  <rundefinition name="coverage_explicit_coverage_heuristic_10_cex_900_secs">
     <option name="--cex_limit">10</option>
-    <option name="--timelimit">45</option>
+    <option name="--timelimit">900</option>
     <option name="--config">explicit</option>
     <option name="--traversal">coverage_traversal</option>
   </rundefinition>
 
-  <rundefinition name="coverage_explicit_old_same_traversal_10_cex_45_secs">
+  <rundefinition name="coverage_explicit_old_same_traversal_10_cex_900_secs">
     <option name="--cex_limit">10</option>
-    <option name="--timelimit">45</option>
+    <option name="--timelimit">900</option>
     <option name="--config">explicit-old</option>
   </rundefinition>
 
-  <rundefinition name="coverage_explicit_random_traversal_10_cex_45_secs">
+  <rundefinition name="coverage_explicit_random_traversal_10_cex_900_secs">
     <option name="--cex_limit">10</option>
-    <option name="--timelimit">45</option>
+    <option name="--timelimit">900</option>
     <option name="--config">explicit</option>
     <option name="--traversal">random</option>
   </rundefinition>
@@ -45,5 +45,7 @@
     <column title="total_lines">lines to cover</column>
     <column title="covered_lines">Covered</column>
     <column title="traces_found">Traces used</column>
+    <column title="coverage_cpachecker">Coverage CPAchecker</column>
+    <column title="found_bug">Found bug</column>
   </columns>
 </benchmark>

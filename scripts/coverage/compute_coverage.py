@@ -50,7 +50,8 @@ def extract_all_options(args):
     coverage_filename = outputpath + '/coverage.info'
     return program_names[0], assumption_automaton_file, coverage_filename
 
-def report_coverage(lines_covered, lines_not_covered, found_bug=False):
+def report_coverage(lines_covered, lines_not_covered, found_bug=False,
+        cpachecker_coverage=None):
     if (lines_covered.intersection(lines_not_covered)):
         print "Warning! Intersection between covered and not covered."
     print "Code Coverage:"
@@ -70,16 +71,31 @@ def report_coverage(lines_covered, lines_not_covered, found_bug=False):
     # print "The following lines were *not* covered:"
     # for l in lines_not_covered:
     #     print l
+	
+    print "<Collected coverage> Total # of lines to cover: " + str(total)
+    print "<Collected coverage> Covered: " + str(len(lines_covered))
+    if found_bug:
+        print "<Collected coverage> Found bug!!!"
+        print "<Collected coverage> Found bug: YES"
+    else:
+        print "<Collected coverage> Bug not found."
+    print ("<Collected coverage> Coverage CPAchecker: " + 
+            (str(len(cpachecker_coverage)) if cpachecker_coverage else '-'))
 
 def parse_coverage_file(coverage_filename):
+    covered_by_cpachecker = set()
     lines_to_cover = set()
     with open(coverage_filename) as f:
         for l in f:
-            m = re.match(r'^DA:(?P<line_number>[^,]*),.*', l)
+            m = re.match(r'^DA:(?P<line_number>[^,]*),(?P<coverage_count>.*)', l)
             if m:
                 line_number = int(m.group('line_number'))
+                coverage_count = int(m.group('coverage_count'))
                 lines_to_cover.add(line_number)
-    return lines_to_cover
+                if coverage_count:
+                    covered_by_cpachecker.add(line_number)
+
+    return lines_to_cover, covered_by_cpachecker
 
 
 def main(args):
@@ -91,7 +107,7 @@ def main(args):
         assumption_automaton_file = args.assumption_automaton_file
         coverage_filename = args.coverage_file
 
-    lines_to_cover = parse_coverage_file(coverage_filename)
+    lines_to_cover, cpachecker_coverage = parse_coverage_file(coverage_filename)
 
     (lines_covered, lines_not_covered) = compute_coverage(
         assumption_automaton_file, lines_to_cover, instance_filename, False)
