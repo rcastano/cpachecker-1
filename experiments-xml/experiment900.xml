@@ -23,6 +23,7 @@
     <option name="--timelimit">900</option>
     <option name="--config">explicit</option>
     <option name="--traversal">coverage_traversal</option>
+    <option name="--use_coverage_last"/>
   </rundefinition>
 
   <rundefinition name="coverage_explicit_old_same_traversal_10_cex_900_secs">

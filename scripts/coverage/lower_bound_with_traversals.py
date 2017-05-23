@@ -101,6 +101,7 @@ def main(args, f_out=sys.stdout):
         cex_limit=cex_limit,
         heap_size=args.heap,
         cpachecker_coverage=cpachecker_coverage,
+        use_coverage_last=args.use_coverage_last,
         temp_folder=None)
 
     print >> f_out, "<Collected coverage> Total # of lines to cover: " + str(len(lines_to_cover))
@@ -136,7 +137,7 @@ def print_command(command, f_out):
 def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
         assumption_automaton_file, lines_to_cover, instance_filename,
         traversal, config, stop_after_error, timelimit, cex_limit, heap_size,
-        cpachecker_coverage, temp_folder=None):
+        cpachecker_coverage, use_coverage_last, temp_folder=None):
     print "Computing coverage"
     if not temp_folder:
         temp_folder = _script_path() + '/temp_folder_traverse_coverage/'
@@ -225,6 +226,10 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
              (['-setprop',
                 'analysis.traversal.usePostorder=true']
                 if traversal == 'coverage_traversal'
+                else []) +
+             (['-setprop',
+                'analysis.traversal.useCoverageFirst=false']
+                if use_coverage_last
                 else []) +
              ['-setprop',
                 'limits.time.cpu=' + str(int(timelimit)) + 's',
@@ -325,6 +330,10 @@ if __name__ == "__main__":
     parser.add_argument(
             "-heap",
             help="Heap size.")
+    parser.add_argument(
+            "--use_coverage_last",
+            action='store_true',
+            help="Time limit in seconds.")
     parser.add_argument(
             "instance_filename", nargs=1,
             help="Instance filename.")
