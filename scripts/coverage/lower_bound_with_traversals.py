@@ -210,16 +210,18 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
         else:
             raise Exception("Not implemented yet")
 
-        traversal_conf = 'analysis.traversal.useCoverage=true' if traversal == 'coverage_traversal' else 'analysis.traversal.order=RAND'
+        traversal_conf = 'analysis.traversal.useCoverage=true' if traversal == 'coverage_traversal' else None
         command = (
             [cpachecker_root + '/scripts/cpa.sh',
              '-config' , conf,
              '-outputpath', temp_folder,
              '-setprop', 'specification=' + ','.join(specs)] +
              (['-setprop', traversal_conf] if traversal_conf else []) +
-             (['-heap', heap_size] if heap_size else []) + [
-             '-setprop',
-                'analysis.stopAfterError=0', #+(str(cex_limit).lower()),
+             (['-heap', heap_size] if heap_size else []) +
+             (['-setprop',
+                'analysis.stopAfterError='+(str(cex_limit).lower())]
+                if traversal == 'coverage_traversal'
+                else []) + [
              # Necessary for sv-comp16
              '-setprop',
                 'output.disable=false'] +
@@ -280,6 +282,8 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
         lines_to_cover.difference_update(lines_covered)
         compute_coverage.report_coverage(all_lines_covered, lines_to_cover,
                 bug_found, cpachecker_coverage)
+        if not traversal:
+            break
     print 'Traces used: ' + str(feasible_cex_count)
     return all_lines_covered, lines_to_cover, bug_found
 
