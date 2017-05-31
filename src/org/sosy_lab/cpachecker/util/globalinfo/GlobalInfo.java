@@ -158,5 +158,10 @@ public class GlobalInfo {
     }
     return rand.nextInt(bound);
   }
-
+  public synchronized static int nextInt() {
+    if (rand == null) {
+      throw new IllegalArgumentException();
+    }
+    return rand.nextInt();
+  }
 }
