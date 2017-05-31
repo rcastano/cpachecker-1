@@ -255,6 +255,9 @@ analysis.traversal.useCallstack = false
 # handle abstract states with higher potential coverage?
 analysis.traversal.useCoverage = false
 
+# Use coverage criterion then others?
+analysis.traversal.useCoverageFirst = true
+
 # handle more abstract states (with less information) first? (only for
 # ExplicitCPA)
 analysis.traversal.useExplicitInformation = false
@@ -2233,6 +2236,16 @@ cpa.value.interpolation.manageCallstack = true
 # which merge operator to use for ValueAnalysisCPA
 cpa.value.merge = "SEP"
   allowed values: [SEP, JOIN]
+
+# Whether to handle non-deterministic pointers with random values.
+cpa.value.nondetAsRandom.handlePointers = true
+
+# Seed used for Value Analysis when using random number for nondeterminism.
+cpa.value.nondetAsRandom.randomSeed = no default value
+
+# Use random values. This allows tracking of non-deterministic values. Random
+# values make the analysis unsound, only useful for bug finding.
+cpa.value.nondetAsRandom.useRandomValues = false
 
 # Assume that variables used only in a boolean context are either zero or
 # one.

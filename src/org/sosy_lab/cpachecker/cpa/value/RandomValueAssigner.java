@@ -27,6 +27,7 @@ import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
 import org.sosy_lab.common.configuration.Option;
 import org.sosy_lab.common.configuration.Options;
+import org.sosy_lab.cpachecker.cfa.ast.c.CExpression;
 import org.sosy_lab.cpachecker.cfa.types.Type;
 import org.sosy_lab.cpachecker.cfa.types.c.CArrayType;
 import org.sosy_lab.cpachecker.cfa.types.c.CComplexType;
@@ -41,6 +42,7 @@ import org.sosy_lab.cpachecker.cfa.types.java.JType;
 import org.sosy_lab.cpachecker.cpa.value.symbolic.type.SymbolicIdentifier;
 import org.sosy_lab.cpachecker.cpa.value.symbolic.type.SymbolicValueFactory;
 import org.sosy_lab.cpachecker.cpa.value.type.NumericValue;
+import org.sosy_lab.cpachecker.cpa.value.type.Value;
 import org.sosy_lab.cpachecker.exceptions.UnrecognizedCCodeException;
 import org.sosy_lab.cpachecker.util.globalinfo.GlobalInfo;
 import org.sosy_lab.cpachecker.util.states.MemoryLocation;
@@ -59,6 +61,15 @@ public class RandomValueAssigner implements MemoryLocationValueHandler {
       description="Use random values. This allows tracking of non-deterministic values."
           + " Random values make the analysis unsound, only useful for bug finding.")
   private boolean useRandomValues = false;
+
+
+  @Option(description="If this option is set to true, an own symbolic identifier is assigned to"
+      + " each array slot when handling non-deterministic arrays of fixed length."
+      + " If the length of the array can't be determined, it won't be handled in either cases.")
+  private boolean handleArrays = false;
+
+  @Option(description="Default size of arrays whose length can't be determined.")
+  private int defaultArraySize = 20;
 
   @Option(description="Whether to handle non-deterministic pointers with random values.")
   private boolean handlePointers = true;
@@ -104,8 +115,8 @@ public class RandomValueAssigner implements MemoryLocationValueHandler {
       assignNewSymbolicIdentifier(pState, pVarLocation, pVarType, pValueVisitor);
 
     } else {
-      throw new UnsupportedOperationException();
-      // pState.forget(pVarLocation);
+      // throw new UnsupportedOperationException();
+      pState.forget(pVarLocation);
     }
   }
 
@@ -158,10 +169,10 @@ public class RandomValueAssigner implements MemoryLocationValueHandler {
        throw new UnsupportedOperationException();
 
     } else if (canonicalType instanceof CArrayType) {
-      throw new UnsupportedOperationException();
+      fillArrayWithSymbolicIdentifiers(pState, pVarLocation, (CArrayType) canonicalType, pValueVisitor);
 
     } else if (canonicalType instanceof CElaboratedType) {
-      throw new UnsupportedOperationException();
+      pState.forget(pVarLocation);
     } else {
        assignRandomValue(pState, pVarLocation, canonicalType);
     }
@@ -176,6 +187,43 @@ public class RandomValueAssigner implements MemoryLocationValueHandler {
     pState.assignConstant(pVarLocation, newValue, pVarType);
   }
 
+  private void fillArrayWithSymbolicIdentifiers(
+      final ValueAnalysisState pState,
+      final MemoryLocation pArrayLocation,
+      final CArrayType pArrayType,
+      final ExpressionValueVisitor pValueVisitor
+  ) throws UnrecognizedCCodeException {
+
+    if (!handleArrays) {
+      pState.forget(pArrayLocation);
+      return;
+    }
+
+    CExpression arraySizeExpression = pArrayType.getLength();
+    Value arraySizeValue;
+    long arraySize;
+
+    if (arraySizeExpression == null) { // array of unknown length
+      arraySize = defaultArraySize;
+    } else {
+      arraySizeValue = arraySizeExpression.accept(pValueVisitor);
+      if (!arraySizeValue.isExplicitlyKnown()) {
+        arraySize = defaultArraySize;
+
+      } else {
+        assert arraySizeValue instanceof NumericValue;
+
+        arraySize = ((NumericValue) arraySizeValue).longValue();
+      }
+    }
+
+    for (int i = 0; i < arraySize; i++) {
+      MemoryLocation arraySlotMemLoc =
+          pValueVisitor.evaluateMemLocForArraySlot(pArrayLocation, i, pArrayType);
+
+      handle(arraySlotMemLoc, pArrayType.getType(), pState, pValueVisitor);
+    }
+  }
 
   private boolean isEligibleForRandomValue(Type pDeclarationType) {
     if (!useRandomValues) {

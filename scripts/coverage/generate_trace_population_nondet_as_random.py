@@ -49,30 +49,31 @@ def main(args, f_out=sys.stdout):
     # specs.append(os.path.join(cpachecker_root,'config','specification','default.spc')) # TODO(rcastano): do we need this? Should we parse output?
     command = (
         [cpachecker_root + '/scripts/cpa.sh',
-         '-config', os.path.join('config','explicitValueNondetAsRandom.properties'),
+         '-config', os.path.join('config','explicitAnalysisNondetAsRandom.properties'),
          '-outputpath', output_path,
          '-setprop', 'specification=' + ','.join(specs),
          '-setprop',
-            'cpa.value.nondetAsRandom.randomSeed=' + str(seed),
+            'cpa.value.nondetAsRandom.randomSeed=' + str(seed)] +
          (['-heap', heap_size] if heap_size else []) + [
          '-setprop',
             'limits.time.cpu=-1ns',
-
          instance_filename])
     try:
+        print_command(command)
         output = subprocess.check_output(
             command,
             stderr = subprocess.STDOUT)
         for line in output.split(b'\n'):
             print(line.decode('utf8'))
     except Exception as e:
-        print(e.output)
+        for line in e.output.split(b'\n'):
+            print(line.decode('utf8'))
         raise e
 
-def print_command(command, f_out):
+def print_command(command):
     for c in command[:-1]:
-        print >> f_out, c + " \\"
-    print >> f_out, command[-1]
+        print(c + " \\")
+    print(command[-1])
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
