@@ -26,7 +26,16 @@ package org.sosy_lab.cpachecker.cpa.value;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.FileOption;
@@ -64,17 +73,6 @@ import org.sosy_lab.cpachecker.cpa.value.refiner.ValueAnalysisConcreteErrorPathA
 import org.sosy_lab.cpachecker.util.StateToFormulaWriter;
 import org.sosy_lab.cpachecker.util.states.MemoryLocation;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @Options(prefix = "cpa.value")
 public class ValueAnalysisCPA
     implements ConfigurableProgramAnalysisWithBAM, StatisticsProvider, ProofCheckerCPA,
@@ -99,9 +97,9 @@ public class ValueAnalysisCPA
   private AbstractDomain abstractDomain;
   private MergeOperator mergeOperator;
   private StopOperator stopOperator;
-  private ValueAnalysisTransferRelation transferRelation;
+  protected ValueAnalysisTransferRelation transferRelation;
   private VariableTrackingPrecision precision;
-  private ValueAnalysisPrecisionAdjustment precisionAdjustment;
+  protected ValueAnalysisPrecisionAdjustment precisionAdjustment;
   private final ValueAnalysisCPAStatistics statistics;
   private final StateToFormulaWriter writer;
 
@@ -113,7 +111,7 @@ public class ValueAnalysisCPA
   private boolean refineablePrecisionSet = false;
   private ValueAnalysisConcreteErrorPathAllocator errorPathAllocator;
 
-  private ValueAnalysisCPA(Configuration config, LogManager logger,
+  protected ValueAnalysisCPA(Configuration config, LogManager logger,
       ShutdownNotifier pShutdownNotifier, CFA cfa) throws InvalidConfigurationException {
     this.config           = config;
     this.logger           = logger;

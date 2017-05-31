@@ -237,7 +237,7 @@ public class ValueAnalysisTransferRelation
    * This class assigns symbolic values, if they are enabled.
    * Otherwise it forgets the memory location.
    */
-  private MemoryLocationValueHandler unknownValueHandler;
+  protected MemoryLocationValueHandler unknownValueHandler;
 
   /**
    * This List is used to communicate the missing
