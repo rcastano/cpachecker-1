@@ -80,7 +80,7 @@ def main(args, f_out=sys.stdout):
 
     lines_to_cover = set()
     if os.path.exists(coverage_filename):
-        lines_to_cover = compute_coverage.parse_coverage_file(coverage_filename)
+        lines_to_cover, cpachecker_coverage = compute_coverage.parse_coverage_file(coverage_filename)
     else:
         cpachecker_root = _script_path() + '/../../'
         temp_folder = _script_path() + '/temp_folder_coverage_baseline/'
@@ -108,7 +108,7 @@ def main(args, f_out=sys.stdout):
             print_command(command, sys.stdout)
         if not os.path.exists(temp_folder + '/coverage.info'):
             raise Exception("Coverage file did not exist. Failed creating a baseline for coverage.")
-        lines_to_cover = compute_coverage.parse_coverage_file(temp_folder + '/coverage.info')
+        lines_to_cover, cpachecker_coverage = compute_coverage.parse_coverage_file(temp_folder + '/coverage.info')
         try:
             shutil.rmtree(temp_folder)
         except:

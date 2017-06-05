@@ -220,7 +220,7 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
              (['-heap', heap_size] if heap_size else []) +
              (['-setprop',
                 'analysis.stopAfterError='+(str(cex_limit).lower())]
-                if traversal == 'coverage_traversal'
+                if traversal != 'coverage_traversal'
                 else []) + [
              # Necessary for sv-comp16
              '-setprop',
