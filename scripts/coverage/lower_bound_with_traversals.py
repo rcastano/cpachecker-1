@@ -166,7 +166,6 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
     time_budget = int(timelimit)
     timelimit = int(timelimit)
     while cex_limit and not bug_found and timelimit > 45:
-        cex_limit -= 1
         try:
             shutil.rmtree(temp_folder)
             print "Warning! Temporary folder already existed."
@@ -237,6 +236,12 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
                 'limits.time.cpu=' + str(int(timelimit)) + 's',
              '-setprop',
                 'linesToCoverFile='+temp_folder+'/lines_to_cover.txt',
+             '-setprop',
+                'analysis.traversal.order=DFS',
+             '-setprop',
+                'analysis.traversal.useReversePostorder=false',
+             '-setprop',
+                'analysis.traversal.useCallstack=false',
              # '-setprop',
              #    'collapseAutomaton=AssumptionAutomaton',
              instance_filename])
@@ -282,7 +287,7 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
         lines_to_cover.difference_update(lines_covered)
         compute_coverage.report_coverage(all_lines_covered, lines_to_cover,
                 bug_found, cpachecker_coverage)
-        if not traversal:
+        if not traversal or traversal != 'coverage_traversal':
             break
     print 'Traces used: ' + str(feasible_cex_count)
     return all_lines_covered, lines_to_cover, bug_found
