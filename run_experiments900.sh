@@ -1,4 +1,10 @@
 #!/bin/bash
+
+echo $$ > /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/tasks
+echo $$ > /sys/fs/cgroup/cpuacct/system.slice/benchexec-cgroup.service/tasks
+echo $$ > /sys/fs/cgroup/memory/system.slice/benchexec-cgroup.service/tasks
+echo $$ > /sys/fs/cgroup/freezer/system.slice/benchexec-cgroup.service/tasks
+
 RELPATH=`dirname $0`
 pushd $RELPATH > /dev/null
 SCRIPT_DIR=`pwd -P`
