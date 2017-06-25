@@ -10,9 +10,7 @@ CONTROL AUTOMATON ControlAutomatonDetectUnexploredCalls
 INITIAL STATE Init;
 
 STATE USEALL Init :
-  ( MATCH { $1($?); } || MATCH { $? = $1($?); } ) 
-  && CHECK(location, "functionName==$1") 
-  && CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") -> GOTO ReachedBoundary;
+  CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") -> GOTO ReachedBoundary;
 
 STATE USEALL ReachedBoundary :
   TRUE -> ERROR("Outside assumption automaton.");

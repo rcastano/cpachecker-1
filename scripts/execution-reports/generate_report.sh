@@ -156,9 +156,9 @@ function show_paths {
     rm -r json_temp
 }
 
-for witness_type in unexplored explored safe;
+for witness_type in unexplored safe;
 do
-    SPEC=$ASSUMPTION_AUTOMATON_FILE,$ROOT_DIR/examples/config/specification/execution-reports/detect-$witness_type-calls.spc
+    SPEC=$ASSUMPTION_AUTOMATON_FILE,$ROOT_DIR/examples/config/specification/execution-reports/detect-$witness_type.spc
     echo $CPACHECKER \
         -config $CONFIG_TO_BE_USED \
         -setprop specification=$SPEC \

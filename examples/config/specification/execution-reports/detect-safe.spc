@@ -10,9 +10,7 @@ CONTROL AUTOMATON ControlAutomatonDetectSafeCalls
 INITIAL STATE Init;
 
 STATE USEALL Init :
-  ( MATCH { $1($?); } || MATCH { $? = $1($?); } ) 
-  && CHECK(location, "functionName==$1") 
-  && CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __TRUE") -> GOTO ReachedBoundary;
+  CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __TRUE") -> GOTO ReachedBoundary;
 
 STATE USEALL ReachedBoundary :
   TRUE -> ERROR("Safe trace (reaches __TRUE state in the Assumption Automaton.");
