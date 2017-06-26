@@ -55,6 +55,6 @@ echo "of the Execution Report produced."
 echo "Press ENTER to continue or Ctrl+C to abort."
 read a
 
-python $ROOT_DIR/scripts/execution-reports/view_witnesses.py $SCRIPTPATH/output/temp_exec_report/witnesses_unexplored.txt
+$ROOT_DIR/scripts/execution-reports/view_witnesses_cmd.py $SCRIPTPATH/output/temp_exec_report/witnesses_unexplored.txt
 
 

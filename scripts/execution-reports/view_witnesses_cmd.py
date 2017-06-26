@@ -1,7 +1,12 @@
+#!/usr/bin/python3
+
+import cmd
 import sys
 import re
 import time
 import math
+# for autocompletion
+import readline
 
 class CollapsedCalls:
     def __init__(self):
@@ -27,25 +32,28 @@ class CollapsedCalls:
         d = len(self._l)
         return self.str_without_size()  + " (" + str(d) + ")"
 
-    def str_without_size(self):
-        return ("_" * self._depth) + "..."
+    def str_without_size(self, print_help=False):
+        return ("_" * self._depth) + "[...]" + (
+            '' if not print_help else " // collapsed segment (see 'help expand' to expand)")
 
 def print_witness(witness, f, line_numbers, is_group_representative=True):
     n = len(witness)
     l_size = int(math.log(n, 10)) + 1
+    print_help_collapsed = True
     for i, m in enumerate(witness):
         if is_group_representative and i == len(witness) - 1:
             continue
         if line_numbers:
             f.write("{0:<{1}}:".format(i, l_size))
         if not isinstance(m, CollapsedCalls):
-            print >> f, m.strip()
+            print(m.strip(), file=f)
         else:
             if is_group_representative:
-                print >> f, m.str_without_size()
+                print(m.str_without_size(print_help_collapsed), file=f)
+                print_help_collapsed = False
             else:
-                print >> f, str(m)
-    print >> f, ""
+                print(str(m), file=f)
+    print("", file=f)
 def print_witnesses(witnesses, line_numbers=False, f=sys.stdout):
     n = len(witnesses)
     if n == 0:
@@ -54,15 +62,15 @@ def print_witnesses(witnesses, line_numbers=False, f=sys.stdout):
         l_size = int(math.log(n, 10)) + 1
     for i, w in enumerate(witnesses):
         if line_numbers:
-            print >> f, "Witness: " + str(i)
+            print("Witness: " + str(i), file=f)
         print_witness(w, f, line_numbers)
-    print >> f, "Number of witnesses: " + str(n)
+    print("Number of witnesses: " + str(n), file=f)
 
 
 def read_witness(data, i):
     res = []
     while not re.search(">>>", data[i]):
-        res.append(data[i])
+        res.append(data[i].strip())
         i += 1
     res.append(data[i])
     i +=1
@@ -180,20 +188,20 @@ def read_int(message):
     read = False
     while not read:
         try:
-            res = int(raw_input(message))
+            res = int(input(message))
             read = True
         except ValueError:
-            print "Expecting a number"
+            print("Expecting a number")
     return res
 
 def read_string(message):
     read = False
     while not read:
         try:
-            res = str(raw_input(message + "\n"))
+            res = str(input(message + "\n"))
             read = True
         except ValueError:
-            print "Expecting a string"
+            print("Expecting a string")
     return res
 
 
@@ -201,10 +209,10 @@ def read_string(message):
 class Command(object):
     def __init__(self, desc, keywords, command):
         if len(keywords) == 0:
-            print "Command not usable, no keywords"  
+            print("Command not usable, no keywords"  )
         import inspect
         if len(inspect.getargspec(command).args) != 3:
-            # command(key, history, witnesses)
+            # command(key)
             raise Exception("Command does not accept the correct number of parameters: " + keywords)
 
         self.desc = desc
@@ -217,51 +225,46 @@ class Command(object):
             keywords += "/" + k 
         return "Command: " + keywords + "\n" + self.desc
 
-def setup_commands(commands):
-    def cmd_quit(key, history, witnesses):
-        sys.exit(0)
+class ViewWitnessesShell(cmd.Cmd):
+    intro = 'Execution Report viewer. \n' \
+            'Type help or ? to list commands.\n'
+    prompt = '(ER view) '
+    def __init__(self, p_witnesses):
+        super(ViewWitnessesShell, self).__init__()
+        self.witnesses = p_witnesses
+        self.history = [(('-',[]), self.witnesses[:])]
 
-    desc_quit = "Quit the program"
-    key_quit = ["q"]
 
-    commands.append(Command(desc_quit, key_quit, cmd_quit))
+    def do_quit(self, key):
+        'Quit the program'
+        return True
+        
 
-    def cmd_reset(key, history, witnesses):
-        history = history[:1]
-        # Format [(command, witnesses)]
-        witnesses = history[-1][1][:]
+    def do_reset(self, key):
+        'Go back to original set of witnesses'
+        self.history = self.history[:1]
+        # Format [(command)]
+        self.witnesses = self.history[-1][1][:]
 
-    desc_reset = "Remove history and go back to original set of witnesses"
-    key_reset = ["reset"]
-
-    commands.append(Command(desc_reset, key_reset, cmd_reset))
-
-    def cmd_back(key, history, witnesses):
-        if len(history) > 1:
-            witnesses = history[-2][1][:]
-            history.pop()
-            print "undo last operation: done"
+    def do_back(self, key):
+        'Undo last step'
+        if len(self.history) > 1:
+            self.witnesses = self.history[-2][1][:]
+            self.history.pop()
+            print("undo last operation: done")
         else:
-            print "no list in the history"
+            print("no list in the history")
 
-    desc_back = "Undo last step"
-    key_back = ["back"]
-
-    commands.append(Command(desc_back, key_back, cmd_back))
-
-    def cmd_filter_method(key, history, witnesses):
+    def do_filter_method(self, key):
+        'Only keep witnesses containing a certain method'
         method = read_string("method substring? ")
-        witnesses = witnesses_calling(method, witnesses)
-        history.append(((key, [method]), witnesses))
-        print_witnesses(witnesses)
+        self.witnesses = witnesses_calling(method, self.witnesses)
+        self.history.append((('filter_method', [method]), self.witnesses))
+        print_witnesses(self.witnesses)
 
-    desc_filter_method = "Only keep witnesses containing a certain method"
-    key_filter_method = ["m"]
-
-    commands.append(Command(desc_filter_method, key_filter_method, cmd_filter_method))
-
-    def cmd_expand(key, history, witnesses):
-        print_witnesses(witnesses, line_numbers=True)
+    def do_expand(self, key):
+        'Expand a previously collapsed portion of a witness'
+        print_witnesses(self.witnesses, line_numbers=True)
 
         entered_y_n = False
         while not entered_y_n:
@@ -269,7 +272,7 @@ def setup_commands(commands):
             if inp == 'y':
                 entered_y_n = True
                 params = [entered_y_n]
-                witnesses = expand_witnesses(witnesses)
+                self.witnesses = expand_witnesses(self.witnesses)
             elif inp == 'n':
                 entered_y_n = True
                 params = [entered_y_n]
@@ -280,98 +283,74 @@ def setup_commands(commands):
                     params.append(w)
                     params.append(l)
                     try:
-                        witnesses = expand_witnesses(witnesses, {w: [l]})
+                        self.witnesses = expand_witnesses(self.witnesses, {w: [l]})
                         break
                     except LineNotCollapsed as e:
-                        print "Not a collapsed line:"
-                        print "In witness: " + str(e.witness_no) + " line: " + str(e.line_no)
-                        print "Line: " + str(e.line)
+                        print("Not a collapsed line:")
+                        print("In witness: " + str(e.witness_no) + " line: " + str(e.line_no))
+                        print("Line: " + str(e.line))
 
             else:
-                print "Please enter y/n"
+                print("Please enter y/n")
 
-        history.append(((key, params), witnesses))
-        print_witnesses(witnesses)
+        self.history.append((('expand', params), self.witnesses))
+        print_witnesses(self.witnesses)
 
-    desc_expand = "Expand a previously collapsed portion of a witness"
-    key_expand = ["expand"]
-
-    commands.append(Command(desc_expand, key_expand, cmd_expand))
-
-    def cmd_collapse_depth(key, history, witnesses):
+    def do_collapse_depth(self, key):
+        'Collapse all lines which are deeper in the stack than a certain depth'
         depth = read_int("depth? ")
-        witnesses = collapse_depth(witnesses, depth)
-        history.append(((key, [depth]), witnesses))
-        print_witnesses(witnesses)
+        self.witnesses = collapse_depth(self.witnesses, depth)
+        self.history.append((('collapse_depth', [depth]), self.witnesses))
+        print_witnesses(self.witnesses)
 
-    desc_collapse_depth = "Collapse all lines which are deeper in the stack than a certain depth"
-    key_collapse_depth = ["d"]
-
-    commands.append(Command(desc_collapse_depth, key_collapse_depth, cmd_collapse_depth))
-
-    def cmd_collapse_range(key, history, witnesses):
-        print_witnesses(witnesses, line_numbers=True)
+    def do_collapse_range(self, key):
+        'Collapse all lines within a range of lines'
+        print_witnesses(self.witnesses, line_numbers=True)
         while True:
             witness = read_int("witness? ")
-            if witness >= len(witnesses):
-                print "Too large"
+            if witness >= len(self.witnesses):
+                print("Too large")
                 continue
             lines_from = read_int("from line number? ")
             lines_to = read_int("to line number (included)? ")
             if lines_from > lines_to:
-                print "enter a valid range, from > to"
+                print("enter a valid range, from > to")
                 continue
             if lines_from < 0:
-                print "enter a valid range, from < 0"
+                print("enter a valid range, from < 0")
                 continue
-            if lines_to >= len(witnesses[witness]):
-                print "enter a valid range, to > lenght(witness)"
+            if lines_to >= len(self.witnesses[witness]):
+                print("enter a valid range, to > lenght(witness)")
                 continue
             break
 
-        witnesses = collapse_range(witnesses, witness, range(lines_from, lines_to+1))
-        history.append(((key, [lines_from, lines_to]), witnesses))
-        print_witnesses(witnesses)
+        self.witnesses = collapse_range(self.witnesses, witness, range(lines_from, lines_to+1))
+        self.history.append(((key, [lines_from, lines_to]), self.witnesses))
+        print_witnesses(self.witnesses)
 
-    desc_collapse_range = "Collapse all lines within a range of lines"
-    key_collapse_range = ["collapse"]
-
-    commands.append(Command(desc_collapse_range, key_collapse_range, cmd_collapse_range))
-
-    def cmd_dump(key, history, witnesses):
+    def do_dump(self, key):
+        'dump current view of witnesses to a file.'
         filename = read_string("file? ")
         with open(filename, 'a') as f:
-            print >> f, "time: " + str(time.strftime("%d/%m/%Y"))
-            print_witnesses(witnesses, f=f)
+            print( "time: " + str(time.strftime("%d/%m/%Y %H:%M:%S")), file=f)
+            print_witnesses(self.witnesses, f=f)
 
-    desc_dump = "Dump current view of witnesses to a file."
-    key_dump = ["dump"]
+    def do_print(self, key):
+        'Print all witnesses.'
+        print_witnesses(self.witnesses, line_numbers=False)
 
-    commands.append(Command(desc_dump, key_dump, cmd_dump))
+    def do_print_lines(self, key):
+        'Print all witnesses (include witness number and line numeration).'
+        print_witnesses(self.witnesses, line_numbers=True)
 
-    def cmd_print(key, history, witnesses):
-        print_witnesses(witnesses, line_numbers=False)
-
-    desc_print = "Print all witnesses."
-    key_print = ["print"]
-
-    commands.append(Command(desc_print, key_print, cmd_print))
-
-    def cmd_print_lines(key, history, witnesses):
-        print_witnesses(witnesses, line_numbers=True)
-
-    desc_print_lines = "Print all witnesses (include witness number and line numeration)."
-    key_print_lines = ["print_lines"]
-
-    commands.append(Command(desc_print_lines, key_print_lines, cmd_print_lines))
-
-    def cmd_print_one(key, history, witnesses):
+    def do_print_one(self, key):
+        'Print witnesses one by one (including witness number and line numeration).'
         line_numbers = True
         n = -1;
         while True:
             while True:
                 try:
-                    print "Number of witnesses: " + str(len(witnesses))
+                    print("Number of witnesses: " + str(len(self.witnesses)))
                     witness = read_string("which? \n    -1 to go back to main menu\n    <enter> for next, starting from 0 ")
                     if witness == "":
                         n += 1
@@ -379,25 +358,21 @@ def setup_commands(commands):
                         n = int(witness)
                     break
                 except ValueError as e:
-                    print "Invalid value, enter a number"
+                    print("Invalid value, enter a number")
             if n == -1:
                 break
-            if n >= len(witnesses):
+            if n >= len(self.witnesses):
                 break
-            print ""
-            print ""
-            print "Printing witness " + str(n) + ":"
-            print_witness(witnesses[n], line_numbers=line_numbers, f=sys.stdout)
+            print("")
+            print("")
+            print("Printing witness " + str(n) + ":")
+            print_witness(self.witnesses[n], line_numbers=line_numbers, f=sys.stdout)
 
-    desc_print_one = "Print witnesses one by one (including witness number and line numeration)."
-    key_print_one = ["print_one"]
-
-    commands.append(Command(desc_print_one, key_print_one, cmd_print_one))
-
-    def cmd_group_witnesses(key, history, witnesses):
+    def do_group(self, key):
+        'Group equivalent witnesses together (collapsed segments are considered equal)'
         groups = []
         count = []
-        copy_witnesses = witnesses[:]
+        copy_witnesses = self.witnesses[:]
         for w in copy_witnesses:
             def equal_witnesses(w1, w2):
                 equal = len(w1) == len(w2)
@@ -422,33 +397,43 @@ def setup_commands(commands):
                 count.append(1)
             assert len(count) == len(groups)
         for i, rep in enumerate(groups):
-            print "Group " + str(i) + " - Count: " + str(count[i])
+            print("Group " + str(i) + " - Count: " + str(count[i]))
             print_witness(rep, line_numbers=False, f=sys.stdout, is_group_representative=True)
-        print "Number of groups: " + str(len(groups))
+        print("Number of groups: " + str(len(groups)))
         inner_cmd = ""
         while inner_cmd != "back":
             inner_cmd = read_string("enter 'back' after inspecting the groups to return to the main menu")
 
+    def do_history(self, key):
+        'Show commands performed.'
+        for (key, params), witnesses in self.history:
+            print(key + " (with params:) " + str(params))
 
-    desc_group_witnesses = "Group equivalent witnesses together (collapsed segments are considered equal)"
-    key_group_witnesses = ["group"]
+    # ----- record and playback -----
+    # def do_record(self, self, arg):
+    #     'Save future commands to filename:  RECORD rose.cmd'
+    #     self.file = open(arg, 'w')
+    # def do_playback(self, self, arg):
+    #     'Playback commands from a file:  PLAYBACK rose.cmd'
+    #     self.close()
+    #     with open(arg) as f:
+    #         self.cmdqueue.extend(f.read().splitlines())
+    # def precmd(self, line):
+    #     line = line.lower()
+    #     if self.file and 'playback' not in line:
+    #         print(line, file=self.file)
+    #     return line
+    # def close(self):
+    #     if self.file:
+    #         self.file.close()
+    #         self.file = None
 
-    commands.append(Command(desc_group_witnesses, key_group_witnesses, cmd_group_witnesses))
-
-    def cmd_history(key, history, witnesses):
-        for (key, params), cmd in history:
-            print key + " (with params:) " + str(params)
-
-    desc_history = "Show commands performed."
-    key_history = ["history"]
-
-    commands.append(Command(desc_history, key_history, cmd_history))
 
 def print_help(commands):
-    print "Available options are:"
+    print("Available options are:")
     for cmd in commands:
-        print cmd
-        print ""
+        print(cmd)
+        print("")
 
 def check_commands(commands):
     all_keywords = set()
@@ -458,42 +443,111 @@ def check_commands(commands):
                 raise Exception("Repeated keywords for commands: " + k)
             all_keywords.add(k)
 
+def collapse_non_calls_witness(witness):
+    res = []
+    collapsed_statements = None
+    for i in range(len(witness)):
+
+        c = witness[i]
+        if isinstance(c, CollapsedCalls):
+            res.append(c)
+            continue
+
+        ### # create collapsed_call whenever the current statement is not a call
+        ### if m and len(m.group(0)) > depth and not collapsed_call:
+        ###     collapsed_call = CollapsedCalls()
+        ###     res.append(collapsed_call)
+
+        def stmt_i_is_call(witness, i):
+            if i + 1 >= len(witness)-1:
+                return False
+            c = witness[i]
+            c_next = witness[i+1]
+            m = re.match("_*", c)
+            m_next = re.match("_*", c_next)
+            return len(m.group(0)) + 1 == len(m_next.group(0))
+        def stmt_i_is_return(witness, i):
+            if i + 1 >= len(witness)-1:
+                return False
+            c = witness[i]
+            c_next = witness[i+1]
+            m = re.match("_*", c)
+            m_next = re.match("_*", c_next)
+            return len(m.group(0)) - 1 == len(m_next.group(0))
+            
+
+        # release reference to collapsed_call if current statement is a call
+        if stmt_i_is_call(witness, i) and collapsed_statements:
+            collapsed_statements = None
+        if stmt_i_is_call(witness, i):
+            res.append(c)
+        else:
+            if not collapsed_statements:
+                collapsed_statements = CollapsedCalls()
+                res.append(collapsed_statements)
+            # this works because we keep the reference to 
+            # the same object and we keep adding to the last element
+            # in <res>
+            collapsed_statements.append(c)
+        # release reference to collapsed_call if current statement is 
+        # a return
+        if stmt_i_is_return(witness, i) and collapsed_statements:
+            collapsed_statements = None
+    if collapsed_statements:
+        res = res[:-1]
+        res += collapsed_statements._l
+    return res
+
+def collapse_non_calls_witnesses(witnesses):
+    processed_witnesses = []
+    for w in witnesses:
+        processed_witnesses.append(collapse_non_calls_witness(w))
+    return processed_witnesses
+
+
+def preprocess_witness(witness_statements):
+    filtered_witness = []
+    reached_main = False
+    for s in witness_statements:
+        m = re.match("_*", s)
+        reached_main = reached_main or 'Function start dummy edge' in s
+        empty_stmt = len(m.group(0)) == len(s)
+        if reached_main and not empty_stmt and ( not (
+            ('Return edge' in s) or
+            ('Function start dummy edge' in s) or
+            ('default return' in s)
+        )):
+            filtered_witness.append(s)
+    return filtered_witness
+
+def preprocess_witnesses(witnesses):
+    filtered_witnesses = []
+    for w in witnesses:
+        filtered_witnesses.append(preprocess_witness(w))
+    return filtered_witnesses
+
+
+
+
 
 def main(argv):
     if (len(argv) > 1):
         f = open(argv[1])
         data = f.readlines()
     else:
-        print "provide input filename"
+        print("provide input filename")
         sys.exit()
     witnesses = []
     i = 0
     while i < len(data):
         witness, i = read_witness(data, i)
         witnesses.append(witness)
+    witnesses = preprocess_witnesses(witnesses)
+    witnesses = collapse_non_calls_witnesses(witnesses)
+    ViewWitnessesShell(witnesses).cmdloop()
 
-    witnesses_backup = witnesses[:]
-    history = [(("-",[]), witnesses_backup)]
-    commands = []
-    setup_commands(commands)
-    check_commands(commands)
-    while True:
-        c = read_string("command? (h for help)")
-        if c == 'h':
-            print_help(commands)
-        for cmd in commands:
-            for k in cmd.keywords:
-                found = c == k
-                if found:
-                    break
-            if found:
-                cmd.command(c, history, witnesses)
-                # update witnesses
-                witnesses = history[-1][1]
-                break
-        if not found:
-            print "not an available option"
-            print_help(commands)
 
 if __name__ == "__main__":
+    if sys.version_info[0] < 3:
+        raise "The script requires Python 3"
     main(sys.argv)

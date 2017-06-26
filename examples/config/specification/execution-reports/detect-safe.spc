@@ -10,10 +10,7 @@ CONTROL AUTOMATON ControlAutomatonDetectSafeCalls
 INITIAL STATE Init;
 
 STATE USEALL Init :
-  CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __TRUE") -> GOTO ReachedBoundary;
-
-STATE USEALL ReachedBoundary :
-  TRUE -> ERROR("Safe trace (reaches __TRUE state in the Assumption Automaton.");
+  CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __TRUE") -> ERROR("Safe trace (reaches __TRUE state in the Assumption Automaton).");
 
 END AUTOMATON
 

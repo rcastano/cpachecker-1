@@ -14,14 +14,13 @@ def main():
         function_start_desc = "Function start dummy edge"
         space = "_"
         desc = r['desc']
+        print space*indent + desc
         if desc == function_start_desc:
-            print space*indent + last['desc']
             indent += 1
 
         if desc[:len(return_desc)] == return_desc:
             indent -= 1
 
-        last = r
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

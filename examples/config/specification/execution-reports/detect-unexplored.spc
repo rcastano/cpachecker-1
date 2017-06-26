@@ -10,9 +10,6 @@ CONTROL AUTOMATON ControlAutomatonDetectUnexploredCalls
 INITIAL STATE Init;
 
 STATE USEALL Init :
-  CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") -> GOTO ReachedBoundary;
-
-STATE USEALL ReachedBoundary :
-  TRUE -> ERROR("Outside assumption automaton.");
+  CHECK(AutomatonAnalysis_AssumptionAutomaton, "state == __FALSE") -> ERROR("Outside assumption automaton.");
 
 END AUTOMATON
