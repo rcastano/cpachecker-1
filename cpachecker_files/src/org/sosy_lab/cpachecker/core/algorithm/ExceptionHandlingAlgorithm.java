@@ -73,6 +73,16 @@ public class ExceptionHandlingAlgorithm implements Algorithm, StatisticsProvider
     private boolean continueAfterInfeasibleError = true;
 
     @Option(
+        name = "counterexample.removeInfeasibleErrorState",
+        description =
+            "If continueAfterInfeasibleError is true, "
+                + "remove the error state that is proven to be unreachable before continuing. "
+                + "Set this to false if analyis.collectAssumptions=true is also set.",
+        secure = true
+      )
+      private boolean removeInfeasibleErrorState = true;
+
+    @Option(
       secure = true,
       name = "cegar.continueAfterFailedRefinement",
       description = "continue analysis after a failed refinement (e.g. due to interpolation) other paths"
@@ -232,8 +242,12 @@ public class ExceptionHandlingAlgorithm implements Algorithm, StatisticsProvider
       logger.log(Level.INFO, "Another infeasible counterexample found which could not be removed from the ARG.");
     }
 
-    // bit-wise and to have removeErrorState() definitely executed
-    sound &= removeLastState(reached, lastState, isErrorState);
+    if (options.removeInfeasibleErrorState) {
+      // bit-wise and to have method definitely executed
+      sound &= removeLastState(reached, lastState, isErrorState);
+    } else {
+      status = status.withPrecise(false);
+    }
     assert ARGUtils.checkARG(reached);
 
     status = status.withSound(sound);

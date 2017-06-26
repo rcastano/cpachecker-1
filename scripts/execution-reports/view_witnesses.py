@@ -61,8 +61,7 @@ def print_witnesses(witnesses, line_numbers=False, f=sys.stdout):
     else:
         l_size = int(math.log(n, 10)) + 1
     for i, w in enumerate(witnesses):
-        if line_numbers:
-            print("Witness: " + str(i), file=f)
+        print("Witness: " + str(i), file=f)
         print_witness(w, f, line_numbers)
     print("Number of witnesses: " + str(n), file=f)
 
