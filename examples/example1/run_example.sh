@@ -9,6 +9,8 @@ ROOT_DIR=$SCRIPTPATH/../../
 
 echo "Cleaning up old output"
 rm -r $SCRIPTPATH/output 2> /dev/null
+rm $SCRIPTPATH/incomplete_verification.out 2> /dev/null
+rm $SCRIPTPATH/generate_report.out 2> /dev/null
 
 cd $CPACHECKER_DIR
 echo "About to build CPAchecker."
@@ -16,6 +18,10 @@ echo "Press ENTER to continue or Ctrl+C to abort."
 read a
 ant
 cd $SCRIPTPATH
+
+
+echo "Contents of $RELPATH/bmc.c:"
+cat -n $SCRIPTPATH/bmc.c
 echo ""
 echo ""
 echo "About to run CPAchecker using a BMC configuration with a loop bound"
@@ -27,7 +33,12 @@ read a
 $CPACHECKER_DIR/scripts/cpa.sh              \
     -config $SCRIPTPATH/bmc-cmc.properties  \
     -outputpath $SCRIPTPATH/output          \
-    $SCRIPTPATH/bmc.c
+    $SCRIPTPATH/bmc.c > $SCRIPTPATH/incomplete_verification.out 2>&1
+
+echo "Last 5 lines of output:"
+echo "<<<<<<<<<<<<<<<<<<<<<<<"
+tail -n 5 $SCRIPTPATH/incomplete_verification.out
+echo ">>>>>>>>>>>>>>>>>>>>>>>"
 
 echo ""
 echo ""
@@ -45,7 +56,13 @@ read a
 
 $ROOT_DIR/scripts/execution-reports/generate_report.sh                  \
     -used_config_file $SCRIPTPATH/output/UsedConfiguration.properties   \
-    -config $ROOT_DIR/test-configs/predicateAnalysis.properties
+    -config $ROOT_DIR/test-configs/predicateAnalysis.properties         \
+    > $SCRIPTPATH/generate_report.out 2>&1
+
+echo "Last 5 lines of output:"
+echo "<<<<<<<<<<<<<<<<<<<<<<<"
+tail -n 5 $SCRIPTPATH/generate_report.out
+echo ">>>>>>>>>>>>>>>>>>>>>>>"
 
 echo ""
 echo ""
