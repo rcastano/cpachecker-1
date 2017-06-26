@@ -184,4 +184,4 @@ echo $REPORT_DIR/witnesses_safe.txt
 echo
 echo The following script allows easier visualization and manipulation of
 echo the witnesses.
-echo $RELPATH/view_witnesses_cmd.py $REPORT_DIR/witnesses_unexplored.txt
+echo $RELPATH/view_witnesses.py $REPORT_DIR/witnesses_unexplored.txt
