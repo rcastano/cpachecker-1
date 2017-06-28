@@ -14,7 +14,7 @@
     <includesfile>../my-programs/generate-predicate-900.original.set</includesfile>
   </tasks>
 
-  <rundefinition name="produce-witnesses-unexplored-predicate-from-explicit">
+  <rundefinition name="produce-witnesses-frontier-predicate-from-explicit">
     <option name="-config">../test-configs/predicateAnalysis.properties</option>
     <option name="-setprop">analysis.stopAfterError=false</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored.spc</option>
@@ -22,7 +22,7 @@
     <option name="-skipRecursion"/>
   </rundefinition>
 
-  <rundefinition name="produce-witnesses-unexplored-predicate-from-predicate">
+  <rundefinition name="produce-witnesses-frontier-predicate-from-predicate">
     <option name="-config">../test-configs/predicateAnalysis.properties</option>
     <option name="-setprop">analysis.stopAfterError=false</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored.spc</option>
@@ -30,7 +30,7 @@
     <option name="-skipRecursion"/>
   </rundefinition>
 
-  <rundefinition name="produce-witnesses-unexplored-explicit-from-explicit">
+  <rundefinition name="produce-witnesses-frontier-explicit-from-explicit">
     <option name="-config">../test-configs/explicitAnalysis.properties</option>
     <option name="-setprop">analysis.stopAfterError=false</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored.spc</option>
@@ -38,7 +38,7 @@
     <option name="-skipRecursion"/>
   </rundefinition>
 
-  <rundefinition name="produce-witnesses-unexplored-explicit-from-predicate">
+  <rundefinition name="produce-witnesses-frontier-explicit-from-predicate">
     <option name="-config">../test-configs/explicitAnalysis.properties</option>
     <option name="-setprop">analysis.stopAfterError=false</option>
     <option name="-setprop">specification=${sourcefile_path}/${sourcefile_name}.predicate.assumption_automaton,../test-configs/specification/AssumptionGuidingAutomaton.spc,../test-configs/my-specification/detect-unexplored.spc</option>

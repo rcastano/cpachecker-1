@@ -20,8 +20,8 @@ rm -rf temp_benchexec_files/*
 cd cpachecker_files
 ./scripts/benchmark.py -o ../temp_benchexec_files/ \
 --tasks "from-predicate-900" \
---rundefinition produce-witnesses-unexplored-predicate-from-predicate \
---rundefinition produce-witnesses-unexplored-explicit-from-predicate \
+--rundefinition produce-witnesses-frontier-predicate-from-predicate \
+--rundefinition produce-witnesses-frontier-explicit-from-predicate \
 --rundefinition produce-witnesses-safe-predicate-from-predicate \
 --rundefinition produce-witnesses-safe-explicit-from-predicate \
 --limitCores 1 ../experiments/experiment900.xml
@@ -34,8 +34,8 @@ mv ../temp_benchexec_files/* ../results/
 
 ./scripts/benchmark.py -o ../temp_benchexec_files/ \
 --tasks "from-explicit-900" \
---rundefinition produce-witnesses-unexplored-predicate-from-explicit \
---rundefinition produce-witnesses-unexplored-explicit-from-explicit \
+--rundefinition produce-witnesses-frontier-predicate-from-explicit \
+--rundefinition produce-witnesses-frontier-explicit-from-explicit \
 --rundefinition produce-witnesses-safe-predicate-from-explicit \
 --rundefinition produce-witnesses-safe-explicit-from-explicit \
 --limitCores 1 ../experiments/experiment900.xml
