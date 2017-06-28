@@ -135,7 +135,7 @@ def isolate_incomplete_attempts():
                     # This corresponds to the file name, relative to
                     # where the .set file will be located.
                     rel_inputfile = os.path.relpath(
-                        path=abs_inputfile, from=instances_dir)
+                        path=abs_inputfile, start=instances_dir)
                     incomplete_attempts.append(rel_inputfile)
             output_file = bench_name + '-900.original.set'
             with open(os.path.join(instances_dir, output_file), 'w') as f:
@@ -242,4 +242,5 @@ if __name__ == "__main__":
             "--only_one_witness",
             action='store_true',
             help="Time limit in seconds.")
+    args = parser.parse_args()
     run_experiments(args.only_one_witness)
