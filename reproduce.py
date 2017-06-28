@@ -1,12 +1,14 @@
 #!/usr/bin/python
 
 import argparse
+import bz2
 import os
 import re
 import shutil
 import subprocess
 import os.path
 
+from lxml import etree
 from time import strftime
 
 def script_path():
@@ -107,12 +109,14 @@ def attempt_verification():
 # BenchExec with the results of the first phase, i.e., the initial
 # verification attempt.
 def isolate_incomplete_attempts():
-    result_files = [file for file in os.listdir(args.results_dir) \
-                    if file.endswith('bz2')]
+    result_files = [
+        os.path.join(results_dir, file)
+        for file in os.listdir(results_dir) if file.endswith('bz2')]
     assert len(result_files) == 2
     assert 'generate-explicit' in result_files[0]
     assert 'generate-predicate' in result_files[1]
     for result_xml in result_files:
+
         with bz2.BZ2File(result_xml, 'r') as f:
             t = etree.parse(f)
             results = t.xpath('//result')
@@ -137,7 +141,7 @@ def isolate_incomplete_attempts():
                     rel_inputfile = os.path.relpath(
                         path=abs_inputfile, start=instances_dir)
                     incomplete_attempts.append(rel_inputfile)
-            output_file = bench_name + '-900.original.set'
+            output_file = bench_name + '.original.set'
             with open(os.path.join(instances_dir, output_file), 'w') as f:
                 for filename in incomplete_attempts:
                     print >> f, filename
@@ -218,15 +222,26 @@ def generate_ERs(only_first_witness):
     generate_ER_from_verification_with('predicate', only_first_witness)
     generate_ER_from_verification_with('explicit', only_first_witness)
 
+def move_temp_files_to_results():
+    for f in os.listdir(temp_dir):
+        dest_file = os.path.join(results_dir, f)
+        if os.path.exists(dest_file):
+            raise Exception('File to be copied already exists.')
+        shutil.move(
+            src=os.path.join(temp_dir, f),
+            dst=dest_file)
 
 def run_experiments(only_first_witness):
     cgroup_init()
-    create_temp_dirs()
-    # Backup any existing Assumption Automata from previous runs
-    backup_assumption_automata()
-    # Run CPAchecker on a set of instances.
-    # The execution is monitored using BenchExec.
-    attempt_verification()
+    # create_temp_dirs()
+    # # Backup any existing Assumption Automata from previous runs
+    # backup_assumption_automata()
+    # # Run CPAchecker on a set of instances.
+    # # The execution is monitored using BenchExec.
+    # attempt_verification()
+
+    move_temp_files_to_results()
+
     # Creates generate-[explicit|predicate].original.set files that
     # indicate which files to generate an Execution Report for.
     isolate_incomplete_attempts()
@@ -242,6 +257,6 @@ if __name__ == "__main__":
             "--only_one_witness",
             action='store_true',
             help=("Produce at most one witness in each" +
-                  "Execution Report component.")
+                  "Execution Report component."))
     args = parser.parse_args()
     run_experiments(args.only_one_witness)
