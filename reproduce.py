@@ -241,6 +241,7 @@ if __name__ == "__main__":
     parser.add_argument(
             "--only_one_witness",
             action='store_true',
-            help="Time limit in seconds.")
+            help=("Produce at most one witness in each" +
+                  "Execution Report component.")
     args = parser.parse_args()
     run_experiments(args.only_one_witness)
