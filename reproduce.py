@@ -84,10 +84,10 @@ def backup_results():
 
 # Backup all files created by previous executions of the experiments.
 def backup_old_files():
-    assert not os.file.exists(backup_dir)
+    assert not os.path.exists(backup_dir)
     os.makedirs(backup_dir)
     backup_assumption_automata()
-    backup_result()
+    backup_results()
 
 # Running CPAchecker over the set of files defined in
 # my-programs/instances.set.
