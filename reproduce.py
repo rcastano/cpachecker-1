@@ -74,8 +74,6 @@ def backup_results():
     assert not os.path.exists(temp_dir) or len(os.listdir(temp_dir)) == 0
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
-    if os.path.exists(results_dir):
-        shutil.move(src=results_dir, dst=backup_dir)
     outputs_dir = os.path.join(cpachecker_dir, 'benchexec-outputs')
     if os.path.exists(outputs_dir):
         backup_cpachecker_dir = os.path.join(backup_dir, cpachecker_subdir)
@@ -319,9 +317,10 @@ def generate_graphics():
 
 def run_experiments(only_first_witness):
     cgroup_init()
-    create_temp_dirs()
     # Backup any existing files from previous runs. 
     backup_old_files()
+
+    create_temp_dirs()
     # Run CPAchecker on a set of instances.
     # The execution is monitored using BenchExec.
     attempt_verification()
