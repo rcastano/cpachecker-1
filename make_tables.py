@@ -1,3 +1,7 @@
+# Auxiliary script meant to be called from reproduce.py.
+# This script takes as input result files (compressed XML files) and creates
+# a comparison table. We created the tables in the paper using this script.
+
 import argparse
 import bz2
 import os.path
