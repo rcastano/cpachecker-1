@@ -5,7 +5,6 @@
 
 systemctl enable benchexec-cgroup
 systemctl start benchexec-cgroup
-chmod o+wt '/sys/fs/cgroup/cpuset,cpuacct,memory,freezer/'
 swapoff -a
 echo "To make sure swap is not used nor incorrectly reported"
 echo "run 'sudo systemctl mask <unit>' for each file listed below:"
