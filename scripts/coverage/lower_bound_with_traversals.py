@@ -269,7 +269,7 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
                 get_lines_from_cex.counterexample_coverage_files(
                     temp_folder))
         if len(lines_covered):
-            bug_found = not generate_coverage_spec.found_coverage_test_case(output)
+            bug_found = not generate_coverage_spec.only_found_coverage_test_case(output)
         # raw_input("Press Enter to continue...")
         shutil.rmtree(temp_folder)
         

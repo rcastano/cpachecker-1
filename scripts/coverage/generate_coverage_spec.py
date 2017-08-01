@@ -17,8 +17,12 @@ def avoid_unexplored_spec(f):
 
 coverage_test_case_message = 'Found covering test case'
 
-def found_coverage_test_case(output):
-    return coverage_test_case_message in output
+def only_found_coverage_test_case(output):
+    pattern = r'Verification result: [^(]*\((?P<message>[^)]*)\).*'
+    m = re.search(pattern=pattern, string=str(output))
+    if not m:
+        raise Exception("Failed to parse CPAchecker output.")
+    return m.group('message') == coverage_test_case_message
 
 def gen_spec(f, lines_to_cover):
     assert len(lines_to_cover) > 0
