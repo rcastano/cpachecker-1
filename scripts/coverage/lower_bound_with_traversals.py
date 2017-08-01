@@ -283,7 +283,7 @@ def collect_coverage(only_cover_prefix, prune_with_assumption_automaton,
         ##     if re.match('^Verification result: FALSE.*', line):
         ##         saturated_coverage = False
         ##         break
-        if not bound_found:
+        if not bug_found:
             all_lines_covered.update(lines_covered)
             lines_to_cover.difference_update(lines_covered)
             print 'Traces used: ' + str(feasible_cex_count)

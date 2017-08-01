@@ -158,7 +158,7 @@ public class ARGPath extends AbstractAppender {
       it.advance();
       ARGState succ = it.getAbstractState();
       if (untilFlag) {
-        if (succ.toString().contains("LookingForReturn")) {
+        if (succ.toString().contains("AutomatonState:AssumptionAutomaton: __FALSE")) {
           break;
         }
       }
