@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.0//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.0.dtd">
+<benchmark tool="coverage_fixpoint_explicit"
+           timelimit="900s"
+           hardtimelimit="1000s"
+           cpuCores="1"
+           memlimit="12000 MB">
+  <option name="-heap">8000M</option>
+
+  <tasks name="unfinished-explicit-900">
+	  <includesfile>../../coverage/my-programs/unfinished_explicit_instances.set</includesfile>
+  </tasks>
+
+  <rundefinition name="coverage_explicit_10_cex_900_secs">
+	  <option name="-assumption_automaton">${sourcefile_path}/${sourcefile_name}.explicit.assumption_automaton</option>
+    <option name="-cex_count">10</option>
+    <option name="-timelimit">900</option>
+    <option name="-spec">config/specification/default.spc</option>
+    <option name="-generator_type">fixpoint</option>
+    <option name="-cex_dir">${sourcefile_name}_explicit_fixpoint_executions</option>
+    <option name="-debug"/>
+  </rundefinition>
+
+  <columns>
+    <column title="total">time for CPAchecker</column>
+    <column title="reached">reached set</column>
+    <column title="memory">Heap memory usage</column>
+    <column title="covered_lines">ines covered</column>
+    <column title="traces_found">Executions generated so far</column>
+    <column title="found_bug">Found bug</column>
+  </columns>
+</benchmark>

@@ -118,7 +118,7 @@ public class CEXExporter {
   @Option(secure=true, name="coverage-prefix",
       description="export counterexample coverage information, considering only spec prefix as covered (up until reaching 'LookingForReturn' automaton state).")
   @FileOption(FileOption.Type.OUTPUT_FILE)
-  PathTemplate coveragePrefixTemplate = PathTemplate.ofFormatString("Counterexample.%d.prefix.coverage-info");
+  PathTemplate coveragePrefixTemplate = PathTemplate.ofFormatString("Counterexample.%d.aa-prefix.coverage-info");
 
   @Option(secure=true, name="exportWitness",
       description="export counterexample as witness/graphml file")

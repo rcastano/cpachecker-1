@@ -645,7 +645,7 @@ counterexample.export.coverage = "Counterexample.%d.coverage-info"
 
 # export counterexample coverage information, considering only spec prefix as
 # covered (up until reaching 'LookingForReturn' automaton state).
-counterexample.export.coverage-prefix = "Counterexample.%d.prefix.coverage-info"
+counterexample.export.coverage-prefix = "Counterexample.%d.aa-prefix.coverage-info"
 
 # export counterexample to file, if one is found
 counterexample.export.enabled = true
@@ -2236,6 +2236,15 @@ cpa.value.interpolation.manageCallstack = true
 # which merge operator to use for ValueAnalysisCPA
 cpa.value.merge = "SEP"
   allowed values: [SEP, JOIN]
+
+# Default size of arrays whose length can't be determined.
+cpa.value.nondetAsRandom.defaultArraySize = 20
+
+# If this option is set to true, an own symbolic identifier is assigned to
+# each array slot when handling non-deterministic arrays of fixed length. If
+# the length of the array can't be determined, it won't be handled in either
+# cases.
+cpa.value.nondetAsRandom.handleArrays = false
 
 # Whether to handle non-deterministic pointers with random values.
 cpa.value.nondetAsRandom.handlePointers = true

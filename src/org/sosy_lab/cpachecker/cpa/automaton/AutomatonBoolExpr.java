@@ -723,42 +723,45 @@ public interface AutomatonBoolExpr extends AutomatonExpression {
   }
 
   /**
-   * Sends a query string to all available AbstractStates.
-   * Returns TRUE if one Element corresponds to a location of interest (line to cover);
-   * Returns FALSE otherwise.
+   *
    */
-  public static class CheckCoversLine implements AutomatonBoolExpr {
+  public static class CheckCoversLines implements AutomatonBoolExpr {
+    private final Set<Integer> linesToCover;
 
-    public CheckCoversLine() {
+    public CheckCoversLines(Set<Integer> pSet) {
+      linesToCover = pSet;
     }
 
     @Override
-    public ResultValue<Boolean> eval(AutomatonExpressionArguments pArgs) throws CPATransferException {
+    public ResultValue<Boolean> eval(AutomatonExpressionArguments pArgs) {
       if (pArgs.getAbstractStates().isEmpty()) {
-        return new ResultValue<>("No CPA elements available", "AutomatonBoolExpr.ALLCPAQuery");
+        return new ResultValue<>("No CPA elements available", "AutomatonBoolExpr.CheckCoversLines");
       }
-      FluentIterable<LocationState> locations =
-          from(pArgs.getAbstractStates())
-            .transform(AbstractStates.toState(org.sosy_lab.cpachecker.cpa.location.LocationState.class))
-            .filter(notNull());
-//      System.out.println("# location states:");
-//      System.out.println(locations.size());
-//      for (AbstractState ae : pArgs.getAbstractStates()) {
-//        System.out.println(ae.getClass());
-//        if (ae instanceof LocationState) {
-//          System.out.println("Found location");
-//        }
-//      }
-      for (LocationState n : locations) {
-        for (CFAEdge edge : CFAUtils.enteringEdges(n.getLocationNode())) {
-          if (GlobalInfo.getInstance().isLineToCover(pArgs.getCfaEdge().getLineNumber())) {
-            return CONST_TRUE;
-          }
-        }
+
+      CFAEdge edge = pArgs.getCfaEdge();
+      // Copied from org.sosy_lab.cpachecker.cpa.arg.counterexamples.CEXExporter.handleCoveredEdge(CFAEdge, Map<Integer, Integer>)
+      if (edge instanceof ADeclarationEdge
+          && (((ADeclarationEdge)edge).getDeclaration() instanceof AFunctionDeclaration)) {
+        return CONST_FALSE;
+      }
+      if (linesToCover.contains(edge.getFileLocation().getStartingLineInOrigin())) {
+        return CONST_TRUE;
       }
       return CONST_FALSE;
     }
+
+    @Override
+    public String toString() {
+      StringBuilder b  = new StringBuilder();
+      String sep = "";
+      for (Integer i : linesToCover) {
+        b.append(sep).append(i);
+        sep = " ";
+      }
+      return "COVERS_LINES(" + b.toString() + ")";
+    }
   }
+
   /**
    * Sends a query string to all available AbstractStates.
    * Returns TRUE if one Element returned TRUE;
