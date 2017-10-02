@@ -49,7 +49,7 @@ class ForceTerminationOnShutdown implements Runnable {
   private static final AtomicReference<Thread> forceTerminationOnShutdownThread = new AtomicReference<>();
 
   // Time that a shutdown may last before we kill the program.
-  private static final int SHUTDOWN_GRACE_PERIOD = 10; // seconds
+  private static final int SHUTDOWN_GRACE_PERIOD = 290; // seconds
   private static final int SHUTDOWN_GRACE_PERIOD_2 = 1; // seconds
 
   private final LogManager logger;
